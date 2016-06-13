@@ -1,0 +1,19 @@
+Package: flipStartup
+Type: Package
+Title: Analytics for startups
+Version: 0.1.0
+Author: Tim Bock
+Maintainer: Tim Bock <tim.bock@numbers.net.au>
+Description: Various analytics to assist in the analysis of the performance of startups.
+License: GPL-3
+LazyData: TRUE
+Suggests:
+    testthat
+Imports:
+    lubridate,
+    ggplot2,
+    plotly,
+    scales,
+    methods,
+    stats
+RoxygenNote: 5.0.1
