@@ -9,6 +9,8 @@ Table(formula, data, FUN)
 \arguments{
 \item{formula}{A \code{formula} where the dependent variable is the variable to be aggregated over.}
 
+\item{data}{A \code{data.frame}.}
+
 \item{FUN}{the function to be applied: see \code{apply} for details.}
 }
 \description{

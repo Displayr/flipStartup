@@ -27,11 +27,12 @@ Index <- function(x, by.row = TRUE, i = 1, STATS = NULL, remove = "", remove.dia
 #' @description Indexes relative to the diagonal.
 #' @param x The data to be indexed.
 #' @param off TRUE if indexing by the off diagonal.
+#' @param by.row Indexes by row (versus by column).
 #' those to the right of them, to NA.
 #' @export
 IndexDiagonal <- function(x, off = FALSE, by.row = TRUE)
 {
-    STATS <- if(off) offDiagonal(x) else diag(x)
+    STATS <- Diagonal(x, off)
     remove <- if(off) "lower right" else "lower left"
     result <- Index(x, by.row = by.row, STATS = STATS, remove = remove)
     result

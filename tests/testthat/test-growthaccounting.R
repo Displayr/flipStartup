@@ -1,28 +1,28 @@
 context("Growth Accounting")
 
-test_that("No error",
+data(q.invoice.lines)
+d <- q.invoice.lines
+test_that("revenue data",
 {
-    library
-    d <- q.invoice.lines
-    rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, trim.id = 20)
-
-    rg <- RevenueGrowthAccounting(rd)
-    plot(rg)
-    QuickRatio(rg)
-
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1)), NA)
+    expect_error(rg <- RevenueGrowthAccounting(rd), NA)
+    expect_error(p <- plot(rg), NA)
+    p
+    expect_error(p <- QuickRatioPlot(rg, 3), NA)
+    p
 
     #####################################
     ####  Retention                  ####
     #####################################
 
     # Number of firms
-    n.by.start.period <- Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x)))
-    n.by.start.period
+    expect_error(n.by.start.period <- Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x))), NA)
+    expect_error(n.by.start.period, NA)
 
-    Retention(rd)
+    expect_error(Retention(rd), NA)
 
-    Growth(rd)
+    expect_error(Growth(rd), NA)
 
-    LifetimeValue(rd)
+    expect_error(LifetimeValue(rd), NA)
 })
 

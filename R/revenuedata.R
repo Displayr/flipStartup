@@ -14,6 +14,9 @@
 #' made the transactions (e.g., email addresses, names, subscriber keys).
 #' @param by \code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
 #' when determining if subscribers have churned or not.
+#' @param subset An optional vector specifying a subset of observations to be used in the calculations
+#' @param trim.id The maximum length of the strings to be used showing ID names (used to avoid situations where
+#' string names are so long as to make reading of tables impossible.
 #' @return A \code{\link{data.frame}} containing the following variables:
 #'   \code{id}{The unique identifier.}
 #'   \code{value}{The value of the transaction.}
@@ -106,4 +109,9 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     data
 }
 
+
+#' @name q.invoice.lines
+#' @docType data
+#' @author Numbers International \email{tim.bock@numbers.net.au}
+#' @keywords data
 

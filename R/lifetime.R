@@ -30,23 +30,27 @@ LifetimeValue <- function(data, remove.last = TRUE)
     class(result) <- c("LifetimeValue", class(result))
     result
 }
+
+#' CumulativeValuePlot
+#'
+#' Plots the cumulative value over time.
+#' @param x A \link{\code{LifetimeValue}} object.
 #' @import ggplot2
 #' @importFrom scales dollar
 #' @export
 CumulativeValuePlot <- function(x)
 {
-    if (!is(x, "HistoricalValue"))
+    if (!is(x, "LifetimeValue"))
     {
         stop("'x' must be a 'LifetimeValue' object.")
     }
     x <- x$cumulative
     k <- nrow(x)
     dat <- data.frame(value = as.numeric(x), cohort = rownames(x), period = rep(colnames(x), rep(k, k)))
-    print(dat)
-    p <- ggplot(dat, aes(x = period, y = value, group = cohort)) +
-         geom_line(aes(color=cohort)) +
+    p <- ggplot(dat, aes_string(x = "period", y = "value", group = "cohort")) +
+         geom_line(aes_string(color = "cohort")) +
          scale_y_continuous(labels = dollar) +
-         geom_point(aes(color=cohort))
+         geom_point(aes_string(color = "cohort"))
     p
     #dat
     # cohort.names <- rownames(x)
