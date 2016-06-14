@@ -1,6 +1,7 @@
 #' \code{Table}
 #' @description Creates a crosstab by aggregating numeric data over factors.
 #' @param formula A \code{formula} where the dependent variable is the variable to be aggregated over.
+#' @param data A \code{data.frame}.
 #' @param FUN the function to be applied: see \code{apply} for details.
 #'
 #' @export

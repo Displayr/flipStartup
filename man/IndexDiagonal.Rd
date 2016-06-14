@@ -9,7 +9,9 @@ IndexDiagonal(x, off = FALSE, by.row = TRUE)
 \arguments{
 \item{x}{The data to be indexed.}
 
-\item{off}{TRUE if indexing by the off diagonal.
+\item{off}{TRUE if indexing by the off diagonal.}
+
+\item{by.row}{Indexes by row (versus by column).
 those to the right of them, to NA.}
 }
 \description{

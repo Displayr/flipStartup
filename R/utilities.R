@@ -4,7 +4,7 @@
 #' @param x A matrix.
 #' @param position One of \code{"lower left"}, \code{"lower right"},
 #' \code{"upper left"}, or \code{"upper right"}.
-#' @param \code{logical}. Should the diagonal be included?
+#' @param diag Logical. If \code{TRUE}, the diagonal is included in the triangle.
 #'
 #' @export
 Triangle <- function(x, position = "lower right", diag = FALSE)

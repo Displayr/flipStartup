@@ -12,7 +12,7 @@ Triangle(x, position = "lower right", diag = FALSE)
 \item{position}{One of \code{"lower left"}, \code{"lower right"},
 \code{"upper left"}, or \code{"upper right"}.}
 
-\item{\code{logical}.}{Should the diagonal be included?}
+\item{diag}{Logical. If \code{TRUE}, the diagonal is included in the triangle.}
 }
 \description{
 Lower and Upper Triangle  (left and right) part of a matrix.
