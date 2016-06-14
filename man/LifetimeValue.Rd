@@ -21,7 +21,7 @@ in the \code{start.period}, by \code{start.period} and \code{period.counter}.}
 }
 \description{
 The value that subscribers have historically provided the firm. This is sometimes
-referred to as "lifetime value". \link{\code{LifetimeValue}} estimates the value of a subscriber
+referred to as "lifetime value". \code{LifetimeValue} estimates the value of a subscriber
 based on both historical value and likely future value.
 }
 

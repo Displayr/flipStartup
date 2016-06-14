@@ -108,10 +108,3 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     class(data) <- c(class(data), "RevenueData")
     data
 }
-
-
-#' @name q.invoice.lines
-#' @docType data
-#' @author Numbers International \email{tim.bock@numbers.net.au}
-#' @keywords data
-
