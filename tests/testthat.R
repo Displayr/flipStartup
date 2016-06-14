@@ -1,4 +1,3 @@
 library(testthat)
-library(startup)
-
-test_check("startup")
+library(flipStartup)
+test_check("flipStartup")

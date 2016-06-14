@@ -1,7 +1,7 @@
 #' \code{LifetimeValue}
 #'
 #' @description The value that subscribers have historically provided the firm. This is sometimes
-#' referred to as "lifetime value". \link{\code{LifetimeValue}} estimates the value of a subscriber
+#' referred to as "lifetime value". \code{LifetimeValue} estimates the value of a subscriber
 #' based on both historical value and likely future value.
 #' @param data A \code{RevenueData} object.
 #' @param remove.last Remove the final period (as usually is incomplete).
@@ -34,7 +34,7 @@ LifetimeValue <- function(data, remove.last = TRUE)
 #' CumulativeValuePlot
 #'
 #' Plots the cumulative value over time.
-#' @param x A \link{\code{LifetimeValue}} object.
+#' @param x A \code{LifetimeValue} object.
 #' @import ggplot2
 #' @importFrom scales dollar
 #' @export

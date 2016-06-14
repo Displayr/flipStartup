@@ -7,7 +7,7 @@
 CumulativeValuePlot(x)
 }
 \arguments{
-\item{x}{A \link{\code{LifetimeValue}} object.}
+\item{x}{A \code{LifetimeValue} object.}
 }
 \description{
 Plots the cumulative value over time.
