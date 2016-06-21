@@ -4,25 +4,30 @@ data(q.invoice.lines)
 d <- q.invoice.lines
 test_that("revenue data",
 {
+    # No profiling.
     expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1)), NA)
-    expect_error(rg <- RevenueGrowthAccounting(rd), NA)
-    expect_error(p <- plot(rg), NA)
-    p
-    expect_error(p <- QuickRatioPlot(rg, 3), NA)
-    p
+    # Adding profiling variables of the wrong dimension
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, profiling = d)))
+    # Adding profiling variables of the correct dimension
+    unique.names <- sort(unique(d$name))
+    zprofiling <- d[match(unique.names, d$name), ]
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, profiling = zprofiling)), NA)
+    # Adding profiling variables with id shown in row names
+    rownames(zprofiling) <- unique.names
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, profiling = zprofiling))
+
+
+
+    rg <- RevenueGrowthAccounting(rd)
+    plot(rg)
+    p <- QuickRatioPlot(rg, 3)
 
     #####################################
     ####  Retention                  ####
     #####################################
 
-    # Number of firms
-    expect_error(n.by.start.period <- Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x))), NA)
-    expect_error(n.by.start.period, NA)
-
-    expect_error(Retention(rd), NA)
-
-    expect_error(Growth(rd), NA)
-
-    expect_error(LifetimeValue(rd), NA)
+    Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x)))
+    Retention(rd)
+    Growth(rd)
+    LifetimeValue(rd)
 })
-

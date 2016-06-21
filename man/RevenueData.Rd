@@ -5,7 +5,8 @@
 \title{\code{RevenueData}}
 \usage{
 RevenueData(value, from, to, begin = min(from), end = max(from), id,
-  by = "year", subset = rep(TRUE, length(id)), trim.id = 20)
+  by = "year", subset = rep(TRUE, length(id)), profiling = NULL,
+  trim.id = 50)
 }
 \arguments{
 \item{value}{A vector of containing the revenue per transaction.}
@@ -30,11 +31,15 @@ when determining if subscribers have churned or not.}
 
 \item{subset}{An optional vector specifying a subset of observations to be used in the calculations}
 
+\item{profiling}{A \code{data.frame} containing data, unique by \code{id}, to be included in the final \code{data.frame}.
+Either it must contain the unique identifiers in a variable called \code{id}, or, the  \code{rownames} must match
+the values of \code{id}.}
+
 \item{trim.id}{The maximum length of the strings to be used showing ID names (used to avoid situations where
 string names are so long as to make reading of tables impossible.}
 }
 \value{
-A \code{\link{data.frame}} containing the following variables:
+A \code{\link{data.frame}} containing the following variables, along with any other variables in the \code{data}:
   \code{id}{The unique identifier.}
   \code{value}{The value of the transaction.}
   \code{from}{The commencement date of the subscription.}

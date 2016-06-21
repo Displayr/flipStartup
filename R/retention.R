@@ -71,13 +71,21 @@ Retention <- function(data, remove.last = TRUE)
     average.volume = (total - total.lost) / total
     churn.volume = 1 - average.volume
     average.lifespan <- 1 / churn
+    average.lifespan.volume <- 1 / churn.volume
+    churn.first.period <- c(1 - diag(volume[,-1]), NA)
+    names(churn.first.period) <- rownames(volume)
+    mean.churn.first.period <- mean(churn.first.period, na.rm = TRUE)
+    estimated.volume.retention.by.year <- 1 - churn.volume * (churn.first.period / mean.churn.first.period)
+    estimated.volume.retention.by.year[length(estimated.volume.retention.by.year)] <- estimated.volume.retention.by.year[length(estimated.volume.retention.by.year) - 1]
     list(counts = counts,
          index = IndexDiagonal(counts),
          volume = volume,
          retention = retention,
+         estimated.volume.retention.by.year = estimated.volume.retention.by.year,
          average = average,
          churn = churn,
-         average.life.span =average.lifespan,
+         average.lifespan =average.lifespan,
+         average.lifespan.volume = average.lifespan.volume,
          average.volume = average.volume,
          churn.volume = churn.volume)
 }
