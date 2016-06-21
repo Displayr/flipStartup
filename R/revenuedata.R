@@ -103,7 +103,7 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     id.data <- aggregate(from ~ id, data, min)
     names(id.data)[2] <- "start"
     # Creating time-based metrics.
-    id.data$last.from <- aggregate(from ~ id, data, max)
+    id.data$last.from <- aggregate(from ~ id, data, max)[, 1]
     id.data$last.from.period <- .period(floor_date(aggregate(from ~ id, data, max)[, 2], by))
     cat(paste0(nrow(id.data), " subscribers.\n"))
     id.data$end <- aggregate(to ~ id, data, max)$to
