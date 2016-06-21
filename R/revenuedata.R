@@ -15,9 +15,12 @@
 #' @param by \code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
 #' when determining if subscribers have churned or not.
 #' @param subset An optional vector specifying a subset of observations to be used in the calculations
+#' @param profiling A \code{data.frame} containing data, unique by \code{id}, to be included in the final \code{data.frame}.
+#' Either it must contain the unique identifiers in a variable called \code{id}, or, the  \code{rownames} must match
+#' the values of \code{id}.
 #' @param trim.id The maximum length of the strings to be used showing ID names (used to avoid situations where
 #' string names are so long as to make reading of tables impossible.
-#' @return A \code{\link{data.frame}} containing the following variables:
+#' @return A \code{\link{data.frame}} containing the following variables, along with any other variables in the \code{data}:
 #'   \code{id}{The unique identifier.}
 #'   \code{value}{The value of the transaction.}
 #'   \code{from}{The commencement date of the subscription.}
@@ -38,7 +41,7 @@
 #'
 #' @importFrom lubridate year years quarter month week weeks day days interval floor_date
 #' @export
-RevenueData <- function(value, from, to, begin = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), trim.id = 20) #, tolerance = .01)
+RevenueData <- function(value, from, to, begin = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
     # Units.
     .period <- function(x)
@@ -47,8 +50,32 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     dys <- switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7)
     #.periods <- function(x)
     #    sapply(paste0(by, "s('", eval(substitute(x)), "')"), function(x) eval(parse(text = x)))
-    # Filtering data.
+    # Merging profiling data.
     data <- data.frame(id = as.character(id), value, from, to)
+    if (!is.null(profiling))
+    {
+        if (!("id" %in% names(profiling)))
+            profiling$id <- rownames(profiling)
+        if (pos <- "value" %in% names(profiling))
+        {
+            names(profiling)[pos] <- "value.profiling"
+            cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
+        }
+        if (pos <- "from" %in% names(profiling))
+        {
+            names(profiling)[pos] <- "from.profiling"
+            cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
+        }
+        if (pos <- "to" %in% names(profiling))
+        {
+            names(profiling)[pos] <- "to.profiling"
+            cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
+        }
+        if (length(unique(id)) != nrow(profiling))
+            stop("The number of unique 'id' values is different to the number of rows in 'profiling'.")
+        data <- cbind(data, profiling[match(data$id, profiling$id), ])
+    }
+    # Filtering data.
     n.initial <- nrow(data)
     cat(paste0(n.initial, " transactions.\n"))
     n.subset <- sum(subset)
@@ -75,6 +102,7 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     cat(paste0(n, " transactions remaining.\n"))
     id.data <- aggregate(from ~ id, data, min)
     names(id.data)[2] <- "start"
+    # Creating time-based metrics.
     id.data$last.from <- aggregate(from ~ id, data, max)
     id.data$last.from.period <- .period(floor_date(aggregate(from ~ id, data, max)[, 2], by))
     cat(paste0(nrow(id.data), " subscribers.\n"))

@@ -26,7 +26,18 @@ LifetimeValue <- function(data, remove.last = TRUE)
     value <- sweep(total, 1, ns, "/")
     index <- Index(value, STATS = value[, 1], remove = "lower right", remove.diag = FALSE)
     cumulative <- t(apply(value, 1, cumsum))
-    result <- list(total = total, mean = value, cumulative = cumulative, index = index)
+    churn <- 1 - Retention(data)$estimated.volume.retention.by.year
+    #print(Diagonal(value, off = TRUE))
+    future.revenue <- Diagonal(value, off = TRUE)/ churn
+    #future.revenue <- ns * future.revenue
+    lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
+    lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns))
+    result <- list(total = total,
+                   mean = value,
+                   cumulative = cumulative,
+                   index = index,
+                   lifetime.revenue = lifetime.revenue,
+                   lifetime.revenue.per.customer = lifetime.revenue.per.customer)
     class(result) <- c("LifetimeValue", class(result))
     result
 }

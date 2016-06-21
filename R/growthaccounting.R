@@ -82,9 +82,43 @@ print.RevenueGrowthAccounting <- function(x, ...)
 #' @export
 plot.RevenueGrowthAccounting <- function(x, ...)
 {
-    growth.table <- x$Table
-    growth.table$Period <- rownames(growth.table)
-    t <- melt(growth.table, id.vars = "Period")
+    t <- x$Table
+    t$Period <- rownames(t)
+
+#
+#     p <- plot_ly(data = t,
+#       x = Period,
+#       y = New,
+#       #name = "New",
+#       type = "bar")
+#
+#     p <- add_trace(
+#       p,
+#       x = Period,
+#       y = Expansion,
+#       #name = "LA Zoo",
+#       type = "bar")
+#     p <- add_trace(
+#       p,
+#       x = Period,
+#       y = Resurrected,
+#       #name = "LA Zoo",
+#       type = "bar")
+#     p <- add_trace(
+#       p,
+#       x = Period,
+#       y = Churned,
+#       #name = "LA Zoo",
+#       type = "bar")
+#     p <- add_trace(
+#       p,
+#       x = Period,
+#       y = Contraction,
+#       #name = "LA Zoo",
+#       type = "bar")
+#     p_final <- layout(p, barmode = 'relative')
+#     p_final
+    t <- melt(t, id.vars = "Period")
     names(t)[2] <- "Behavior"
     p <- ggplot(t[t$Behavior %in% c("New", "Expansion", "Resurrected"), ],
                 aes_string(x = "Period", y = "value", fill = "Behavior")) +
