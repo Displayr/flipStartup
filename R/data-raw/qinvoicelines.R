@@ -5,6 +5,7 @@ q.invoice.lines$ValidTo <- ISOdate(1582,10,14)  +  q.invoice.lines$ValidTo
 exchangeRates <- c(AUD = 1, CNY = 4.84, EUR = 0.66, GBP = 0.52, NZD = 1.05, USD = .74) #11 June 2016
 q.invoice.lines$AUD <- q.invoice.lines$Amount / exchangeRates[q.invoice.lines$currency]
 q.invoice.lines$ValidTo <- q.invoice.lines$ValidTo - lubridate::days(1)
+q.invoice.lines <- q.invoice.lines[q.invoice.lines$ValidFrom < ISOdate(2016, 6, 14), ]
 devtools::use_data(q.invoice.lines, internal = FALSE, overwrite = TRUE)
 
 
@@ -44,7 +45,7 @@ LifetimeValue(rd)
 
 # Survival
 library(survival)
-dat.id <- revenue.data[dat$observation == 1, ]
+dat.id <- rd[dat$observation == 1, ]
 dat.id$start.day <- lubridate::interval(date.1, dat.id$start) %/% days(1)
 dat.id$end.day <- lubridate::interval(date.1, dat.id$end) %/% days(1)
 dat.id$days.as.customer <- dat.id$end.day - dat.id$start.day

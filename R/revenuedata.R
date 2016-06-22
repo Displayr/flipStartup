@@ -31,7 +31,8 @@
 #'   \code{end} The date of the end of the most recent subscription.
 #'   \code{start.period} The \code{period} of the beginning of the first subscription.
 #'   \code{last.period} The \code{period} of the end of the most recent subscription.
-#'   \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing.
+#'   \code{churned} A \code{logical} indicating if the subscriber had ever ceased subscribing.
+#'   \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
 #'   \code{tenure.interval} A \code{interval} of \code{start} to \code{end}.
 #'   \code{tenure} The number of whole periods from the begining of the first subscription
 #'   to the end of the most recent.
@@ -44,14 +45,25 @@
 RevenueData <- function(value, from, to, begin = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
     # Units.
-    .period <- function(x)
-        sapply(paste0(by, "('", eval(substitute(x)), "')"), function(x) eval(parse(text = x)))
-    units <- switch(by, days = days(1), week = weeks(1), month = months(1), quarter = quarters(1), year = years(1))
+    # .period <- function(x)
+    #     sapply(paste0(by, "('", eval(substitute(x)), "')"), function(x) eval(parse(text = x)))
+
+     .period <- function(x)
+     {
+        if (by == "year")
+            return(format(floor_date(x, by),"%Y"))
+        if (by == "month" | by == "quarter")
+            return(format(floor_date(x, by),"%Y-%m"))
+        floor_date(data$from, by)
+     }
+    units <- switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
     dys <- switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7)
     #.periods <- function(x)
     #    sapply(paste0(by, "s('", eval(substitute(x)), "')"), function(x) eval(parse(text = x)))
     # Merging profiling data.
-    data <- data.frame(id = as.character(id), value, from, to)
+    #data <- data.frame(id = as.character(id), value, from, to, to.period = .period(to))
+    end <- floor_date(end, by)
+    data <- data.frame(id = as.character(id), value, from = floor_date(from, by),  to = floor_date(to, by))
     if (!is.null(profiling))
     {
         if (!("id" %in% names(profiling)))
@@ -100,28 +112,38 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     }
     n <- nrow(data)
     cat(paste0(n, " transactions remaining.\n"))
+    # Aggregating transactions that occor in the same time period.
+    data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
+    data$to.period <- .period(data$to)
+    n <- nrow(data)
+    cat(paste0(n, " aggregated transactions (i.e., with same beginning and end date) remaining.\n"))
+    # Subscriber-level calculations.
     id.data <- aggregate(from ~ id, data, min)
     names(id.data)[2] <- "start"
     # Creating time-based metrics.
     id.data$last.from <- aggregate(from ~ id, data, max)[, 1]
     id.data$last.from.period <- .period(floor_date(aggregate(from ~ id, data, max)[, 2], by))
     cat(paste0(nrow(id.data), " subscribers.\n"))
-    id.data$end <- aggregate(to ~ id, data, max)$to
-    periods.from.start <- interval(id.data$start, id.data$end) %/% units
-    id.data$start.period <- .period(floor_date(id.data$start, by))
-    id.data$last.period <- .period(floor_date(id.data$end, by))
-    id.data$churned <- id.data$end < end
+    id.data$end.from <- aggregate(from ~ id, data, max)$from
+    id.data$end.to <- aggregate(to ~ id, data, max)$to
+    periods.from.start <- interval(id.data$start, id.data$end.to) %/% units
+    id.data$start.period <- .period(id.data$start)
+    id.data$last.period <- .period(id.data$end.from)
+    id.data$churned <- id.data$end.to < end
     not.churned <- !id.data$churned
     if (sum(not.churned) == 0)
         stop("The analyses assume that 1 or more subscribers have churned. None are shown as having churned in the data.")
     #renewal.date[not.churned] <- (renewal.date + units)[not.churned] # The renewal data of the current license period.
     #print("b")
     #id.data$renewal.date <- renewal.date#<- as.Date(ifelse(id.data$churned, renewal.date, ))
-    id.data$tenure.interval <- interval(id.data$start, id.data$end)
+    id.data$tenure.interval <- interval(id.data$start, id.data$end.to)
     id.data$tenure <- id.data$tenure.interval %/% units
     # Merging.
     data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
-    data$period <- .period(floor_date(data$from, by))
+    data$period <- .period(data$from)
+    #data$end.period <- .period(data$from)
+    data$churn <- data$churned & data$period == data$last.period & .period(data$end.to) == .period(data$to)
+    #print(table(data$churn))
     data$period.counter <- interval(data$start, data$from) %/% units
     # Sorting.
     data <- data[order(data$id, data$from),]
