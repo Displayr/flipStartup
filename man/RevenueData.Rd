@@ -50,7 +50,8 @@ A \code{\link{data.frame}} containing the following variables, along with any ot
   \code{end} The date of the end of the most recent subscription.
   \code{start.period} The \code{period} of the beginning of the first subscription.
   \code{last.period} The \code{period} of the end of the most recent subscription.
-  \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing.
+  \code{churned} A \code{logical} indicating if the subscriber had ever ceased subscribing.
+  \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
   \code{tenure.interval} A \code{interval} of \code{start} to \code{end}.
   \code{tenure} The number of whole periods from the begining of the first subscription
   to the end of the most recent.

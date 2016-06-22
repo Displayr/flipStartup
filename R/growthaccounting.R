@@ -88,7 +88,7 @@ plot.RevenueGrowthAccounting <- function(x, ...)
 {
     t <- x$Table[, c(1:3, 5:4)]
     x <- rownames(t)
-    numeric.periods <- all(as.character(as.numeric(x)) == x)
+    #numeric.periods <- all(as.character(as.numeric(x)) == x)
     categories <- colnames(t)
     y <- t[,"Churned"] + t[,"Contraction"]
     p <- plot_ly(
@@ -111,8 +111,8 @@ plot.RevenueGrowthAccounting <- function(x, ...)
            xaxis = list(title = "",
                         zeroline = FALSE,
                         showticklabels = TRUE,
-                        showgrid = FALSE,
-                        range = if(numeric.periods) range(as.numeric(x) + c(-.5, .5)) else NULL),
+                        #range = if(numeric.periods) range(as.numeric(x) + c(-.5, .5)) else NULL
+                        showgrid = FALSE),
            yaxis = list(title = "Change in revenue ($)",
                         zeroline = FALSE,
                         showticklabels = TRUE,
@@ -203,7 +203,7 @@ plot.Waterfall <- function(x, ...)
     y.cum <- cumsum(y)
     y.cum.text <- FormatAsPercent(y.cum / 100, 3)
     # Adding text to show values
-    label.offsets <- y.cum[length(y.cum)] / 20
+    label.offsets <- (y.cum[length(y.cum)] - min(y.cum)) / 30
     annotation.y <- c(y[1], y[1] + y[2],  bs[-1:-2] + y[-1:-2] )
     annotation.y.with.offset <- annotation.y + c(-1, -1, 1, 1, 1) * label.offsets# <- c(y[1] - 2, y[1] + y[2] - 2, bs[-1:-2] + y[-1:-2] + 2)
     a <- list()
@@ -239,7 +239,6 @@ plot.Waterfall <- function(x, ...)
         marker = list(color = "white"),
         hoverinfo='none',
         type = "bar")
-    print(p)
     temp.y <- abs(y)
     colors <- c("red", "orange", "teal", "turquoise", "blue")
     for (i in 1:5)

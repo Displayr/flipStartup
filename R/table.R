@@ -7,11 +7,14 @@
 #' @export
 Table <- function(formula, data, FUN)
 {
-    tbl <- xtabs(formula, data = aggregate(formula, data, FUN = FUN))
-    #if (!is(tbl, "data.frame"))
-    #    tbl <- aggregateAsVector(tbl)
-    #class(tbl) <- c("Table", class(tbl))
-    tbl
+    has.outcome <- attr(terms(formula), "response") != 0
+    if (!has.outcome)
+    {
+        if (!missing(FUN))
+            stop("'FUN' can only be provided with a dependent variable.")
+        return(xtabs(formula, data = data))
+    }
+    xtabs(formula, data = aggregate(formula, data, FUN = FUN))
 }
 
 

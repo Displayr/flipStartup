@@ -34,7 +34,7 @@ Retention <- function(data, remove.last = TRUE)
     # Filling in periods where no churn occurred
     for (r in 1:k)
         for (c in (k - 1):min(k - 1, r))
-            if (is.na(counts[r,c]))
+            if (is.na(counts[r,c]) & r <= c)
                 counts[r, c] <- counts[r, c + 1]
     if (remove.last){
         counts <- counts[-nrow(counts), -ncol(counts)]

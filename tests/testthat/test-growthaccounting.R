@@ -2,29 +2,39 @@ context("Growth Accounting")
 
 data(q.invoice.lines)
 d <- q.invoice.lines
-test_that("revenue data",
+by = "month"
+for (by in c("month","quarter", "year"))
+test_that(by,
 {
+    ## Annual
     # No profiling.
-    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1)), NA)
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1)), NA)
+
     # Adding profiling variables of the wrong dimension
-    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, profiling = d)))
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = d)))
     # Adding profiling variables of the correct dimension
     unique.names <- sort(unique(d$name))
     zprofiling <- d[match(unique.names, d$name), ]
-    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, profiling = zprofiling)), NA)
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling)), NA)
     # Adding profiling variables with id shown in row names
     rownames(zprofiling) <- unique.names
-    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, by = "year", subset = d$validInvoice == 1, profiling = zprofiling))
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,06,14), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
 
 
 
     rg <- RevenueGrowthAccounting(rd)
     plot(rg)
-    p <- QuickRatioPlot(rg, 3)
+    QuickRatioPlot(rg, 3)
 
-    Waterfall(rg)
-    Waterfall(rg, "2010")
-    Waterfall(rg, "2015")
+    w <- Waterfall(rg)
+    plot(w)
+    w <- Waterfall(rg, names(rg$Revenue)[length(names(rg$Revenue)) - 1])
+    plot(w)
+
+    ## Churn
+    plot(Churn(rd))
+    plot(Churn(rd, volume = TRUE))
+
     #####################################
     ####  Retention                  ####
     #####################################
