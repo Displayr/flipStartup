@@ -22,6 +22,9 @@ test_that("revenue data",
     plot(rg)
     p <- QuickRatioPlot(rg, 3)
 
+    Waterfall(rg)
+    Waterfall(rg, "2010")
+    Waterfall(rg, "2015")
     #####################################
     ####  Retention                  ####
     #####################################
