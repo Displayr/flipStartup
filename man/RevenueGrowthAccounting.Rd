@@ -19,4 +19,9 @@ an entity this period is less than \code{tol} higher than in the previous period
 \description{
 Computes statistics for use in growth accounting of a startup.
 }
+\details{
+Small differences in the percentages shown here versus those computed by other means may occur, due
+to: (1) how churn is defined (e.g., the point at time when a customer churns, vs, takes a hieateous); (2) the precision
+used to determine whether a subscriber is considered to have contracted/expanded or not.
+}
 
