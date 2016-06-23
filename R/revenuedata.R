@@ -45,9 +45,6 @@
 RevenueData <- function(value, from, to, begin = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
     # Units.
-    # .period <- function(x)
-    #     sapply(paste0(by, "('", eval(substitute(x)), "')"), function(x) eval(parse(text = x)))
-
      .period <- function(x)
      {
         if (by == "year")
@@ -58,10 +55,7 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
      }
     units <- switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
     dys <- switch(by, year = 365.25, quarter = 365.25 / 4, month = 365.25 / 12, week = 7)
-    #.periods <- function(x)
-    #    sapply(paste0(by, "s('", eval(substitute(x)), "')"), function(x) eval(parse(text = x)))
     # Merging profiling data.
-    #data <- data.frame(id = as.character(id), value, from, to, to.period = .period(to))
     end <- floor_date(end, by)
     data <- data.frame(id = as.character(id), value, from = floor_date(from, by),  to = floor_date(to, by))
     if (!is.null(profiling))
@@ -95,6 +89,14 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     {
         cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
         data <- subset(data, subset = subset)
+    }
+    # Removing observations that start after the end.
+    n <- nrow(data)
+    n.start.too.late <- sum(data$from > end)
+    if (n.start.too.late > 0)
+    {
+        cat(paste0(n.start.too.late, " transactions removed as they start after the 'end' date.\n"))
+        data <- subset(data, subset = data$from > end)
     }
     zero <- data$value == 0
     n.zero <- sum(zero)
