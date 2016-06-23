@@ -17,6 +17,7 @@ LifetimeValue <- function(data, remove.last = TRUE)
 {
     ns <- Table(id ~ start.period, data = data, FUN = function(x) length(unique(x)))
     total <- Table(value ~ start.period + period.counter, data, sum)
+    print(dim(total))
     if (remove.last){
         k <- nrow(total)
         ns <- ns[-k]
