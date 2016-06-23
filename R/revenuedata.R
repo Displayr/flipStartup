@@ -96,7 +96,7 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     if (n.start.too.late > 0)
     {
         cat(paste0(n.start.too.late, " transactions removed as they start after the 'end' date.\n"))
-        data <- subset(data, subset = data$from > end)
+        data <- subset(data, subset = data$from <= end)
     }
     zero <- data$value == 0
     n.zero <- sum(zero)
