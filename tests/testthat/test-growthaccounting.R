@@ -2,7 +2,7 @@ context("Growth Accounting")
 
 data(q.invoice.lines)
 d <- q.invoice.lines
-by = "month"
+by = "year"
 for (by in c("month","quarter", "year"))
 test_that(by,
 {
@@ -14,8 +14,8 @@ test_that(by,
     expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = d)))
     # Adding profiling variables of the correct dimension
     unique.names <- sort(unique(d$name))
-    zprofiling <- d[match(unique.names, d$name), ]
-    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling)), NA)
+    zprofiling <- d[match(unique.names, as.character(d$name)), ]
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling)))
     # Adding profiling variables with id shown in row names
     rownames(zprofiling) <- unique.names
     capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,06,14), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
@@ -36,6 +36,7 @@ test_that(by,
     ## Churn
     plot(Churn(rd, volume = FALSE))
     plot(Churn(rd, volume = TRUE))
+    plot(Acquisition(rd, volume = TRUE))
 
     #####################################
     ####  Retention                  ####
@@ -46,3 +47,12 @@ test_that(by,
     Growth(rd)
     LifetimeValue(rd)
 })
+
+#
+# #
+# library(flipTrees)
+# d <- q.invoice.lines
+# rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2015, 5, 1), id = d$name, by = "year", subset = d$validInvoice == 1, profiling = zprofiling)
+# CART(churn ~ salesman + ComputersToRenew + country, data = rd)
+# CART(churn ~ currency, data = rd)
+# CART(as.integer(churn) ~ currency, data = rd)
