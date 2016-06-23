@@ -187,6 +187,7 @@ Waterfall <- function(x, period = NULL)
 #'
 #' Creates a waterfall chart showing the source(s) of change in sales for one period, relative to the previous period.
 #' @param x An object of class \code{Waterfall}.
+#' @param ... Additional parameters.
 #' @importFrom plotly plot_ly add_trace layout
 #' @importFrom flipFormat FormatAsPercent
 #' @export

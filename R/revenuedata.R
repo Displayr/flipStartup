@@ -59,7 +59,6 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     end <- floor_date(end, by)
     data <- data.frame(id = as.character(id), value, from = floor_date(from, by),  to = floor_date(to, by))
     # Filtering data.
-        print(names(data))
     n.initial <- nrow(data)
     cat(paste0(n.initial, " transactions.\n"))
     n.subset <- sum(subset)
@@ -104,11 +103,23 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     {
         if (("id" %in% names(profiling)))
         {
-            profiling.id <- profiling$id
+            profiling.id <- as.character(profiling$id)
             profiling$id <- NULL
         }
         else
             profiling.id <- rownames(profiling)
+        profiling.id <- as.character(profiling.id)
+
+        lookup <- match(as.character(id.data$id), profiling.id)
+        if (sum(!is.na(lookup)) == 0)
+        {
+            stop("The 'profiling' data is needs to either contain an 'id' variable, or have rownames that contain the 'id' values.")
+        }
+        else if (sum(is.na(lookup)) > 0)
+        {
+            missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
+            stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))
+        }
         if (pos <- "value" %in% names(profiling))
         {
             names(profiling)[pos] <- "value.profiling"
@@ -123,12 +134,6 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
         {
             names(profiling)[pos] <- "to.profiling"
             cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
-        }
-        lookup <- match(id.data$id, profiling.id)
-        if (sum(is.na(lookup)) > 0)
-        {
-            missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
-            stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))
         }
         id.data <- cbind(id.data, profiling[lookup, ])
     }

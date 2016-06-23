@@ -4,6 +4,7 @@
 #' @param data A \code{data.frame}.
 #' @param FUN the function to be applied: see \code{apply} for details.
 #'
+#' @importFrom stats terms
 #' @export
 Table <- function(formula, data, FUN)
 {

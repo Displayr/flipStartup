@@ -8,6 +8,8 @@
 }
 \arguments{
 \item{x}{An object of class \code{Waterfall}.}
+
+\item{...}{Additional parameters.}
 }
 \description{
 Creates a waterfall chart showing the source(s) of change in sales for one period, relative to the previous period.
