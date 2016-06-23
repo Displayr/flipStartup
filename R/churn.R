@@ -21,7 +21,7 @@ Churn <- function(data, remove.last = TRUE, volume = FALSE)
     data <- data[data$to <= max(data$from), ]
     if (remove.last)
         data <- data[data$to.period < max(data$to.period), ]
-    idag <- aggregate(id ~ last.period, data = data[data$churned,], FUN = unique)
+    idag <- aggregate(id ~ to.period, data = data[data$churned,], FUN = unique)
     id <- idag[, 2]
     names(id) <- idag[, 1]
     counts <- if (volume)
