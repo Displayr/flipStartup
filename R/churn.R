@@ -30,7 +30,7 @@ Churn <- function(data, remove.last = TRUE, volume = FALSE)
         Table( ~ churn + to.period, data = data)
     base <- table(data$to.period)
     rates <- prop.table(counts, 2)[2, ]
-    result <-list(id = id, base = base, counts = t(counts), rates = rates)
+    result <-list(volume = volume, id = id, base = base, counts = t(counts), rates = rates)
     class(result) <- c("Churn", class(result))
     result
 }
@@ -67,7 +67,7 @@ plot.Churn <- function(x, ...)
            xaxis = list(title = "",
                         range = range(x.dates),# + c(-.5, .5)) else NULL
                         showgrid = FALSE),
-           yaxis = list(title = "Churn (%)"))
+           yaxis = list(title = if(x$volume) "Churn (% volume)" else "Churn (% subscribers)"))
     p
 }
 

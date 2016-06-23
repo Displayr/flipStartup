@@ -20,7 +20,7 @@ test_that(by,
     rownames(zprofiling) <- unique.names
     capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,06,14), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
     # testing end
-    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2015, 5, 1), id = d$name, end = ISOdate(2016,06,14), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2015, 5, 1), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling))
 
 
 
@@ -34,7 +34,7 @@ test_that(by,
     plot(w)
 
     ## Churn
-    plot(Churn(rd))
+    plot(Churn(rd, volume = FALSE))
     plot(Churn(rd, volume = TRUE))
 
     #####################################
