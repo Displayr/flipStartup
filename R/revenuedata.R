@@ -58,30 +58,8 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     # Merging profiling data.
     end <- floor_date(end, by)
     data <- data.frame(id = as.character(id), value, from = floor_date(from, by),  to = floor_date(to, by))
-    if (!is.null(profiling))
-    {
-        if (!("id" %in% names(profiling)))
-            profiling$id <- rownames(profiling)
-        if (pos <- "value" %in% names(profiling))
-        {
-            names(profiling)[pos] <- "value.profiling"
-            cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
-        }
-        if (pos <- "from" %in% names(profiling))
-        {
-            names(profiling)[pos] <- "from.profiling"
-            cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
-        }
-        if (pos <- "to" %in% names(profiling))
-        {
-            names(profiling)[pos] <- "to.profiling"
-            cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
-        }
-        if (length(unique(id)) != nrow(profiling))
-            stop("The number of unique 'id' values is different to the number of rows in 'profiling'.")
-        data <- cbind(data, profiling[match(data$id, profiling$id), ])
-    }
     # Filtering data.
+        print(names(data))
     n.initial <- nrow(data)
     cat(paste0(n.initial, " transactions.\n"))
     n.subset <- sum(subset)
@@ -122,6 +100,38 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     # Subscriber-level calculations.
     id.data <- aggregate(from ~ id, data, min)
     names(id.data)[2] <- "start"
+    if (!is.null(profiling))
+    {
+        if (("id" %in% names(profiling)))
+        {
+            profiling.id <- profiling$id
+            profiling$id <- NULL
+        }
+        else
+            profiling.id <- rownames(profiling)
+        if (pos <- "value" %in% names(profiling))
+        {
+            names(profiling)[pos] <- "value.profiling"
+            cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
+        }
+        if (pos <- "from" %in% names(profiling))
+        {
+            names(profiling)[pos] <- "from.profiling"
+            cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
+        }
+        if (pos <- "to" %in% names(profiling))
+        {
+            names(profiling)[pos] <- "to.profiling"
+            cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
+        }
+        lookup <- match(id.data$id, profiling.id)
+        if (sum(is.na(lookup)) > 0)
+        {
+            missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
+            stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))
+        }
+        id.data <- cbind(id.data, profiling[lookup, ])
+    }
     # Creating time-based metrics.
     id.data$last.from <- aggregate(from ~ id, data, max)[, 1]
     id.data$last.from.period <- .period(floor_date(aggregate(from ~ id, data, max)[, 2], by))
