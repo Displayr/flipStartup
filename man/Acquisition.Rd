@@ -13,6 +13,13 @@ Acquisition(data, remove.last = TRUE, volume = FALSE)
 
 \item{volume}{Weights the results by volume.}
 }
+\value{
+A \code{\link{list}} containing the following elements:
+  \item{id}{The \code{id} values of subscribers to churn.}
+  \item{base}{The number of subscribers to renew or churn in the time period.}
+  \item{counts}{Number of acquisitions by period (or in $ if \code{volume} is \code{TRUE}}.
+  \item{rates}{The percentage to churn (weighted if the counts are weighted)}.
+}
 \description{
 Computes acquisition, by cohort.
 }
