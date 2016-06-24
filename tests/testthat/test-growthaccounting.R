@@ -38,6 +38,8 @@ test_that(by,
     plot(Churn(rd, volume = TRUE))
     plot(Acquisition(rd, volume = TRUE))
 
+    plot(Subscribers(rd))
+
     #####################################
     ####  Retention                  ####
     #####################################
@@ -48,11 +50,34 @@ test_that(by,
     LifetimeValue(rd)
 })
 
+
 #
-# #
+
+# library(devtools)
+# install_github("NumbersInternational/flipExampleData")
+# install_github("NumbersInternational/flipU")
+# install_github("NumbersInternational/flipTransformations")
+# install_github("NumbersInternational/flipImputation")
+# install_github("NumbersInternational/flipData")
+# install_github("NumbersInternational/flipFormat")
+# install_github("NumbersInternational/flipStartup")
+# install_github("NumbersInternational/flipTrees")
 # library(flipTrees)
+# library(flipStartup)
+#
+# data(q.invoice.lines)
 # d <- q.invoice.lines
+# unique.names <- sort(unique(d$name))
+# zprofiling <- d[match(unique.names, as.character(d$name)), ]
+# zprofiling$id <- zprofiling$name
 # rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2015, 5, 1), id = d$name, by = "year", subset = d$validInvoice == 1, profiling = zprofiling)
-# CART(churn ~ salesman + ComputersToRenew + country, data = rd)
-# CART(churn ~ currency, data = rd)
-# CART(as.integer(churn) ~ currency, data = rd)
+# output = "Text"
+# CART(churn ~ salesman + ComputersToRenew + country, data = rd, output = output)
+# CART(as.integer(churn) ~ salesman + ComputersToRenew + country, data = rd, output = output)
+# CART(churn ~ currency, data = rd, output = output)
+# CART(as.integer(churn) ~ currency, data = rd, output = output)
+# output = "Sankey"
+# CART(churn ~ salesman + ComputersToRenew + country, data = rd, output = output)
+# CART(as.integer(churn) ~ salesman + ComputersToRenew + country, data = rd, output = output)
+# CART(churn ~ currency, data = rd, output = output)
+# CART(as.integer(churn) ~ currency, data = rd, output = output)

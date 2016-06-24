@@ -1,7 +1,7 @@
 q.invoice.lines <- foreign::read.spss(system.file("extdata", "invoiceLines.sav", package = "flipStartup"), to.data.frame = TRUE)
 q.invoice.lines <- q.invoice.lines[, !(names(q.invoice.lines) %in% c("InvoiceID", "orgID","Edition"))]
 q.invoice.lines$ValidFrom <- ISOdate(1582,10,14)  +  q.invoice.lines$ValidFrom
-q.invoice.lines$ValidTo <- ISOdate(1582,10,14)  +  q.invoice.lines$ValidTo
+q.invoice.lines$ValidTo <- ISOdate(1582,10,14)  +  q.invoice.lines$ValidTo - lubridate::seconds(1)
 exchangeRates <- c(AUD = 1, CNY = 4.84, EUR = 0.66, GBP = 0.52, NZD = 1.05, USD = .74) #11 June 2016
 q.invoice.lines$AUD <- q.invoice.lines$Amount / exchangeRates[q.invoice.lines$currency]
 q.invoice.lines$ValidTo <- q.invoice.lines$ValidTo - lubridate::days(1)

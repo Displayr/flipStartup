@@ -39,7 +39,7 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
     }
     p <- layout(p,
                 xaxis = list(title = "",
-                             range = range(dates),
+                            # range = range(dates),
                              showgrid = FALSE),
                 yaxis = list(title = ytitle), title = title)
     p
