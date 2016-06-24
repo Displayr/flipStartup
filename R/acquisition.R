@@ -38,7 +38,7 @@ plot.Acquisition <- function(x, ...)
 {
     rates <- x$counts
     period.names <- names(rates)
-    title <- if(x$volume) "Acquisition (% volume)" else "Acquisition (% subscribers)"
+    title <- if(x$volume) "Acquisition (% volume)" else "Acquisition (subscribers)"
     TimeSeriesColumnChart(rates, smooth = TRUE, series.name = "Acquisition", ytitle = title,  ...)
 }
 
