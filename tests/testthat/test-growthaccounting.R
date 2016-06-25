@@ -2,7 +2,7 @@ context("Growth Accounting")
 
 data(q.invoice.lines)
 d <- q.invoice.lines
-by = "year"
+by = "month"
 for (by in c("month","quarter", "year"))
 test_that(by,
 {
@@ -18,9 +18,9 @@ test_that(by,
     expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling)))
     # Adding profiling variables with id shown in row names
     rownames(zprofiling) <- unique.names
-    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,06,14), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,04,1), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
     # testing end
-    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2015, 5, 1), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling))
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016, 6, 15), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling))
 
 
 
@@ -39,6 +39,7 @@ test_that(by,
     plot(Acquisition(rd, volume = TRUE))
 
     plot(Subscribers(rd))
+    plot(Revenue(rd))
 
     #####################################
     ####  Retention                  ####
