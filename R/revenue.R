@@ -10,6 +10,8 @@
 #' @export
 Revenue <- function(data, by = "month")
 {
-    Subscribers(data, by = "month", volume = TRUE)
+    result <- Subscribers(data, by = "month", volume = TRUE)
+    class(result) <- c("Revenue", class(result))
+    result
 }
 

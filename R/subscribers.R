@@ -44,6 +44,6 @@ Subscribers <- function(data, by = "month", volume = FALSE)
 #' @export
 plot.Subscribers <- function(x, ...)
 {
-    title <- "Subscribers"
-    TimeSeriesColumnChart(x, smooth = FALSE, series.name = "Subscribers", ytitle = "Subscribers",  ...)
+    title <- if("Revenue" %in% class(x)) "Revenue" else "Subscribers"
+    TimeSeriesColumnChart(x, smooth = FALSE, series.name = title, ytitle = title,  ...)
 }
