@@ -7,7 +7,7 @@
 #' @details Computed based on being a subscribed on the last second of the time period.
 #' @return A vector showing number of subscribers over time.
 #'
-#' @importFrom lubridate '%within%' seconds
+#' @importFrom lubridate '%within%' seconds floor_date
 #' @export
 Subscribers <- function(data, by = "month", volume = FALSE)
 {
@@ -16,7 +16,7 @@ Subscribers <- function(data, by = "month", volume = FALSE)
     if (!volume)
         data <- data[data$observation == 1, ]
     start <- min(data$from)
-    end <- max(data$from)
+    end <- min(max(data$from), floor_date(Sys.time(), by))
     n <- interval(start, end) %/% months(1)
     result <- rep(NA, n)
     starts <- start + months(0:(n-1))

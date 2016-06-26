@@ -3,6 +3,9 @@ context("Growth Accounting")
 data(q.invoice.lines)
 d <- q.invoice.lines
 by = "month"
+library(lubridate)
+today <- Sys.time()
+tz(today) <- "GMT"
 for (by in c("month","quarter", "year"))
 test_that(by,
 {
@@ -18,9 +21,9 @@ test_that(by,
     expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling)))
     # Adding profiling variables with id shown in row names
     rownames(zprofiling) <- unique.names
-    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,04,1), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,11,1), by = by, subset = d$validInvoice == 1, profiling = zprofiling))
     # testing end
-    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016, 6, 15), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling))
+    capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = today, id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling))
 
 
 
@@ -50,6 +53,56 @@ test_that(by,
     Growth(rd)
     LifetimeValue(rd)
 })
+
+
+
+
+test_that("Financial year",
+{
+    unique.names <- sort(unique(d$name))
+    zprofiling <- d[match(unique.names, as.character(d$name)), ]
+    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, by = by, subset = d$validInvoice == 1, profiling = zprofiling)))
+    rownames(zprofiling) <- unique.names
+
+    library(lubridate)
+    offset <- days(183)
+    from <- d$ValidFrom + offset
+    to <- d$ValidTo + offset
+    end <- today + offset
+
+    capture.output(rd <- RevenueData(d$AUD, from , to, end = end, id = d$name,
+        by = "year", subset = d$validInvoice == 1, profiling = zprofiling))
+
+    rg <- RevenueGrowthAccounting(rd, remove.last = FALSE)
+    plot(rg)
+    QuickRatioPlot(rg, 3)
+
+
+    Growth(rd, FALSE)
+    w <- Waterfall(rg)
+    plot(w)
+    w <- Waterfall(rg, names(rg$Revenue)[length(names(rg$Revenue)) - 1])
+    plot(w)
+
+    ## Churn
+    plot(Churn(rd, volume = FALSE))
+    plot(Churn(rd, volume = TRUE))
+    plot(Acquisition(rd, volume = TRUE))
+
+    plot(Subscribers(rd))
+    plot(Revenue(rd))
+
+    #####################################
+    ####  Retention                  ####
+    #####################################
+
+    Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x)))
+    Retention(rd)
+    Growth(rd)
+    LifetimeValue(rd)
+})
+
+
 
 
 #
