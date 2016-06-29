@@ -17,7 +17,7 @@ Subscribers <- function(data, by = "month", volume = FALSE)
         data <- data[data$observation == 1, ]
     start <- min(data$from)
     end <- min(max(data$from), floor_date(Sys.time(), by))
-    n <- interval(start, end) %/% months(1)
+    n <- interval(start, end) %/% months(1) + 1
     result <- rep(NA, n)
     starts <- start + months(0:(n-1))
     names(result) <- starts
