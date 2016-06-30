@@ -4,10 +4,14 @@
 \alias{Revenue}
 \title{\code{Revenue}}
 \usage{
-Revenue(data, by = "month")
+Revenue(data, end = Sys.time(), by = "month")
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+
+\item{end}{The time past which revenue is ignored (where its \code{from} data is greater than this value.
+Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
+can cause unexpected results.}
 
 \item{by}{The time unit. E.g., "month".}
 }

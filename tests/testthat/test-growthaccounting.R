@@ -4,8 +4,9 @@ data(q.invoice.lines)
 d <- q.invoice.lines
 by = "month"
 library(lubridate)
-today <- Sys.time()
+today <- ISOdate(2016,6,30)
 tz(today) <- "GMT"
+today <- today + hours(12) - seconds(1)
 for (by in c("month","quarter", "year"))
 test_that(by,
 {
@@ -65,13 +66,54 @@ test_that("Financial year",
     rownames(zprofiling) <- unique.names
 
     library(lubridate)
-    offset <- days(183)
-    from <- d$ValidFrom + offset
-    to <- d$ValidTo + offset
-    end <- today + offset
+    from <- d$ValidFrom %m+% months(6)
+    to <- d$ValidTo %m+% months(6)
+    end <- today %m+% months(6) + hours(23) + minutes(59) + seconds(59)
+    twelveMonthsAgo <- ISOdate(2015, 7, 1)
+    tz(twelveMonthsAgo) <- "GMT"
+    twelveMonthsAgo <- twelveMonthsAgo - hours(12)
+    yearEnd <- ISOdate(2016, 7, 1) - seconds(1) + hours(12)
+    tz(yearEnd) <- "GMT"
+
 
     capture.output(rd <- RevenueData(d$AUD, from , to, end = end, id = d$name,
         by = "year", subset = d$validInvoice == 1, profiling = zprofiling))
+    annual.from.annual <- Growth(rd, FALSE)$revenue[8]
+
+    calculated.from.filter <- sum(rd$value[rd$from - offset >= twelveMonthsAgo & rd$value - offset <= yearEnd])
+    expect_equal(annual.from.annual, calculated.from.filter)
+
+    # Computing revenue using monthly calculations.
+    capture.output(rdm <- RevenueData(d$AUD,  d$ValidFrom , d$ValidTo, end = today, id = d$name,
+        by = "month", subset = d$validInvoice == 1, profiling = zprofiling))
+
+    calculated.from.filter <- sum(rdm$value[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd])
+    expect_equal(annual.from.annual, calculated.from.filter)
+
+    Revenue(rdm[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd, ], end = today)
+
+
+    rv <- Revenue(rdm, end = today)
+    rv[length(rv)]
+
+        annual.from.annual - rv[length(rv)]
+    Growth(rd, FALSE)
+
+    rv
+    Growth(rd, FALSE)
+
+
+    sum(rd$value[rd$from >= twelveMonthsAgo & rd$value <= yearEnd])
+    Table(value ~ from, data = rd, sum)
+
+    z <- Table(value ~ from, data = rdm, sum)
+    k <- length(z)
+    sum(z[(k-11):k])
+
+
+    table(rd$from)
+    z <- xtabs(~rd$from + rdm$from)
+    (z[c(-1:-75),])
 
     rg <- RevenueGrowthAccounting(rd, remove.last = FALSE)
     plot(rg)
