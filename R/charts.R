@@ -8,7 +8,7 @@
 #' @export
 LayerCake <- function(data)
 {
-    table <- Table(value ~ start.period + period, data = rd, FUN = sum)
+    table <- Table(value ~ start.period + period, data = data, FUN = sum)
     names(dimnames(table)) <- c("Start", "Year")
     table <- t(table)
     #table <- table[nrow(table):1, ] # Reordering or legend
