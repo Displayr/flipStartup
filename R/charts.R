@@ -17,7 +17,7 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
 
     p <- Chart(table, type = "Stacked Area",
           title = title,
-          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3], legend.sort.order = "reversed")
+          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3], legend.ascending = TRUE)
     layout(p, y.title = "Revenue")
 }
 
