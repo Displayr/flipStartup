@@ -17,7 +17,8 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
 
     p <- Chart(table, type = "Stacked Area",
           title = title,
-          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3], legend.ascending = FALSE)
+          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3],
+          legend.ascending = FALSE)
     layout(p, y.title = "Revenue")
 }
 
@@ -46,7 +47,6 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
         name = series.name,
         type = "bar")
     plotly::config(displayModeBar = FALSE)
-
     # Smoothing.
     if (smooth)
     {
@@ -80,10 +80,13 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
 #' @param title The title of the chart.
 #' @return A plotly plot.
 #' @importFrom flipFormat FormatAsReal
-#' @importFrom plotly layout
+#' @importFrom plotly layout config
 #' @export
 Heatmap <- function(x, title)
 {
+    # flipping the table, to make it consistent with how heatmap works
+   # x <- t(x)
+    #x <- x[nrow(x):1,ncol(x):1]
     if (missing(title))
         title = deparse(substitute(x))
     row.title <- names(dimnames(x))[1]
@@ -92,17 +95,20 @@ Heatmap <- function(x, title)
     column.title <- names(dimnames(x))[2]
     if (is.null(row.names))
         row.names = ""
-    hover.text <- x#FormatAsReal(x, 2)
-    hover.text <- paste(title, hover.text)
-    hover.text <- matrix(hover.text, ncol = nrow(x))
+    hover <- as.numeric(x)
+    hover.text <- FormatAsReal(as.numeric(x), 2)
+    hover.text <- ifelse(is.na(hover), rep("No data", length(hover)), paste(title, hover.text))
+    hover.text <- matrix(hover.text, ncol = ncol(x))
     p <- plot_ly(z = x,
-            x = rownames(x),
-            y = colnames(x),
+            x = colnames(x),
+            y = rownames(x),
             text = hover.text,
+            colorscale = "Blues",
             hoverinfo = "text",
             type = "heatmap",
             colorbar = list(title = title, min = -1))
-    layout(p, xaxis = list(title = row.title),
-               yaxis = list(title = column.title))
+    p <- config(p, displayModeBar = FALSE)
+    layout(p, xaxis = list(title = column.title),
+               yaxis = list(title = row.title, autorange='reversed'))
 }
 

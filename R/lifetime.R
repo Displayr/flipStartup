@@ -17,13 +17,13 @@ LifetimeValue <- function(data, remove.last = TRUE)
 {
     ns <- Table(id ~ start.period, data = data, FUN = function(x) length(unique(x)))
     total <- Table(value ~ start.period + period.counter, data, sum)
-    print(dim(total))
     if (remove.last){
         k <- nrow(total)
         ns <- ns[-k]
         total <- total[-k, -k]
     }
     total[Triangle(total, position = "lower right")] <- NA
+    names(dimnames(total)) <- c("Commenced","Year")
     value <- sweep(total, 1, ns, "/")
     index <- Index(value, STATS = value[, 1], remove = "lower right", remove.diag = FALSE)
     cumulative <- t(apply(value, 1, cumsum))
@@ -32,7 +32,7 @@ LifetimeValue <- function(data, remove.last = TRUE)
     future.revenue <- Diagonal(value, off = TRUE)/ churn
     #future.revenue <- ns * future.revenue
     lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
-    lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns))
+    lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns), na.rm = TRUE)
     result <- list(total = total,
                    mean = value,
                    cumulative = cumulative,
@@ -53,35 +53,16 @@ LifetimeValue <- function(data, remove.last = TRUE)
 CumulativeValuePlot <- function(x)
 {
     if (!is(x, "LifetimeValue"))
-    {
         stop("'x' must be a 'LifetimeValue' object.")
-    }
-    x <- x$cumulative
-    k <- nrow(x)
-    dat <- data.frame(value = as.numeric(x), cohort = rownames(x), period = rep(colnames(x), rep(k, k)))
-    p <- ggplot(dat, aes_string(x = "period", y = "value", group = "cohort")) +
-         geom_line(aes_string(color = "cohort")) +
-         scale_y_continuous(labels = dollar) +
-         geom_point(aes_string(color = "cohort"))
-    p
-    #dat
-    # cohort.names <- rownames(x)
-    # names(dat) <- cohort.names
-    # dat <- dat[, -k]
-    # dat$period <- colnames(x)
-    # p <- ggplot(dat, aes(x = period, y = cohort.names[1], group = 1))
-    # p + geom_line()
+    #x <- x$cumulative
+    #k <- nrow(x)
+    # dat <- data.frame(Cumulative = as.numeric(x), Commenced = rownames(x), Year = rep(colnames(x), rep(k, k)))
+    # dat <- dat[!is.na(data$Value), ]
+    # print(dat)
+    # p <- ggplot(dat, aes_string(x = "Year", y = "Cumulative", group = "Commenced")) +
+    #      geom_line(aes_string(color = "Commenced")) +
+    #      scale_y_continuous(labels = dollar) +
+    #      geom_point(aes_string(color = "Commenced"))
     # p
-
-
-    #plot(colnames(x), result[, 1], type = "l")
-    #
 }
 
-
-# library(ggplot2)
-# df <- data.frame(dose=c("D0.5", "D1", "D2"),
-#                  len=c(4.2, 10, 29.5))
-# ggplot(data=df, aes(x=dose, y=len, group=1)) +
-#     geom_line()+
-#     geom_point()
