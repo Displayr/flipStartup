@@ -4,10 +4,12 @@
 \alias{LayerCake}
 \title{\code{LayerCake}}
 \usage{
-LayerCake(data)
+LayerCake(data, title = "Revenue \\"layercake\\"")
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+
+\item{title}{The title to show above the plot.}
 }
 \value{
 A plotly plot.

@@ -15,7 +15,7 @@ Retention(data, remove.last = TRUE)
 A \code{\link{list}} containing the following elements:
   \item{counts}{The number of subscribers per \code{period} by \code{start.period}}
   \item{index}{The percentage (proportion * 100) of subscribers to remain subscribers}
-  \item{retention}{Retention by per \code{period} by \code{start.period}}
+  \item{retention}{Retention byper \code{period} by \code{start.period}}
   \item{average}{Average subscriber retention.}
   \item{churn}{subscriber churn (1 - retention).}
   \item{average.life.span}{Estimated average subscriber lifespan (1 / churn) subscriber retention.}

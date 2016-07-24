@@ -8,7 +8,7 @@
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{counts}{The number of subscribers per \code{period} by \code{start.period}}
 #'   \item{index}{The percentage (proportion * 100) of subscribers to remain subscribers}
-#'   \item{retention}{Retention by per \code{period} by \code{start.period}}
+#'   \item{retention}{Retention byper \code{period} by \code{start.period}}
 #'   \item{average}{Average subscriber retention.}
 #'   \item{churn}{subscriber churn (1 - retention).}
 #'   \item{average.life.span}{Estimated average subscriber lifespan (1 / churn) subscriber retention.}
@@ -65,6 +65,7 @@ Retention <- function(data, remove.last = TRUE)
         }
     # Computing overall statistics.
     #k <- ncol(counts)
+    names(dimnames(counts)) <- c("Commenced", "Year")
     retention <- counts[, -1] / counts[, -k]
     average <- sum(retention * counts[, -k], na.rm = TRUE) / sum(counts[, -k], na.rm = TRUE)
     churn <- 1 - average

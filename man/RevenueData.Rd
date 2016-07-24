@@ -47,7 +47,7 @@ A \code{\link{data.frame}} containing the following variables, along with any ot
   \code{start} The date of first subscription.
   \code{last.from} The \code{from} date of the most recent subscription.
   \code{last.from.period} The \code{period} of the \code{last.from} date.
-  \code{end} The date of the end of the most recent subscription.
+  \code{end} The final date to be used in any analysis.
   \code{start.period} The \code{period} of the beginning of the first subscription.
   \code{last.period} The \code{period} of the end of the most recent subscription.
   \code{churned} A \code{logical} indicating if the subscriber had ever ceased subscribing.
