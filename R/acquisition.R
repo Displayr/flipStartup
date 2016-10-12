@@ -12,6 +12,7 @@
 #'   \item{counts}{Number of acquisitions by period (or in $ if \code{volume} is \code{TRUE}}.
 #'   \item{rates}{The percentage to churn (weighted if the counts are weighted)}.
 #'
+#' @importFrom flipStatistics Table
 #' @export
 Acquisition <- function(data, remove.last = TRUE, volume = FALSE)
 {

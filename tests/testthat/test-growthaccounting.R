@@ -1,5 +1,6 @@
 context("Growth Accounting")
 
+library(flipStatistics)
 data(q.invoice.lines)
 d <- q.invoice.lines
 by = "month"
@@ -177,3 +178,4 @@ test_that("Financial year",
 # CART(as.integer(churn) ~ salesman + ComputersToRenew + country, data = rd, output = output)
 # CART(churn ~ currency, data = rd, output = output)
 # CART(as.integer(churn) ~ currency, data = rd, output = output)
+

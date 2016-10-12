@@ -5,6 +5,7 @@
 #' @param title The title to show above the plot.
 #' @return A plotly plot.
 #' @importFrom flipStandardCharts Chart
+#' @importFrom flipStatistics Table
 #' @importFrom scales col_numeric
 #' @export
 LayerCake <- function(data, title = 'Revenue "layercake"')
@@ -17,8 +18,7 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
 
     p <- Chart(table, type = "Stacked Area",
           title = title,
-          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3],
-          legend.ascending = FALSE)
+          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3], legend.sort.order = "reversed")
     layout(p, y.title = "Revenue")
 }
 
@@ -46,7 +46,7 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
         y = x,
         name = series.name,
         type = "bar")
-    plotly::config(displayModeBar = FALSE)
+    config(displayModeBar = FALSE)
     # Smoothing.
     if (smooth)
     {
@@ -84,9 +84,6 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
 #' @export
 Heatmap <- function(x, title)
 {
-    # flipping the table, to make it consistent with how heatmap works
-   # x <- t(x)
-    #x <- x[nrow(x):1,ncol(x):1]
     if (missing(title))
         title = deparse(substitute(x))
     row.title <- names(dimnames(x))[1]
@@ -95,20 +92,18 @@ Heatmap <- function(x, title)
     column.title <- names(dimnames(x))[2]
     if (is.null(row.names))
         row.names = ""
-    hover <- as.numeric(x)
-    hover.text <- FormatAsReal(as.numeric(x), 2)
-    hover.text <- ifelse(is.na(hover), rep("No data", length(hover)), paste(title, hover.text))
-    hover.text <- matrix(hover.text, ncol = ncol(x))
+    hover.text <- x#FormatAsReal(x, 2)
+    hover.text <- paste(title, hover.text)
+    hover.text <- matrix(hover.text, ncol = nrow(x))
     p <- plot_ly(z = x,
-            x = colnames(x),
-            y = rownames(x),
+            x = rownames(x),
+            y = colnames(x),
             text = hover.text,
-            colorscale = "Blues",
             hoverinfo = "text",
             type = "heatmap",
             colorbar = list(title = title, min = -1))
-    p <- config(p, displayModeBar = FALSE)
-    layout(p, xaxis = list(title = column.title),
-               yaxis = list(title = row.title, autorange='reversed'))
+    config(displayModeBar = FALSE)
+    layout(p, xaxis = list(title = row.title),
+               yaxis = list(title = column.title))
 }
 

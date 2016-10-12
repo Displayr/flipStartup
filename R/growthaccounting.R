@@ -10,6 +10,7 @@
 #' @details Small differences in the percentages shown here versus those computed by other means may occur, due
 #' to: (1) how churn is defined (e.g., the point at time when a customer churns, vs, takes a hieateous); (2) the precision
 #' used to determine whether a subscriber is considered to have contracted/expanded or not.
+#' @importFrom flipStatistics Table
 #' @importFrom stats aggregate xtabs
 #' @importFrom methods is
 #' @export
@@ -100,7 +101,7 @@ plot.RevenueGrowthAccounting <- function(x, ...)
         type = "bar")
     colors <- c("red", "orange", "teal", "turquoise", "blue")
     for (i in 1:5)
-        p <- add_trace(evaluate = TRUE,
+        p <- add_trace(#evaluate = TRUE,
             p,
             x = x,
             y = abs(t[, i]),
@@ -135,8 +136,8 @@ QuickRatioPlot <- function(x, supress.first = 1)
     growth.table$Period <- rownames(growth.table)
     growth.table$Benchmark = 4
     p <- plot_ly(x = rownames(growth.table), hoverinfo="x+text", text=sprintf("%.2f", growth.table$QuickRatio), y = growth.table$Quick.Ratio, type="line", name = "Quick Ratio<br>(New + Exp. + Res.) / (Con. + Churned)")#, marker = list(color = "green"))
-    p <- add_trace(x = rownames(growth.table), y = growth.table$Benchmark, type="line",
+    p <- add_trace(p = p, x = rownames(growth.table), y = growth.table$Benchmark, type="scatter",
                    hoverinfo="x+text", text=sprintf("%.2f", growth.table$Benchmark), name = "4 is excellent for a business SaaS")#, marker = list(color = "blue"))
-    p <- layout(xaxis = list(title = "Period"), yaxis = list(title = "Quick Ratio", range = c(0, max(growth.table$Quick.Ratio, 4))))
+    p <- layout(p = p, xaxis = list(title = "Period"), yaxis = list(title = "Quick Ratio", range = c(0, max(growth.table$Quick.Ratio, 4))))
     p
 }

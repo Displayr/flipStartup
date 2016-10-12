@@ -12,6 +12,7 @@
 #' \item{cumulative}{The cumulative means.}
 #' \item{index}{The \code{cumulative} means divided by the mean from the first period.}
 #'
+#' @importFrom flipStatistics Table
 #' @export
 LifetimeValue <- function(data, remove.last = TRUE)
 {
@@ -43,26 +44,26 @@ LifetimeValue <- function(data, remove.last = TRUE)
     result
 }
 
-#' CumulativeValuePlot
-#'
-#' Plots the cumulative value over time.
-#' @param x A \code{LifetimeValue} object.
-#' @import ggplot2
-#' @importFrom scales dollar
-#' @export
-CumulativeValuePlot <- function(x)
-{
-    if (!is(x, "LifetimeValue"))
-        stop("'x' must be a 'LifetimeValue' object.")
-    #x <- x$cumulative
-    #k <- nrow(x)
-    # dat <- data.frame(Cumulative = as.numeric(x), Commenced = rownames(x), Year = rep(colnames(x), rep(k, k)))
-    # dat <- dat[!is.na(data$Value), ]
-    # print(dat)
-    # p <- ggplot(dat, aes_string(x = "Year", y = "Cumulative", group = "Commenced")) +
-    #      geom_line(aes_string(color = "Commenced")) +
-    #      scale_y_continuous(labels = dollar) +
-    #      geom_point(aes_string(color = "Commenced"))
-    # p
-}
+#' #' CumulativeValuePlot
+#' #'
+#' #' Plots the cumulative value over time.
+#' #' @param x A \code{LifetimeValue} object.
+#' #' @import ggplot2
+#' #' @importFrom scales dollar
+#' #' @export
+#' CumulativeValuePlot <- function(x)
+#' {
+#'     if (!is(x, "LifetimeValue"))
+#'         stop("'x' must be a 'LifetimeValue' object.")
+#'     #x <- x$cumulative
+#'     #k <- nrow(x)
+#'     # dat <- data.frame(Cumulative = as.numeric(x), Commenced = rownames(x), Year = rep(colnames(x), rep(k, k)))
+#'     # dat <- dat[!is.na(data$Value), ]
+#'     # print(dat)
+#'     # p <- ggplot(dat, aes_string(x = "Year", y = "Cumulative", group = "Commenced")) +
+#'     #      geom_line(aes_string(color = "Commenced")) +
+#'     #      scale_y_continuous(labels = dollar) +
+#'     #      geom_point(aes_string(color = "Commenced"))
+#'     # p
+#' }
 
