@@ -37,7 +37,7 @@ Waterfall <- function(x, periods = NULL)
 #' Creates a waterfall chart showing the source(s) of change in sales for one period, relative to the previous period.
 #' @param x An object of class \code{Waterfall}.
 #' @param ... Additional parameters.
-#' @importFrom plotly plot_ly add_trace layout
+#' @importFrom plotly plot_ly add_trace layout config
 #' @importFrom flipFormat FormatAsPercent
 #' @export
 plot.Waterfall <- function(x, ...)
@@ -92,14 +92,14 @@ plot.Waterfall <- function(x, ...)
     temp.y <- abs(y)
     colors <- c("red", "orange", "teal", "turquoise", "blue")
     for (i in 1:5)
-        p <- add_trace(evaluate = TRUE,
-            p,
+        p <- add_trace(p = p,
             x = categories[i],
             y = temp.y[i],
             name = categories[i],
             marker = list(color = colors[i]),
             type = "bar")
-    layout(p, barmode = "stack", showlegend = FALSE, annotations = a,
+    p <- config(p, displayModeBar = FALSE)
+    layout(p = p, barmode = "stack", showlegend = FALSE, annotations = a,
            title = x$title,
            xaxis = list(title = "", zeroline = FALSE, showticklabels = TRUE, showgrid = FALSE),
            yaxis = list(title = "Revenue change", zeroline = TRUE, showticklabels = FALSE, showgrid = FALSE))

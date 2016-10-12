@@ -12,6 +12,7 @@ Suggests:
     testthat
 Imports:
     flipFormat,
+    flipStatistics,
     ggplot2,
     lubridate,
     methods,

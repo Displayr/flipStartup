@@ -7,6 +7,7 @@
 #' \item{revenue}{The revenue by \code{period}}.
 #' \item{growth}{The revenue growth, as a proportion, by \code{period}}.
 #'
+#' @importFrom flipStatistics Table
 #' @export
 Growth <- function(data, remove.last = TRUE)
 {
@@ -20,4 +21,12 @@ Growth <- function(data, remove.last = TRUE)
     }
     growth <- revenue[-1] / revenue[-k] - 1
     list(revenue = revenue, growth = growth)
+}
+
+aggregateAsVector <- function(x)
+{
+    #print(x)
+    result <- x[, 2]
+    names(result) <- x[, 1]
+    result
 }
