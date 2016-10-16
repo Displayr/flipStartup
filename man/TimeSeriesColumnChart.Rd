@@ -4,19 +4,21 @@
 \alias{TimeSeriesColumnChart}
 \title{\code{TimeSeriesColumnChart}}
 \usage{
-TimeSeriesColumnChart(x, smooth = TRUE, title = "", ytitle = "",
-  series.name = "", ...)
+TimeSeriesColumnChart(x, title = "", ytitle = "", series.name = "",
+  tickformat = NULL, smooth = TRUE, ...)
 }
 \arguments{
 \item{x}{A vector containing values, where the names indicate the dates.}
-
-\item{smooth}{Smooth the data using \code{supmsu}.}
 
 \item{title}{The title of the chart.}
 
 \item{ytitle}{The title to show on the y-axis.}
 
 \item{series.name}{E.g., "churn".}
+
+\item{tickformat}{Plotlytickformat \code{tickformat}.}
+
+\item{smooth}{Smooth the data using \code{supmsu}.}
 
 \item{...}{Parameters to be passed to plotly.}
 }

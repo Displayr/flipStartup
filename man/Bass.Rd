@@ -26,6 +26,7 @@ Fits the Bass model for new products.
 Fits the model using OLS. While NLS estimation may be better in some situations, OLS is less prone to computational errors (e.g., problems with start points, non-convergence)
 }
 \references{
-Bass, Frank (1969). "A new product growth for model consumer durables". Management Science 15 (5): 215–227.
+Bass, Frank (1969). "A new product growth for model consumer durables".
+Management Science 15 (5): 215-227.
 }
 
