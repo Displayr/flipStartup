@@ -37,7 +37,7 @@ Waterfall <- function(x, periods = NULL)
 #' Creates a waterfall chart showing the source(s) of change in sales for one period, relative to the previous period.
 #' @param x An object of class \code{Waterfall}.
 #' @param ... Additional parameters.
-#' @importFrom plotly plot_ly add_trace layout config
+#' @importFrom plotly plot_ly add_trace layout config add_annotations
 #' @importFrom flipFormat FormatAsPercent
 #' @export
 plot.Waterfall <- function(x, ...)
@@ -46,7 +46,7 @@ plot.Waterfall <- function(x, ...)
     categories <- names(y)
     # Formatting labels
     y.text <- FormatAsPercent(y, 3)
-    y.text <- ifelse(y > 0, paste0("+", y.text), y.text)
+    y.text <- as.character(ifelse(y > 0, paste0("+", y.text), y.text))
     # Creating series for the plot
     y <- y * 100
     bs <- c(y[1], sum(y[1:2]), sum(y[1:2]), sum(y[1:3]), sum(y[1:4]))
@@ -56,32 +56,6 @@ plot.Waterfall <- function(x, ...)
     label.offsets <- (y.cum[length(y.cum)] - min(y.cum)) / 30
     annotation.y <- c(y[1], y[1] + y[2],  bs[-1:-2] + y[-1:-2] )
     annotation.y.with.offset <- annotation.y + c(-1, -1, 1, 1, 1) * label.offsets# <- c(y[1] - 2, y[1] + y[2] - 2, bs[-1:-2] + y[-1:-2] + 2)
-    a <- list()
-    for (i in 1:length(y))
-    {
-        a[[i]] <- list(
-            x = categories[i],
-            y = annotation.y.with.offset[i],
-            text = y.cum.text[i],
-            textposition = "bottom middle",
-            showarrow = FALSE
-        )
-    }
-    # Differences.
-    middle.of.bar <- c(y[1] / 2, y[1] + y[2] / 2, (bs[-1:-2] + annotation.y[-1:-2]) / 2)
-    small.bar <- abs(y) < 4
-    middle.of.bar <- ifelse(small.bar, bs - label.offsets, middle.of.bar) # Correcting for situations where the columns are small.
-    for (i in 1:length(y))
-    {
-        a[[i + 5]] <- list(
-            x = categories[i],
-            y = middle.of.bar[i],
-            text = y.text[i],
-            textposition = "top middle",
-            font = list(color = if(small.bar[i]) NULL else "white"),
-            showarrow = FALSE
-        )
-    }
     # Creating the plot.
     p <- plot_ly(
         x = categories,
@@ -98,11 +72,49 @@ plot.Waterfall <- function(x, ...)
             name = categories[i],
             marker = list(color = colors[i]),
             type = "bar")
+    # Adding annotations
+    annotations <- list()
+    for (i in 1:(n.y <- length(y)))
+    {
+        p <- add_annotations(p,
+            x = categories[i],
+            y = annotation.y.with.offset[i],
+            text = y.cum.text[i],
+            textposition = "bottom middle",
+            showarrow = FALSE
+        )
+    }
+    # Differences.
+    middle.of.bar <- c(y[1] / 2, y[1] + y[2] / 2, (bs[-1:-2] + annotation.y[-1:-2]) / 2)
+    small.bar <- abs(y) < 4
+    middle.of.bar <- ifelse(small.bar, bs - label.offsets, middle.of.bar) # Correcting for situations where the columns are small.
+for (i in 1:n.y)
+    {
+        p <- add_annotations(p,
+            x = categories[i],
+            y = middle.of.bar[i],
+            text = y.text[i],
+            textposition = "top middle",
+            bgcolor = "white",
+            #color = "white",
+            #font = list(color = if(small.bar[i]) NULL else "white"),
+            showarrow = FALSE
+        )
+    }
+    # Finalizing the lotting options
     p <- config(p, displayModeBar = FALSE)
-    layout(p = p, barmode = "stack", showlegend = FALSE, annotations = a,
+    layout(p = p,
+           barmode = "stack",
+           showlegend = FALSE,
            title = x$title,
-           xaxis = list(title = "", zeroline = FALSE, showticklabels = TRUE, showgrid = FALSE),
-           yaxis = list(title = "Revenue change", zeroline = TRUE, showticklabels = FALSE, showgrid = FALSE))
+           xaxis = list(title = "",
+                        zeroline = FALSE,
+                        showticklabels = TRUE,
+                        showgrid = FALSE),
+           yaxis = list(title = "Revenue change",
+                        zeroline = TRUE,
+                        showticklabels = FALSE,
+                        showgrid = FALSE))
 }
 
 
