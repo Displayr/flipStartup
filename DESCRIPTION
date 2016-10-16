@@ -13,6 +13,7 @@ Suggests:
 Imports:
     flipFormat,
     flipStatistics,
+    flipStandardCharts,
     ggplot2,
     lubridate,
     methods,
