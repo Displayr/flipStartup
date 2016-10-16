@@ -3,7 +3,7 @@ context("Growth Accounting")
 library(flipStatistics)
 data(q.invoice.lines)
 d <- q.invoice.lines
-by = "month"
+by = "year"
 library(lubridate)
 today <- ISOdate(2016,6,30)
 tz(today) <- "GMT"
@@ -39,21 +39,24 @@ test_that(by,
     plot(w)
 
     ## Churn
-    plot(Churn(rd, volume = FALSE))
-    plot(Churn(rd, volume = TRUE))
-    plot(Acquisition(rd, volume = TRUE))
+    TimeSeriesColumnChart(Churn(rd, volume = FALSE)$rates, tickformat = "%")
+    TimeSeriesColumnChart(Churn(rd, volume = TRUE)$rates, tickformat = "%")
+    TimeSeriesColumnChart(Churn(rd, volume = TRUE)$rates, tickformat = "%")
+    TimeSeriesColumnChart(Acquisition(rd, volume = FALSE)$counts)#, tickformat = "%")
+    TimeSeriesColumnChart(Acquisition(rd, volume = TRUE)$counts)#, tickformat = "%")
 
-    plot(Subscribers(rd))
+    plot(Subscribers(rd, by = "month"))
     plot(Revenue(rd))
 
     #####################################
     ####  Retention                  ####
     #####################################
 
-    Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x)))
+    flipStatistics::Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x)))
     Retention(rd)
     Growth(rd)
-    LifetimeValue(rd)
+    if (by == "annual")
+        LifetimeValue(rd)
 })
 
 
@@ -76,20 +79,20 @@ test_that("Financial year",
     yearEnd <- ISOdate(2016, 7, 1) - seconds(1) + hours(12)
     tz(yearEnd) <- "GMT"
 
-
     capture.output(rd <- RevenueData(d$AUD, from , to, end = end, id = d$name,
         by = "year", subset = d$validInvoice == 1, profiling = zprofiling))
     annual.from.annual <- Growth(rd, FALSE)$revenue[8]
 
+    offset = 180
     calculated.from.filter <- sum(rd$value[rd$from - offset >= twelveMonthsAgo & rd$value - offset <= yearEnd])
-    expect_equal(annual.from.annual, calculated.from.filter)
+    expect_equal(as.numeric(annual.from.annual), calculated.from.filter)
 
     # Computing revenue using monthly calculations.
     capture.output(rdm <- RevenueData(d$AUD,  d$ValidFrom , d$ValidTo, end = today, id = d$name,
         by = "month", subset = d$validInvoice == 1, profiling = zprofiling))
 
     calculated.from.filter <- sum(rdm$value[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd])
-    expect_equal(annual.from.annual, calculated.from.filter)
+    expect_equal(as.numeric(annual.from.annual), calculated.from.filter)
 
     Revenue(rdm[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd, ], end = today)
 
@@ -113,9 +116,6 @@ test_that("Financial year",
 
 
     table(rd$from)
-    z <- xtabs(~rd$from + rdm$from)
-    (z[c(-1:-75),])
-
     rg <- RevenueGrowthAccounting(rd, remove.last = FALSE)
     plot(rg)
     QuickRatioPlot(rg, 3)
@@ -128,8 +128,6 @@ test_that("Financial year",
     plot(w)
 
     ## Churn
-    plot(Churn(rd, volume = FALSE))
-    plot(Churn(rd, volume = TRUE))
     plot(Acquisition(rd, volume = TRUE))
 
     plot(Subscribers(rd))
@@ -142,7 +140,7 @@ test_that("Financial year",
     Table(id ~ start.period, data = rd, FUN = function(x) length(unique(x)))
     Retention(rd)
     Growth(rd)
-    LifetimeValue(rd)
+    suppressWarnings(LifetimeValue(rd))
 })
 
 
