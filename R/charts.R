@@ -12,14 +12,13 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
 {
     table <- Table(value ~ start.period + period, data = data, FUN = sum)
     names(dimnames(table)) <- c("Start", "Year")
-    table <- t(table)
-    #table <- table[nrow(table):1, ] # Reordering or legend
     k <- nrow(table)
 
     p <- Chart(table, type = "Stacked Area",
           title = title,
-          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3], legend.sort.order = "reversed")
-    layout(p, y.title = "Revenue")
+          colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3],
+          legend.ascending = FALSE)
+    layout(p, yaxis = list(title = "Revenue"))
 }
 
 
@@ -32,12 +31,13 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
 #' @param ytitle The title to show on the y-axis.
 #' @param series.name E.g., "churn".
 #' @param smooth Smooth the data using \code{supmsu}.
+#' @param tickformat Plotlytickformat \code{tickformat}.
 #' @param ... Parameters to be passed to plotly.
 #' @return A plotly plot.
 #' @importFrom stats supsmu
 #' @importFrom plotly config plot_ly
 #' @export
-TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  series.name = "",  ...)
+TimeSeriesColumnChart <- function(x, title = "", ytitle = "",  series.name = "", tickformat = NULL, smooth = TRUE, ...)
 {
     period.names <- names(x)
     # Creating the initial plot.
@@ -46,7 +46,7 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
         y = x,
         name = series.name,
         type = "bar")
-    config(displayModeBar = FALSE)
+    p <- config(p, displayModeBar = FALSE)
     # Smoothing.
     if (smooth)
     {
@@ -62,13 +62,16 @@ TimeSeriesColumnChart <- function(x, smooth = TRUE, title = "", ytitle = "",  se
             x = period.names,
             y = y.fitted,
             name = "Fitted",
-            type = "line")
+            type = "scatter",
+            mode = "lines")
     }
     p <- layout(p,
+                showlegend = FALSE,
                 xaxis = list(title = "",
                             # range = range(dates),
                              showgrid = FALSE),
-                yaxis = list(title = ytitle), title = title)
+                yaxis = list(title = ytitle, tickformat = tickformat),
+                title = title)
     p
 }
 
@@ -102,7 +105,7 @@ Heatmap <- function(x, title)
             hoverinfo = "text",
             type = "heatmap",
             colorbar = list(title = title, min = -1))
-    config(displayModeBar = FALSE)
+    p <- config(p, displayModeBar = FALSE)
     layout(p, xaxis = list(title = row.title),
                yaxis = list(title = column.title))
 }

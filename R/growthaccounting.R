@@ -97,7 +97,7 @@ plot.RevenueGrowthAccounting <- function(x, ...)
         y = y,
         showlegend = FALSE,
         marker = list(color = "white"),
-        hoverinfo='none',
+        #hoverinfo='none',
         type = "bar")
     colors <- c("red", "orange", "teal", "turquoise", "blue")
     for (i in 1:5)
@@ -108,6 +108,7 @@ plot.RevenueGrowthAccounting <- function(x, ...)
             marker = list(color = colors[i]),
             name = categories[eval(i)],
             type = "bar")
+    p <- config(p, displayModeBar = FALSE)
     layout(p, barmode = "stack", showlegend = TRUE,
            xaxis = list(title = "",
                         zeroline = FALSE,
@@ -135,10 +136,10 @@ QuickRatioPlot <- function(x, supress.first = 1)
     }
     growth.table$Period <- rownames(growth.table)
     growth.table$Benchmark = 4
-    p <- plot_ly(x = rownames(growth.table), hoverinfo="x+text", text=sprintf("%.2f", growth.table$Quick.Ratio), 
+    p <- plot_ly(x = rownames(growth.table), hoverinfo="x+text", text=sprintf("%.2f", growth.table$Quick.Ratio),
                  y = growth.table$Quick.Ratio, type="scatter", mode = "lines", name = "Quick Ratio<br>(New + Exp. + Res.) / (Con. + Churned)")#, marker = list(color = "green"))
-    p <- add_trace(p = p, x = rownames(growth.table), y = growth.table$Benchmark, 
-                   hoverinfo="x+text", text=sprintf("%.2f", growth.table$Benchmark), 
+    p <- add_trace(p = p, x = rownames(growth.table), y = growth.table$Benchmark,
+                   hoverinfo="x+text", text=sprintf("%.2f", growth.table$Benchmark),
                    name = "4 is excellent for a business SaaS")#, marker = list(color = "blue"))
     p <- layout(p = p, xaxis = list(title = "Period"), yaxis = list(title = "Quick Ratio", range = c(0, max(growth.table$Quick.Ratio, 4))))
     p

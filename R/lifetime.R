@@ -29,8 +29,11 @@ LifetimeValue <- function(data, remove.last = TRUE)
     index <- Index(value, STATS = value[, 1], remove = "lower right", remove.diag = FALSE)
     cumulative <- t(apply(value, 1, cumsum))
     churn <- 1 - Retention(data)$estimated.volume.retention.by.year
+    warning("This function has only been tested with annual data.")
     #print(Diagonal(value, off = TRUE))
-    future.revenue <- Diagonal(value, off = TRUE)/ churn
+    di <- Diagonal(value, off = TRUE)
+    names(di) <- rownames(value)
+    future.revenue <- di / churn
     #future.revenue <- ns * future.revenue
     lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
     lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns), na.rm = TRUE)
