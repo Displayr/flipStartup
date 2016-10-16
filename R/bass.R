@@ -10,8 +10,9 @@
 #' \item{predicted}{The predicted/fitted sales/penetration}.
 #' \item{max}{The maximum revenue (or the revenue at 1,000 time periods, whichever is smaller)}.
 #' @details Fits the model using OLS. While NLS estimation may be better in some situations, OLS is less prone to computational errors (e.g., problems with start points, non-convergence)
-#' @references Bass, Frank (1969). "A new product growth for model consumer durables". Management Science 15 (5): 215–227.
-#'
+#' @references Bass, Frank (1969). "A new product growth for model consumer durables".
+#' Management Science 15 (5): 215-227.
+#' @importFrom stats lm
 #' @export
 Bass <- function(data, remove.last = TRUE)
 {
