@@ -43,7 +43,8 @@ Waterfall <- function(x, periods = NULL)
 plot.Waterfall <- function(x, ...)
 {
     y <- x$change
-    categories <- names(y)
+    categories <- factor(names(y), levels = names(y))
+    print(categories)
     # Formatting labels
     y.text <- FormatAsPercent(y, 3)
     y.text <- as.character(ifelse(y > 0, paste0("+", y.text), y.text))
@@ -57,8 +58,7 @@ plot.Waterfall <- function(x, ...)
     annotation.y <- c(y[1], y[1] + y[2],  bs[-1:-2] + y[-1:-2] )
     annotation.y.with.offset <- annotation.y + c(-1, -1, 1, 1, 1) * label.offsets# <- c(y[1] - 2, y[1] + y[2] - 2, bs[-1:-2] + y[-1:-2] + 2)
     # Creating the plot.
-    p <- plot_ly(
-        x = categories,
+    p <- plot_ly(x = categories,
         y = bs,
         marker = list(color = "white"),
         hoverinfo='none',
@@ -87,19 +87,45 @@ plot.Waterfall <- function(x, ...)
     # Differences.
     middle.of.bar <- c(y[1] / 2, y[1] + y[2] / 2, (bs[-1:-2] + annotation.y[-1:-2]) / 2)
     small.bar <- abs(y) < 4
-    middle.of.bar <- ifelse(small.bar, bs - label.offsets, middle.of.bar) # Correcting for situations where the columns are small.
-for (i in 1:n.y)
+    text.position <- ifelse(small.bar, bs - label.offsets, middle.of.bar) # Correcting for situations where the columns are small.
+
+    t <- list(
+        #family = "sans serif",
+        #size = 18,
+        color = "white"#)#plotly::toRGB("grey50")#
+    )
+    # plot_ly(mtcars, x = ~wt, y = ~mpg, text = rownames(mtcars)) %>%
+    #     add_markers() %>%
+    #     add_text(textfont = t, textposition = "top middle")
+
+    for (i in 1:n.y)
     {
-        p <- add_annotations(p,
-            x = categories[i],
-            y = middle.of.bar[i],
-            text = y.text[i],
-            textposition = "top middle",
-            bgcolor = "white",
-            #color = "white",
-            #font = list(color = if(small.bar[i]) NULL else "white"),
-            showarrow = FALSE
-        )
+        p <- plotly::add_text(p,
+                x = categories[i],
+                y = text.position[i],
+                text = y.text[i],
+                textposition = if(small.bar[i]) "lower middle" else "middle",
+                textfont = list(color = if(small.bar[i]) "black" else "white"),
+                marker = NULL
+                #bgcolor = "white",
+                #color = "white",
+                #font = list(color = if(small.bar[i]) NULL else "white"),
+               # showarrow = FALSE
+            )
+
+
+
+    #     p <- add_annotations(p,
+    #         x = categories[i],
+    #         y = middle.of.bar[i],
+    #         text = y.text[i],
+    #         textposition = "top middle",
+    #         textfont = t,
+    #         #bgcolor = "white",
+    #         #color = "white",
+    # font = "white",#        #font = list(color = if(small.bar[i]) NULL else "white"),
+    #         showarrow = FALSE
+    #     )
     }
     # Finalizing the lotting options
     p <- config(p, displayModeBar = FALSE)
