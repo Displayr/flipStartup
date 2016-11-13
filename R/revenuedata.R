@@ -41,9 +41,12 @@
 #'   \code{observation} The number of the subscription, starting from 1.
 #'
 #' @importFrom lubridate year years quarter month week weeks day days interval floor_date
+#' @importFrom anytime anytime
 #' @export
 RevenueData <- function(value, from, to, begin = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
+    begin <- anytime(begin)
+    end <- anytime(end)
     # Units.
      .period <- function(x)
      {
@@ -173,5 +176,5 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     data$observation <- observation
     data$id <- sub("\\s+$", "", as.character(data$id))
     class(data) <- c(class(data), "RevenueData")
-    data[data$period >= begin & data$period <= end, ]
+    data[anytime(data$period) >= begin & anytime(data$period) <= end, ]
 }
