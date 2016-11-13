@@ -39,11 +39,11 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
 #' @export
 TimeSeriesColumnChart <- function(x, title = "", ytitle = "",  series.name = "", tickformat = NULL, smooth = TRUE, ...)
 {
-    period.names <- names(x)
+    period.names <- as.POSIXlt(names(x))
     # Creating the initial plot.
     p <- plot_ly(
-        x = period.names,
-        y = x,
+        x = ~period.names,
+        y = ~x,
         name = series.name,
         type = "bar")
     p <- config(p, displayModeBar = FALSE)
