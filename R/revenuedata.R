@@ -173,5 +173,5 @@ RevenueData <- function(value, from, to, begin = min(from), end = max(from), id,
     data$observation <- observation
     data$id <- sub("\\s+$", "", as.character(data$id))
     class(data) <- c(class(data), "RevenueData")
-    data
+    data[data$period >= begin & data$period <= end, ]
 }
