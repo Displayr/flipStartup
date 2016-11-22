@@ -13,9 +13,9 @@ LifetimeValue(data, remove.last = TRUE)
 }
 \value{
 A \code{list} containing the following elements:
-\item{total}{The total value of transactions, by \code{start.period} and \code{period.counter}.}
+\item{total}{The total value of transactions, by \code{subscriber.from.period} and \code{period.counter}.}
 \item{mean}{The average value of transactions, where the base is the number of subscribers
-in the \code{start.period}, by \code{start.period} and \code{period.counter}.}
+in the \code{subscriber.from.period}, by \code{subscriber.from.period} and \code{period.counter}.}
 \item{cumulative}{The cumulative means.}
 \item{index}{The \code{cumulative} means divided by the mean from the first period.}
 }
