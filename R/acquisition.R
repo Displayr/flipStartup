@@ -16,19 +16,20 @@
 #' @export
 Acquisition <- function(data, remove.last = TRUE, volume = FALSE)
 {
+    by <- attr(data, "by")
     #filtering out data where there are no start dates.
     # data <- data[data$to <= max(data$from), ]
      data <- data[data$observation == 1,]
     if (remove.last)
         data <- data[data$to.period < max(data$to.period), ]
-    idag <- aggregate(id ~ start.period, data = data, FUN = unique)
+    idag <- aggregate(id ~ subscriber.from.period, data = data, FUN = unique)
     id <- idag[, 2]
     names(id) <- idag[, 1]
     counts <- if (volume)
-        Table(value ~ start.period, data = data, FUN = sum)
+        Table(value ~ subscriber.from.period, data = data, FUN = sum)
     else
-        Table( ~ start.period, data = data)
-    result <-list(volume = volume, id = id, counts = counts)
+        Table( ~ subscriber.from.period, data = data)
+    result <-list(volume = volume, id = id, counts = counts, by = by)
     class(result) <- c("Acquisition", class(result))
     result
 }
