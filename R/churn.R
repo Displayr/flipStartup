@@ -17,11 +17,14 @@
 #' @export
 Churn <- function(data, remove.last = TRUE, volume = FALSE)
 {
-    #filtering out data where there are no start dates.
-    data <- data[data$to <= max(data$from), ]
+
+    by <- attr(data, "by")
+    data <- data[data$to <= max(data$from), ] #filtering out data where there are no start dates.
+    to.period <- PeriodNameToDate(data$to.period, by)
+    #print(to.period)
     if (remove.last)
-        data <- data[data$to.period < max(data$to.period), ]
-    idag <- aggregate(id ~ last.period, data = data[data$churned,], FUN = unique)
+        data <- data[to.period < max(to.period), ]
+    idag <- aggregate(id ~ subscriber.to.period, data = data[data$churned,], FUN = unique)
     id <- idag[, 2]
     names(id) <- idag[, 1]
     counts <- if (volume)
@@ -30,7 +33,7 @@ Churn <- function(data, remove.last = TRUE, volume = FALSE)
         Table( ~ churn + to.period, data = data)
     base <- table(data$to.period)
     rates <- prop.table(counts, 2)[2, ]
-    result <-list(id = id, base = base, counts = t(counts), rates = rates)
+    result <-list(id = id, base = base, counts = t(counts), rates = rates, by = by)
     class(result) <- c("Churn", class(result))
     result
 }
