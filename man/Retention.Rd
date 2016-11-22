@@ -4,29 +4,36 @@
 \alias{Retention}
 \title{\code{Retention}}
 \usage{
-Retention(data, remove.last = TRUE)
+Retention(data, subscription.length = "year", remove.last = TRUE)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+
+\item{subscription.length}{The length of the subscription: \code{"day"},
+\code{"week"}, \code{"month"}, \code{"quarter"}, or \code{"year"}.}
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 }
 \value{
 A \code{\link{list}} containing the following elements:
-  \item{counts}{The number of subscribers per \code{period} by \code{start.period}}
+  \item{counts}{The number of subscribers per \code{period} by \code{subscriber.from.period}}
   \item{index}{The percentage (proportion * 100) of subscribers to remain subscribers}
-  \item{retention}{Retention byper \code{period} by \code{start.period}}
-  \item{average}{Average subscriber retention.}
-  \item{churn}{subscriber churn (1 - retention).}
+  \item{retention}{Retention per \code{period} by \code{subscriber.from.period}}
+  \item{retention.volume}{Same as \code{retention}, except weighted by
+   the volumne (revenue) in the previous subscription renewal.}
+  \item{average.retention}{Average subscriber retention.}
+  \item{churn}{subscriber churn (1 - average.retention).}
   \item{average.life.span}{Estimated average subscriber lifespan (1 / churn) subscriber retention.}
-  \item{average.volume}{Retention, weighted by subscriber value in the preceeding year.}
-  \item{churn.volume}{Churn, weighted by subscriber value in the preceeding year.}
+  \item{average.volume}{Retention, weighted by subscriber value in the preceeding period.}
+  \item{churn.volume}{Churn, weighted by subscriber value in the preceeding period.}
 }
 \description{
 Computes retention, by cohort.
 }
 \details{
 Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-is asumed to have been retained during the period where the account was suspended.
+is asumed to have been retained during the period where the account was suspended. Where
+a subscriber for some reason had a subscription length that was different to the specified
+\code{"subscription.length"}, their revenue-weighted retention will be misattributed.
 }
 
