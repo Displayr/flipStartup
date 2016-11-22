@@ -11,7 +11,7 @@
 #' @export
 Growth <- function(data, remove.last = TRUE)
 {
-    revenue <- Table(value ~ period, data = data, FUN = sum)
+    revenue <- Table(value ~ from.period, data = data, FUN = sum)
     k <- length(revenue)
     if (remove.last)
     {

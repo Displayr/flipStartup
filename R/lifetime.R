@@ -6,9 +6,9 @@
 #' @param data A \code{RevenueData} object.
 #' @param remove.last Remove the final period (as usually is incomplete).
 #' @return A \code{list} containing the following elements:
-#' \item{total}{The total value of transactions, by \code{start.period} and \code{period.counter}.}
+#' \item{total}{The total value of transactions, by \code{subscriber.from.period} and \code{period.counter}.}
 #' \item{mean}{The average value of transactions, where the base is the number of subscribers
-#' in the \code{start.period}, by \code{start.period} and \code{period.counter}.}
+#' in the \code{subscriber.from.period}, by \code{subscriber.from.period} and \code{period.counter}.}
 #' \item{cumulative}{The cumulative means.}
 #' \item{index}{The \code{cumulative} means divided by the mean from the first period.}
 #'
@@ -16,23 +16,32 @@
 #' @export
 LifetimeValue <- function(data, remove.last = TRUE)
 {
-    ns <- Table(id ~ start.period, data = data, FUN = function(x) length(unique(x)))
-    total <- Table(value ~ start.period + period.counter, data, sum)
+    by <- attr(data, "by")
+    ns <- Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
+    total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
+    # Filling in missing row and column totals
+    row.names <- CompleteListPeriodNames(rownames(total), by)
+    col.names <- 0:max(length(row.names) - 1, as.numeric(colnames(total)))
+    total <- FillInMatrix(total, row.names, col.names, 0)
+    ns <- FillInVector(ns, row.names, 0)
     if (remove.last){
         k <- nrow(total)
         ns <- ns[-k]
         total <- total[-k, -k]
     }
     total[Triangle(total, position = "lower right")] <- NA
-    names(dimnames(total)) <- c("Commenced","Year")
+    names(dimnames(total)) <- c("Commenced", by)
     value <- sweep(total, 1, ns, "/")
-    index <- Index(value, STATS = value[, 1], remove = "lower right", remove.diag = FALSE)
-    cumulative <- t(apply(value, 1, cumsum))
-    churn <- 1 - Retention(data)$estimated.volume.retention.by.year
-    warning("This function has only been tested with annual data.")
-    #print(Diagonal(value, off = TRUE))
     di <- Diagonal(value, off = TRUE)
     names(di) <- rownames(value)
+    index <- Index(value, STATS = value[, 1], remove = "lower right", remove.diag = FALSE)
+    cumulative <- t(apply(value, 1, cumsum))
+    churn <- 1 - Retention(data)$retention.rate.volume.by.period
+    churn <- churn[match(names(di), names(churn))]
+#    annual.churn <- 1 - (1 - churn) ^ switch(by, day = 366.25, week = 52.25, month = 12, quarter = 4, year = 1)
+   # print(annual.churn)
+#print(di)
+#print(churn)
     future.revenue <- di / churn
     #future.revenue <- ns * future.revenue
     lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
