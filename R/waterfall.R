@@ -44,7 +44,6 @@ plot.Waterfall <- function(x, ...)
 {
     y <- x$change
     categories <- factor(names(y), levels = names(y))
-    print(categories)
     # Formatting labels
     y.text <- FormatAsPercent(y, 3)
     y.text <- as.character(ifelse(y > 0, paste0("+", y.text), y.text))
