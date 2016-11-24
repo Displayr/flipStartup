@@ -163,8 +163,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     id.data$churned <- id.data$subscriber.to < end
 #print("cat")
     not.churned <- !id.data$churned
-    if (sum(not.churned) == 0)
-        stop("The analyses assume that 1 or more subscribers have churned. None are shown as having churned in the data.")
+    #if (sum(not.churned) == 0)
+    #    stop("The analyses assume that 1 or more subscribers have churned. None are shown as having churned in the data.")
     # Merging.
     data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
     data$from.period <- Period(data$from, by)
