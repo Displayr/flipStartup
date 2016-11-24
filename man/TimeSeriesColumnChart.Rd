@@ -10,6 +10,8 @@ TimeSeriesColumnChart(x, by = "day", title = "", ytitle = "",
 \arguments{
 \item{x}{A vector containing values, where the names indicate the dates.}
 
+\item{by}{The period that has been used to aggregate the data (day, week, month, quarter, year).}
+
 \item{title}{The title of the chart.}
 
 \item{ytitle}{The title to show on the y-axis.}
