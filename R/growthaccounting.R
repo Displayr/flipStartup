@@ -19,7 +19,7 @@ RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
     if (remove.last)
         data <- subset(data, data$period != max(data$period))
     id <- data$id
-    period <- data$period
+    period <- data$from.period
     value <- data$value
     id.by.period <- paste(id, period)
     aggregated <- aggregate(value ~ id.by.period, FUN = sum)
@@ -36,6 +36,7 @@ RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
     data$diff <- c(0, data$value[-1] - data$value[-length(data$value)])
     data$cum <- cumsum(data$value)
     data$cum <- data$cum - rep(data$cum[c(TRUE, rep(FALSE, n.periods))], rep(n.periods + 1, n.id))
+#print(data[, c("id", "value", "diff", "cum")])
     data <- data[c(FALSE, rep(TRUE, n.periods)), ]
     data$period <- periods
     data$status = "Unchanged"
