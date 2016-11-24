@@ -7,7 +7,11 @@
 ConnectedDotPlot(name, from, to)
 }
 \arguments{
-\item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+\item{name}{A \code{character} vector of the names of the entities to be plotted.}
+
+\item{from}{The dates to be plotted from.}
+
+\item{to}{The dates to be plotted to.}
 }
 \description{
 Plots the subscription periods as a dotplot, with lines showing when subscriptions occurred
