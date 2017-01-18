@@ -21,4 +21,8 @@ Imports:
     reshape2,
     scales,
     stats
+Remotes
+    NumbersInternational/flipFormat,
+    NumbersInternational/flipStatistics,
+    NumbersInternational/flipStandardCharts
 RoxygenNote: 5.0.1
