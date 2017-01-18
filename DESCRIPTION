@@ -21,7 +21,7 @@ Imports:
     reshape2,
     scales,
     stats
-Remotes
+Remotes:
     NumbersInternational/flipFormat,
     NumbersInternational/flipStatistics,
     NumbersInternational/flipStandardCharts
