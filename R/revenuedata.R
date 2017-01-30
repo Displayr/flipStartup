@@ -43,13 +43,14 @@
 #'   to the end of the most recent.
 #'   \code{observation} The number of the subscription for a particular customer, starting from 1.
 #'
-#' @importFrom lubridate year years quarter month week weeks day days interval floor_date
+#' @importFrom lubridate period year years quarter month week weeks day days interval floor_date
+#' @importFrom flipTime DaysPerPeriod Period Periods
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
     Sys.setenv(TZ='GMT')
     # Units.
-    units <- switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
+    units <- Periods(1, by)#switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
     dys <- DaysPerPeriod(by)
     # Merging profiling data.
     end <- floor_date(end, by)
@@ -64,23 +65,6 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
         data <- subset(data, subset = subset)
     }
     # Removing observations that start after the end.
-    # n <- nrow(data)
-    # start.too.late <- data$from > end
-    # n.start.too.late <- sum(start.too.late)
-    # if (n.start.too.late > 0)
-    # {
-    #     cat(paste0(n.start.too.late, " transactions removed as the subscription starts after the 'end' date.\n"))
-    #     data <- subset(data, !start.too.late)
-    # }
-    # # Removing observations that end after start
-    # n <- nrow(data)
-    # end.too.early <- data$to < start
-    # n.end.too.early <- sum(end.too.early)
-    # if (n.end.too.early > 0)
-    # {
-    #     cat(paste0(n.end.too.early, " transactions removed as the subscription ends before the 'start' date.\n"))
-    #     data <- subset(data, subset = !end.too.early)
-    # }
     zero <- data$value == 0
     n.zero <- sum(zero)
     if (n.zero > 0)
@@ -147,25 +131,14 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     # Creating time-based metrics.
     id.data$last.from <- aggregate(from ~ id, data, max)[, 1]
     id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], by), by)
-#print("doga")
     cat(paste0(nrow(id.data), " subscribers.\n"))
-#id.data$end.from <- aggregate(from ~ id, data, max)$from
-#print("dogb")
     id.data$subscription.to <- aggregate(to ~ id, data, max)$to
-#print("dob")
     id.data$tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
     id.data$tenure <- id.data$tenure.interval %/% units
-#print("dogd")
     id.data$subscriber.from.period <- Period(id.data$subscriber.from, by)
     id.data$subscriber.to.period <- Period(id.data$subscriber.to, by)
-#id.data$last.period <- Period(id.data$end.from, by)
-#print("dog")
     id.data$churned <- id.data$subscriber.to < end
-#print("cat")
     not.churned <- !id.data$churned
-    #if (sum(not.churned) == 0)
-    #    stop("The analyses assume that 1 or more subscribers have churned. None are shown as having churned in the data.")
-    # Merging.
     data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
     data$from.period <- Period(data$from, by)
     data$to.period <- Period(data$to, by)

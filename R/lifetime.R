@@ -13,6 +13,7 @@
 #' \item{index}{The \code{cumulative} means divided by the mean from the first period.}
 #'
 #' @importFrom flipStatistics Table
+#' @importFrom flipTime CompleteListPeriodNames
 #' @export
 LifetimeValue <- function(data, remove.last = TRUE)
 {

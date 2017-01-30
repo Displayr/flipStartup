@@ -20,6 +20,7 @@
 #'   \item{average.life.span}{Estimated average subscriber lifespan (1 / churn) subscriber retention.}
 #'   \item{average.volume}{Retention, weighted by subscriber value in the preceeding period.}
 #'   \item{churn.volume}{Churn, weighted by subscriber value in the preceeding period.}
+#' @importFrom flipTime PeriodNameToDate CompleteListPeriodNames Period
 #' @importFrom lubridate as_date
 #' @export
 Retention <- function(data, subscription.length = "year", remove.last = TRUE)
@@ -30,43 +31,9 @@ Retention <- function(data, subscription.length = "year", remove.last = TRUE)
     last.period <- as_date(max(PeriodNameToDate(data.id$subscriber.from.period, by)))
     data.id$final.end[data.id$final.end > last.period] <- last.period
     data.id$final.end <- Period(data.id$final.end, by)
-#    counts <- xtabs(~ subscriber.from.period + final.end, data = data.id)
-    #print("a7")
     period.names <- unique(c(unique(data$from.period), unique(data$to.period)))
-    #print(period.names)
     periods <- CompleteListPeriodNames(period.names, by)
-     #<- Period(dates, by)
-    #print("a8")
-  #  counts <- FillInMatrix(counts, dates, dates, 0)
-    #print("a9")
- #   counts <- counts[, ncol(counts):1]
-    #print("b")
-   # counts <- t(apply(counts, 1, cumsum))
-#    counts <- counts[,ncol(counts):1]
- #   periods <- sort(unique(unlist(dimnames(counts))))
-#print("dog")
-#print(periods)
     n.periods <- length(periods)
-    #counts.1 <- matrix(NA, n.periods, n.periods, dimnames = list(start.period = periods, period = periods))
-    #counts.1[match(rownames(counts), periods), match(colnames(counts), periods)] <- counts
-    #print("c")
-   # counts.1[Triangle(counts.1, "lower left")] <- NA
-   # counts <- counts.1
-    # Filling in periods where no churn occurred
-#     for (r in 1:n.periods)
-#         for (c in (n.periods - 1):min(n.periods - 1, r))
-#             if (is.na(counts[r,c]) & r <= c)
-#                 counts[r, c] <- counts[r, c + 1]
-#     if (remove.last){
-#         counts <- counts[-nrow(counts), -ncol(counts)]
-#         periods <- periods[-n.periods]
-#         n.periods <- n.periods - 1
-#
-#     }
-# #print("d")
-    # Volume-based retention
-    #periods.per.subscription <- round(DaysPerPeriod(subscription.length) / DaysPerPeriod(by), 0)
-#print(periods.per.subscription)
     retention.rate.volume <-
         matrix(NA, n.periods, n.periods, dimnames = list(subscriber.from.period = periods, period = periods))
     names(dimnames(retention.rate.volume)) <- c("Commenced", by)
