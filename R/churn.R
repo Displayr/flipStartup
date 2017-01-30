@@ -13,7 +13,7 @@
 #'   to churn in a period, and the second contains the number that have churned. Where \code{volume}
 #'   is \code{TRUE} the data is volume-weighted}.
 #'   \item{rates}{The percentage to churn (weighted if the counts are weighted)}.
-#'
+#' @importFrom flipTime PeriodNameToDate
 #' @export
 Churn <- function(data, remove.last = TRUE, volume = FALSE)
 {

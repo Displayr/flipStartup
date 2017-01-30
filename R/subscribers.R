@@ -11,17 +11,16 @@
 #' @return A vector showing number of subscribers over time.
 #'
 #' @importFrom lubridate '%within%' seconds floor_date
+#' @importFrom flipTime Periods TimeSeriesColumnChart
 #' @export
 Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
 {
-    if (by != "month")
-        stop("This function only works for 'by' of month.")
     if (!volume)
         data <- data[data$observation == 1, ]
     start <- min(data$from)
-    n <- interval(start, end) %/% months(1) + 1
+    n <- interval(start, end) %/% Periods(1, by) + 1
     result <- rep(NA, n) + 1
-    starts <- start + months(0:(n-1))
+    starts <- start + Periods(0:(n-1), by)
     names(result) <- starts
     count <- 0
     for (i in 1:n)
