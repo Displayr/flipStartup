@@ -12,11 +12,7 @@ Encoding: UTF-8
 RnwWeave: Sweave
 LaTeX: pdfLaTeX
 
-AutoAppendNewline: Yes
-StripTrailingWhitespace: Yes
-
 BuildType: Package
 PackageUseDevtools: Yes
-PackageBuildBinaryArgs: --no-build-vignettes --no-manual
-PackageCheckArgs: --no-build-vignettes --no-manual
+PackageInstallArgs: --no-multiarch --with-keep.source
 PackageRoxygenize: rd,collate,namespace
