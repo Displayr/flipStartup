@@ -9,12 +9,12 @@ License: GPL-3
 LazyData: TRUE
 Depends: R (>= 2.10)
 Suggests:
-    flipTime,
     testthat
 Imports:
     flipFormat,
     flipStatistics,
     flipStandardCharts,
+    flipTime,
     ggplot2,
     lubridate,
     methods,
@@ -25,5 +25,6 @@ Imports:
 Remotes:
     NumbersInternational/flipFormat,
     NumbersInternational/flipStatistics,
-    NumbersInternational/flipStandardCharts
+    NumbersInternational/flipStandardCharts,
+    NumbersInternational/flipTime,
 RoxygenNote: 5.0.1
