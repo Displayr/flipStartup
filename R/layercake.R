@@ -10,7 +10,7 @@
 #' @export
 LayerCake <- function(data, title = 'Revenue "layercake"')
 {
-    table <- Table(value ~ subscriber.from.period + period, data = data, FUN = sum)
+    table <- Table(value ~ subscriber.from.period + from.period, data = data, FUN = sum)
     names(dimnames(table)) <- c("Start", "Year")
     k <- nrow(table)
 
