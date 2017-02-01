@@ -1,3 +1,4 @@
+context("Layercake")
 data(q.invoice.lines)
 d <- q.invoice.lines
 library(lubridate)
