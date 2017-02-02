@@ -9,7 +9,7 @@ by = "year"
 for (by in c("week", "month", "quarter", "year"))
     test_that(paste("Layercake", by),
           {
-            expect_error(print(LayerCake(RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, by = by, subset = d$validInvoice == 1))), NA)
+            expect_error(capture.output(print(LayerCake(RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, by = by, subset = d$validInvoice == 1)))), NA)
 })
 
 
