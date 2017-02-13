@@ -23,8 +23,8 @@ Imports:
     scales,
     stats
 Remotes:
-    NumbersInternational/flipFormat,
-    NumbersInternational/flipStatistics,
-    NumbersInternational/flipStandardCharts,
-    NumbersInternational/flipTime,
+    Displayr/flipFormat,
+    Displayr/flipStatistics,
+    Displayr/flipStandardCharts,
+    Displayr/flipTime,
 RoxygenNote: 5.0.1
