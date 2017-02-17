@@ -18,7 +18,7 @@ LayerCake <- function(data, title = 'Revenue "layercake"')
           title = title,
           colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3],
           legend.ascending = FALSE)
-    layout(p, yaxis = list(title = "Revenue"))
+    layout(p$plotly.plot, yaxis = list(title = "Revenue"))
 }
 
 
