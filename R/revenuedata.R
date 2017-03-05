@@ -48,7 +48,6 @@
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
-    Sys.setenv(TZ='GMT')
     # Units.
     units <- Periods(1, by)#switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
     dys <- DaysPerPeriod(by)
