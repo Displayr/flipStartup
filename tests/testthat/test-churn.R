@@ -1,4 +1,4 @@
-context("Revenue data")
+context("Churn")
 data(q.invoice.lines)
 d <- q.invoice.lines
 library(lubridate)
@@ -15,7 +15,18 @@ for (by in c("week", "month", "quarter", "year"))
             expect_error(capture.output(print(p)), NA)
 })
 
-
+# 
+# data(q.invoice.lines)
+# d <- q.invoice.lines
+# library(lubridate)
+# Sys.setenv(TZ='GMT')
+# start <-  ISOdate(2012,1,1)
+# end <-  ISOdate(2015,12,31)
+# #start <-  ISOdate(2012,7,1)
+# by = "year"
+# rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, by = by, subset = d$validInvoice == 1)
+# Churn(rd, volume = FALSE, remove.last = FALSE)
+# 
 
 
 

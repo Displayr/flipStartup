@@ -17,4 +17,3 @@ A plotly plot.
 \description{
 A heatmap of a matrix.
 }
-

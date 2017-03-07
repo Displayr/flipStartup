@@ -36,4 +36,3 @@ is asumed to have been retained during the period where the account was suspende
 a subscriber for some reason had a subscription length that was different to the specified
 \code{"subscription.length"}, their revenue-weighted retention will be misattributed.
 }
-

@@ -24,4 +24,3 @@ Index(x, by.row = TRUE, i = 1, STATS = NULL, remove = "",
 \description{
 Indexes the data on a table by its rows or columns.
 }
-

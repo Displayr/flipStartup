@@ -12,4 +12,3 @@ q.invoice.lines
 Information about Q's subscriber history.
 }
 \keyword{datasets}
-

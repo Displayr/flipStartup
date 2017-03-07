@@ -14,4 +14,3 @@ QuickRatioPlot(x, supress.first = 1)
 \description{
 QuickRatioPlot
 }
-

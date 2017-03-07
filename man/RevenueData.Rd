@@ -65,4 +65,3 @@ the  following variables, along with any other variables in the \code{data}:
 \description{
 Cleans and tidies data for use in growth accounting computations for a startup.
 }
-

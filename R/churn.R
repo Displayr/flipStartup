@@ -19,9 +19,8 @@ Churn <- function(data, remove.last = TRUE, volume = FALSE)
 {
 
     by <- attr(data, "by")
-    data <- data[data$to <= max(data$from), ] #filtering out data where there are no start dates.
+    data <- data[data$to <= max(data$from), ] #filtering out data post final period in data
     to.period <- PeriodNameToDate(data$to.period, by)
-    #print(to.period)
     if (remove.last)
         data <- data[to.period < max(to.period), ]
     idag <- aggregate(id ~ subscriber.to.period, data = data[data$churned,], FUN = unique)

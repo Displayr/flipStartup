@@ -48,6 +48,7 @@
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
+    default.start.end <- start == min(from) & end == max(from)
     # Units.
     units <- Periods(1, by)#switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
     dys <- DaysPerPeriod(by)
@@ -136,12 +137,11 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     id.data$tenure <- id.data$tenure.interval %/% units
     id.data$subscriber.from.period <- Period(id.data$subscriber.from, by)
     id.data$subscriber.to.period <- Period(id.data$subscriber.to, by)
-    id.data$churned <- id.data$subscriber.to < end
+    id.data$churned <- id.data$subscriber.to <= end
     not.churned <- !id.data$churned
     data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
     data$from.period <- Period(data$from, by)
     data$to.period <- Period(data$to, by)
-    #data$period.date <- floor_date(data$from, by)
     data$churn <- data$churned & data$from.period == data$last.from.period# & Period(data$relationship.to, by) == Period(data$to, by)
     data$period.counter <- interval(data$subscriber.from, data$from) %/% units
     # Sorting.
@@ -154,7 +154,14 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
             observation[i] = observation[i - 1] + 1
     data$observation <- observation
     data$id <- sub("\\s+$", "", as.character(data$id))
-    data <- data[data$from >= start & data$from <= end, ]
+    if (!default.start.end) 
+    {
+        window = interval(start, end)
+        data <- data[data$to %within% window | data$from %within% window | data$from < start & data$to > end, ]
+        cat(paste0(nrow(data), " aggregated transactions left after removing taking 'start' and/or 'end' into account.\n"))
+        cat(paste0(length(unique(data$id)), " subscribers left after removing taking 'start' and/or 'end' into account.\n"))
+        
+    }
     attr(data, "by") <- by
     class(data) <- c(class(data), "RevenueData")
     data

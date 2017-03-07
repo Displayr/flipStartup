@@ -24,4 +24,3 @@ Computes acquisition, by cohort.
 \details{
 Computed based on being a subscribed on the last second of the time period.
 }
-

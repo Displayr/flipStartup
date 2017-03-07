@@ -16,4 +16,3 @@ FillInVector(x, element.names, value = 0)
 \description{
 Fills in missing rows and/or columns in a matrix.
 }
-

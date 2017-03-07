@@ -17,4 +17,3 @@ Triangle(x, position = "lower right", diag = FALSE)
 \description{
 Lower and Upper Triangle  (left and right) part of a matrix.
 }
-

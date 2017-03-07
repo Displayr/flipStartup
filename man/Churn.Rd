@@ -29,4 +29,3 @@ Computes retention, by cohort.
 Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 is asumed to have been retained during the period where the account was suspended.
 }
-
