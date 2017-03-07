@@ -17,4 +17,3 @@ those to the right of them, to NA.}
 \description{
 Indexes relative to the diagonal.
 }
-

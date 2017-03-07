@@ -14,4 +14,3 @@ Diagonal(x, off = FALSE)
 \description{
 Extract or replace the diagonal of a matrix, or construct a diagonal matri.
 }
-

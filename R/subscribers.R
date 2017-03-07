@@ -48,12 +48,12 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
     class(result) <- c("Subscribers", class(result))
     result
 }
-
-
-#' @importFrom plotly plot_ly
-#' @export
-plot.Subscribers <- function(x, ...)
-{
-    title <- if("Revenue" %in% class(x)) "Revenue" else "Subscribers"
-    TimeSeriesColumnChart(x, smooth = FALSE, series.name = title, ytitle = title,  ...)
-}
+#' 
+#' 
+#' #' @importFrom plotly plot_ly
+#' #' @export
+#' plot.Subscribers <- function(x, ...)
+#' {
+#'     title <- if("Revenue" %in% class(x)) "Revenue" else "Subscribers"
+#'     TimeSeriesColumnChart(x, smooth = FALSE, series.name = title, ytitle = title,  ...)
+#' }

@@ -19,4 +19,3 @@ A \code{\link{list}} containing the following elements:
 \description{
 Sales and sales growth.
 }
-

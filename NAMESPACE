@@ -2,7 +2,6 @@
 
 S3method(plot,Acquisition)
 S3method(plot,RevenueGrowthAccounting)
-S3method(plot,Subscribers)
 S3method(plot,Waterfall)
 S3method(print,Index)
 S3method(print,RevenueGrowthAccounting)

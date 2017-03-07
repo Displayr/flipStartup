@@ -16,4 +16,3 @@ Waterfall(x, periods = NULL)
 Creates a waterfall table showing the source(s) of change in sales for one period,
 relative to the previous period.
 }
-

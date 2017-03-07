@@ -16,4 +16,3 @@ ConnectedDotPlot(name, from, to)
 \description{
 Plots the subscription periods as a dotplot, with lines showing when subscriptions occurred
 }
-

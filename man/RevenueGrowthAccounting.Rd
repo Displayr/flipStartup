@@ -24,4 +24,3 @@ Small differences in the percentages shown here versus those computed by other m
 to: (1) how churn is defined (e.g., the point at time when a customer churns, vs, takes a hieateous); (2) the precision
 used to determine whether a subscriber is considered to have contracted/expanded or not.
 }
-

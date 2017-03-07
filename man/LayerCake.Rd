@@ -17,4 +17,3 @@ A plotly plot.
 \description{
 Plots revenue by year and start year, as a stacked revenue chart.
 }
-

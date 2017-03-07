@@ -1,4 +1,4 @@
-context("Revenue subscribers")
+context("Revenue")
 data(q.invoice.lines)
 d <- q.invoice.lines
 library(lubridate)
@@ -10,7 +10,7 @@ for (by in c("week", "month", "quarter", "year"))
     test_that(paste("Creating RevenueData", by),
           {
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, by = by, subset = d$validInvoice == 1)), NA)
-    plot(Revenue(rd))
+            expect_error(capture.output(print(Revenue(rd))), NA)
 })
 
 

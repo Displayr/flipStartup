@@ -24,4 +24,3 @@ The value that subscribers have historically provided the firm. This is sometime
 referred to as "lifetime value". \code{LifetimeValue} estimates the value of a subscriber
 based on both historical value and likely future value.
 }
-
