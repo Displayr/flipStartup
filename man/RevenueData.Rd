@@ -57,7 +57,6 @@ the  following variables, along with any other variables in the \code{data}:
   \code{last.from.period} The period of \code{last.from}.
   \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing prior to \code{end}.
   \code{churn} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
-  \code{tenure.interval} A \code{interval} of \code{subscriber.from} to \code{subscriber.to}.
   \code{tenure} The number of whole periods from the begining of the first subscription
   to the end of the most recent.
   \code{observation} The number of the subscription for a particular customer, starting from 1.

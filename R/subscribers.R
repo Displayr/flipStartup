@@ -22,6 +22,7 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
     result <- rep(NA, n) + 1
     starts <- start + Periods(0:(n-1), by)
     names(result) <- starts
+    tenure.interval <- interval(data$subscriber.from, data$subscriber.to)
     count <- 0
     for (i in 1:n)
     {
@@ -29,31 +30,15 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
             {
                 start <- starts[i]
                 filt <- start >= data$from & start <= data$to
-                #print(c(sum(filt)))
-                #print(c("length",length(unique(data$id[filt]))))
-                # if (i == n){
-                #     print(start)
-                #     print(data[!filt, c("from", "to", "value", "id")])
-                #     print(sum(data[!filt, c("value")]))
-                # }
                 sum(data$value[start >= data$from & start <= data$to])
             }
             else
             {
                 start <- starts[i] + months(1) - seconds(1)
-                sum(start %within% data$tenure.interval)
+                sum(start %within% tenure.interval)
             }
 
     }
     class(result) <- c("Subscribers", class(result))
     result
 }
-#' 
-#' 
-#' #' @importFrom plotly plot_ly
-#' #' @export
-#' plot.Subscribers <- function(x, ...)
-#' {
-#'     title <- if("Revenue" %in% class(x)) "Revenue" else "Subscribers"
-#'     TimeSeriesColumnChart(x, smooth = FALSE, series.name = title, ytitle = title,  ...)
-#' }

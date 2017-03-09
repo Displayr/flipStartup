@@ -38,7 +38,6 @@
 #'   \code{last.from.period} The period of \code{last.from}.
 #'   \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing prior to \code{end}.
 #'   \code{churn} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
-#'   \code{tenure.interval} A \code{interval} of \code{subscriber.from} to \code{subscriber.to}.
 #'   \code{tenure} The number of whole periods from the begining of the first subscription
 #'   to the end of the most recent.
 #'   \code{observation} The number of the subscription for a particular customer, starting from 1.
@@ -133,8 +132,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], by), by)
     cat(paste0(nrow(id.data), " subscribers.\n"))
     id.data$subscription.to <- aggregate(to ~ id, data, max)$to
-    id.data$tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
-    id.data$tenure <- id.data$tenure.interval %/% units
+    tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
+    id.data$tenure <- tenure.interval %/% units
     id.data$subscriber.from.period <- Period(id.data$subscriber.from, by)
     id.data$subscriber.to.period <- Period(id.data$subscriber.to, by)
     id.data$churned <- id.data$subscriber.to <= end
