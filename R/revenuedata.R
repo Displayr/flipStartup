@@ -157,8 +157,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     {
         window = interval(start, end)
         data <- data[data$to %within% window | data$from %within% window | data$from < start & data$to > end, ]
-        cat(paste0(nrow(data), " aggregated transactions left after removing taking 'start' and/or 'end' into account.\n"))
-        cat(paste0(length(unique(data$id)), " subscribers left after removing taking 'start' and/or 'end' into account.\n"))
+        cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
+        cat(paste0(length(unique(data$id)), " subscribers left after taking 'start' and/or 'end' into account.\n"))
         
     }
     attr(data, "by") <- by
