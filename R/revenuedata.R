@@ -80,6 +80,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     }
     n <- nrow(data)
     cat(paste0(n, " transactions remaining.\n"))
+    if (n == 0)
+        return(NULL)
     # Aggregating transactions that occor in the same time period.
     data$to.period <- Period(data$to, by)
     data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
@@ -147,10 +149,13 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     data <- data[order(data$id, data$from),]
     # Creating a variable indicating observation number. Randomly sorts ties.
     observation <- rep(1, n <- nrow(data))
-    ids <- data$id
-    for (i in 2:n)
-        if (ids[i] == ids[i - 1])
-            observation[i] = observation[i - 1] + 1
+    if (n > 1)
+    {
+        ids <- data$id
+        for (i in 2:n)
+            if (ids[i] == ids[i - 1])
+                observation[i] = observation[i - 1] + 1
+    }
     data$observation <- observation
     data$id <- sub("\\s+$", "", as.character(data$id))
     if (!default.start.end) 
