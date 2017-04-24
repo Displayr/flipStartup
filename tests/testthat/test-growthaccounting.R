@@ -42,10 +42,10 @@ test_that("Financial year",
     calculated.from.filter <- sum(rdm$value[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd])
     expect_equal(as.numeric(annual.from.annual), calculated.from.filter)
 
-    expect_error(Revenue(rdm[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd, ], end = today), NA)
+    expect_error(Revenue(rdm[rdm$from >= twelveMonthsAgo & rdm$value <= yearEnd, ], end = today, by = "month"), NA)
 
 
-    rv <- Revenue(rdm, end = today)
+    rv <- Revenue(rdm, end = today, by = "month")
     #rv[length(rv)]
     #rv
 
