@@ -11,9 +11,9 @@
 #'
 #' @importFrom lubridate '%within%' seconds
 #' @export
-Revenue <- function(data, end = Sys.time(), by = "month")
+Revenue <- function(data, end = Sys.time(), by)
 {
-    result <- Subscribers(data, by = "month", end = end, volume = TRUE)
+    result <- Subscribers(data, by = by, end = end, volume = TRUE)
     class(result) <- c("Revenue", class(result))
     result
 }
