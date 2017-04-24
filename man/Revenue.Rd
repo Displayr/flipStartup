@@ -4,7 +4,7 @@
 \alias{Revenue}
 \title{\code{Revenue}}
 \usage{
-Revenue(data, end = Sys.time(), by = "month")
+Revenue(data, end = Sys.time(), by)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
