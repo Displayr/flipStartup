@@ -5,7 +5,7 @@ library(lubridate)
 Sys.setenv(TZ='GMT')
 end <-  ISOdate(2016,12,31)
 start <-  ISOdate(2012,7,1)
-by = "year"
+by = "week"
 for (by in c("week", "month", "quarter", "year"))
     test_that(paste("Creating RevenueData", by),
           {
