@@ -12,12 +12,14 @@
 #' used to determine whether a subscriber is considered to have contracted/expanded or not.
 #' @importFrom flipStatistics Table
 #' @importFrom stats aggregate xtabs
+#' @importFrom flipTime PeriodNameToDate
 #' @importFrom methods is
 #' @export
 RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
 {
+    period.date <- PeriodNameToDate(data$from.period)
     if (remove.last)
-        data <- subset(data, data$period != max(data$period))
+        data <- subset(data, period.date != max(period.date))
     id <- data$id
     period <- data$from.period
     value <- data$value
