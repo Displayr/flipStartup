@@ -1,4 +1,4 @@
-Sys.setenv(TZ='GMT')
+#Sys.setenv(TZ='GMT')
 q.invoice.lines <- foreign::read.spss(system.file("extdata", "invoiceLines.sav", package = "flipStartup"), to.data.frame = TRUE)
 q.invoice.lines <- q.invoice.lines[, !(names(q.invoice.lines) %in% c("InvoiceID", "orgID","Edition"))]
 q.invoice.lines$ValidFrom <- ISOdate(1582,10,14)  +  q.invoice.lines$ValidFrom

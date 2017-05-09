@@ -2,13 +2,9 @@
 #'
 #' @description Computes retention, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param subscription.length The length of the subscription: \code{"day"},
-#' \code{"week"}, \code{"month"}, \code{"quarter"}, or \code{"year"}.
-#' @param remove.last Remove the final period (as usually is incomplete).
 #' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 #' is asumed to have been retained during the period where the account was suspended. Where
-#' a subscriber for some reason had a subscription length that was different to the specified
-#' \code{"subscription.length"}, their revenue-weighted retention will be misattributed.
+#' a subscriber for some reason had a subscription length that was different to the specified.  
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{counts}{The number of subscribers per \code{period} by \code{subscriber.from.period}}
 #'   \item{index}{The percentage (proportion * 100) of subscribers to remain subscribers}
@@ -20,23 +16,26 @@
 #'   \item{average.life.span}{Estimated average subscriber lifespan (1 / churn) subscriber retention.}
 #'   \item{average.volume}{Retention, weighted by subscriber value in the preceeding period.}
 #'   \item{churn.volume}{Churn, weighted by subscriber value in the preceeding period.}
-#' @importFrom flipTime PeriodNameToDate CompleteListPeriodNames Period
+#' @importFrom flipTime PeriodNameToDate CompleteListPeriodNames Period Periods
 #' @importFrom lubridate as_date
 #' @export
-Retention <- function(data, subscription.length = "year", remove.last = TRUE)
+Retention <- function(data)
 {
-    by <- attr(data, "by")
+    subscription.length <- attr(data, "subscription.length")
+    data <- removeIncompleteSubscriptions(data)
     data.id <- data[data$observation == 1, ]
     data.id$final.end <- as_date(data.id$subscriber.to)
-    last.period <- as_date(max(PeriodNameToDate(data.id$subscriber.from.period, by)))
+    last.period <- as_date(max(PeriodNameToDate(data.id$subscriber.from.period, subscription.length)))
     data.id$final.end[data.id$final.end > last.period] <- last.period
-    data.id$final.end <- Period(data.id$final.end, by)
-    period.names <- unique(c(unique(data$from.period), unique(data$to.period)))
-    periods <- CompleteListPeriodNames(period.names, by)
+    data.id$final.end <- Period(data.id$final.end, subscription.length)
+    max.from <- max(PeriodNameToDate(data$from.period, subscription.length))
+    final.period <- Period(max.from + Periods(1, subscription.length), by = subscription.length)
+    period.names <- unique(c(unique(data$from.period), final.period))
+    periods <- CompleteListPeriodNames(period.names, subscription.length)
     n.periods <- length(periods)
     retention.rate.volume <-
         matrix(NA, n.periods, n.periods, dimnames = list(subscriber.from.period = periods, period = periods))
-    names(dimnames(retention.rate.volume)) <- c("Commenced", by)
+    names(dimnames(retention.rate.volume)) <- c("Commenced", subscription.length)
     n.subscriptions <- n.retained <- retention.rate <- retention.rate.volume
     total <- 0
     total.lost <- 0
@@ -58,10 +57,8 @@ Retention <- function(data, subscription.length = "year", remove.last = TRUE)
             revenue.base <- sum(revenue, na.rm = TRUE)
             revenue.lost <- sum(revenue[churn], na.rm = TRUE)
             n.subscriptions[r, c] <- n.subscribers <- length(unique(ids))
-            #n.retained[r, c] <-  sum(base)
             n.retained[r, c] <- retained <-  n.subscribers - length(unique(ids[churn]))
             retention.rate[r, c] <- retained / n.subscribers
-#            print(c(r, c, n.subscribers, sum(churn)))
             retention.rate.volume[r, c] <- (revenue.base - revenue.lost) / revenue.base
             total <- total + revenue.base
             total.lost <- total.lost + revenue.lost
@@ -84,20 +81,15 @@ Retention <- function(data, subscription.length = "year", remove.last = TRUE)
          n.retained = n.retained,
          retention.rate = retention.rate,
          retention.rate.volume = retention.rate.volume,
-         #index = IndexDiagonal(n.subscriptions),
          average.retention.rate = average.retention.rate,
          average.retention.rate.volume = average.retention.rate.volume,
          retention.rate.by.period = retention.rate.by.period,
          retention.rate.volume.by.period = retention.rate.volume.by.period,
-         #estimated.volume.retention.by.period = estimated.volume.retention.by.period,
-         #average.retention = average.retention,
          churn = churn,
          churn.volume = churn.volume,
          churn.first.period = churn.first.period,
          average.lifespan = average.lifespan,
          average.lifespan.volume = average.lifespan.volume)
-         #average.volume = average.volume,
-    #    $ $)
 }
 
 

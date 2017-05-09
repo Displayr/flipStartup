@@ -11,14 +11,16 @@
 #' @export
 Growth <- function(data, remove.last = TRUE)
 {
+    if (remove.last)
+        data <- removeLast(data)
     revenue <- Table(value ~ from.period, data = data, FUN = sum)
     k <- length(revenue)
-    if (remove.last)
-    {
-        revenue <- revenue[-k]
-        k <- k - 1
-
-    }
+    # if (remove.last)
+    # {
+    #     revenue <- revenue[-k]
+    #     k <- k - 1
+    # 
+    # }
     growth <- revenue[-1] / revenue[-k] - 1
     list(revenue = revenue, growth = growth)
 }

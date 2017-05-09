@@ -19,7 +19,7 @@ RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
 {
     period.date <- PeriodNameToDate(data$from.period)
     if (remove.last)
-        data <- subset(data, period.date != max(period.date))
+        data <- removeLast(data)
     id <- data$id
     period <- data$from.period
     value <- data$value

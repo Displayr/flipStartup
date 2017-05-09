@@ -4,8 +4,11 @@
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param remove.last Remove the final period (as usually is incomplete).
 #' @param volume Weights the results by volume.
+#' @param number.periods The number of periods of data that are treated as being 'acquisitions'. By default, this is 1, 
+#' which means that only sales in the initial period are counted as acquisitions. If set to 12, for example, it would
+#' means that the first 12 periods are treated as acquisitions (e.g., the first year, if the data has been setup as monthly).
 #' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-#' is asumed to have been retained during the period where the account was suspended.
+#' is asusmed to have been retained during the period where the account was suspended.
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{id}{The \code{id} values of subscribers to churn.}
 #'   \item{base}{The number of subscribers to renew or churn in the time period.}
@@ -14,14 +17,12 @@
 #'
 #' @importFrom flipStatistics Table
 #' @export
-Acquisition <- function(data, remove.last = TRUE, volume = FALSE)
+Acquisition <- function(data, remove.last = TRUE, volume = FALSE, number.periods = 1)
 {
-    by <- attr(data, "by")
-    #filtering out data where there are no start dates.
-    # data <- data[data$to <= max(data$from), ]
-     data <- data[data$observation == 1,]
+    subscription.length <- attr(data, "subscription.length")
     if (remove.last)
-        data <- data[data$to.period < max(data$to.period), ]
+        data <- removeLast(data)
+    data <- data[data$observation <= number.periods, ]
     idag <- aggregate(id ~ subscriber.from.period, data = data, FUN = unique)
     id <- idag[, 2]
     names(id) <- idag[, 1]
@@ -29,7 +30,7 @@ Acquisition <- function(data, remove.last = TRUE, volume = FALSE)
         Table(value ~ subscriber.from.period, data = data, FUN = sum)
     else
         Table( ~ subscriber.from.period, data = data)
-    result <-list(volume = volume, id = id, counts = counts, by = by)
+    result <-list(volume = volume, id = id, counts = counts, subscription.length = subscription.length)
     class(result) <- c("Acquisition", class(result))
     result
 }
