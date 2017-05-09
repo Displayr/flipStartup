@@ -4,12 +4,10 @@
 \alias{Churn}
 \title{\code{Churn}}
 \usage{
-Churn(data, remove.last = TRUE, volume = FALSE)
+Churn(data, volume = FALSE)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
-
-\item{remove.last}{Remove the final period (as usually is incomplete).}
 
 \item{volume}{Weights the results by volume.}
 }
@@ -27,5 +25,5 @@ Computes retention, by cohort.
 }
 \details{
 Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-is asumed to have been retained during the period where the account was suspended.
+is included in the churn.
 }

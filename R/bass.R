@@ -16,6 +16,8 @@
 #' @export
 Bass <- function(data, remove.last = TRUE)
 {
+    if (remove.last)
+        data <- removeLast(data)
     revenue <- Growth(data, remove.last)$revenue
     time <- as.numeric(names(revenue))
     rev <- Sales <- c(revenue[1], revenue[-1] - revenue[-length(revenue)])

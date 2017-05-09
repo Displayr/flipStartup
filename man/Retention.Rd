@@ -4,15 +4,10 @@
 \alias{Retention}
 \title{\code{Retention}}
 \usage{
-Retention(data, subscription.length = "year", remove.last = TRUE)
+Retention(data)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
-
-\item{subscription.length}{The length of the subscription: \code{"day"},
-\code{"week"}, \code{"month"}, \code{"quarter"}, or \code{"year"}.}
-
-\item{remove.last}{Remove the final period (as usually is incomplete).}
 }
 \value{
 A \code{\link{list}} containing the following elements:
@@ -33,6 +28,5 @@ Computes retention, by cohort.
 \details{
 Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 is asumed to have been retained during the period where the account was suspended. Where
-a subscriber for some reason had a subscription length that was different to the specified
-\code{"subscription.length"}, their revenue-weighted retention will be misattributed.
+a subscriber for some reason had a subscription length that was different to the specified.
 }

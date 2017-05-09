@@ -12,7 +12,7 @@
 #' By default, the most recent  date recorded in \code{from}.
 #' @param id A vector of \code{character}, unique identifier for subscribers that
 #' made the transactions (e.g., email addresses, names, subscriber keys).
-#' @param by \code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
+#' @param subscription.length The time unit that describes the subscription length: \code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
 #' when determining if subscribers have churned or not.
 #' @param subset An optional vector specifying a subset of observations to be used in the calculations
 #' @param profiling A \code{data.frame} containing data, unique by \code{id}, to be included in the final \code{data.frame}.
@@ -40,20 +40,21 @@
 #'   \code{churn} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
 #'   \code{tenure} The number of whole periods from the begining of the first subscription
 #'   to the end of the most recent.
-#'   \code{observation} The number of the subscription for a particular customer, starting from 1.
+#'   \code{observation} The invoice number for a particular customer, starting from 1.
+#'   \code{observation.within.period} The number of the subscription for a particular customer, 
+#'   starting from 1 for each new subscription period (as determined by a common to.period).
 #'
-#' @importFrom lubridate period year years quarter month week weeks day days interval floor_date
-#' @importFrom flipTime DaysPerPeriod Period Periods
+#' @importFrom lubridate period year years quarter month week weeks day days interval floor_date tz  "tz<-"
+#' @importFrom flipTime Period Periods PeriodNameToDate
 #' @export
-RevenueData <- function(value, from, to, start = min(from), end = max(from), id, by = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
+RevenueData <- function(value, from, to, start = min(from), end = max(from), id, subscription.length = "year", subset = rep(TRUE, length(id)), profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
     default.start.end <- start == min(from) & end == max(from)
     # Units.
-    units <- Periods(1, by)#switch(by, days = days(1), week = weeks(1), month = months(1), quarter = months(3), year = years(1))
-    dys <- DaysPerPeriod(by)
-    # Merging profiling data.
-    end <- floor_date(end, by)
-    data <- data.frame(id = as.character(id), value, from = floor_date(from, by), to = floor_date(to, by))
+    units <- Periods(1, subscription.length)
+    data <- data.frame(id = as.character(id), value, from, to)
+    # Sorting by company name and start-date
+    data <- data[with(data, order(id, from)), ]    
     # Filtering data.
     n.initial <- nrow(data)
     cat(paste0(n.initial, " transactions.\n"))
@@ -83,7 +84,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     if (n == 0)
         return(NULL)
     # Aggregating transactions that occor in the same time period.
-    data$to.period <- Period(data$to, by)
+    data$to.period <- Period(data$to, subscription.length)
     data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
     n <- nrow(data)
     cat(paste0(n, " aggregated transactions (i.e., summed together when sharing a from and end date) remaining.\n"))
@@ -131,42 +132,54 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     }
     # Creating time-based metrics.
     id.data$last.from <- aggregate(from ~ id, data, max)[, 1]
-    id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], by), by)
+    id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], subscription.length), subscription.length)
     cat(paste0(nrow(id.data), " subscribers.\n"))
     id.data$subscription.to <- aggregate(to ~ id, data, max)$to
     tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
     id.data$tenure <- tenure.interval %/% units
-    id.data$subscriber.from.period <- Period(id.data$subscriber.from, by)
-    id.data$subscriber.to.period <- Period(id.data$subscriber.to, by)
+    id.data$subscriber.from.period <- Period(id.data$subscriber.from, subscription.length)
+    id.data$subscriber.to.period <- Period(id.data$subscriber.to, subscription.length)
     id.data$churned <- id.data$subscriber.to <= end
     not.churned <- !id.data$churned
     data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
-    data$from.period <- Period(data$from, by)
-    data$to.period <- Period(data$to, by)
-    data$churn <- data$churned & data$from.period == data$last.from.period# & Period(data$relationship.to, by) == Period(data$to, by)
+    data$from.period <- Period(data$from, subscription.length)
+    data$to.period <- Period(data$to, subscription.length)
+    data$churn <- data$churned & data$from.period == data$last.from.period
     data$period.counter <- interval(data$subscriber.from, data$from) %/% units
     # Sorting.
     data <- data[order(data$id, data$from),]
     # Creating a variable indicating observation number. Randomly sorts ties.
-    observation <- rep(1, n <- nrow(data))
+    observation <- observation.within.period <- rep(1, n <- nrow(data))
     if (n > 1)
     {
         ids <- data$id
         for (i in 2:n)
             if (ids[i] == ids[i - 1])
+            {
+                if (data$to.period[i] == data$to.period[i - 1])
+                    observation.within.period[i] = observation.within.period[i - 1] + 1
                 observation[i] = observation[i - 1] + 1
+                
+            }
     }
     data$observation <- observation
+    data$observation.within.period <- observation.within.period
+    
     data$id <- sub("\\s+$", "", as.character(data$id))
     if (!default.start.end) 
     {
-        window = interval(start, end)
-        data <- data[data$to %within% window | data$from %within% window | data$from < start & data$to > end, ]
+        window <- interval(start, end)
+        old.tz <- tz(from)
+        from <- PeriodNameToDate(data$from.period)
+        tz(from) <- old.tz
+        to <- PeriodNameToDate(data$to.period)
+        tz(to) <- old.tz
+        data <- data[to %within% window | from %within% window | from < start & to > end, ]
         cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
         cat(paste0(length(unique(data$id)), " subscribers left after taking 'start' and/or 'end' into account.\n"))
-        
     }
-    attr(data, "by") <- by
+    attr(data, "subscription.length") <- subscription.length
+    attr(data, "end") <- end
     class(data) <- c(class(data), "RevenueData")
     data
 }

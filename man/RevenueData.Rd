@@ -5,8 +5,8 @@
 \title{\code{RevenueData}}
 \usage{
 RevenueData(value, from, to, start = min(from), end = max(from), id,
-  by = "year", subset = rep(TRUE, length(id)), profiling = NULL,
-  trim.id = 50)
+  subscription.length = "year", subset = rep(TRUE, length(id)),
+  profiling = NULL, trim.id = 50)
 }
 \arguments{
 \item{value}{A vector of containing the revenue per transaction.}
@@ -26,7 +26,7 @@ By default, the most recent  date recorded in \code{from}.}
 \item{id}{A vector of \code{character}, unique identifier for subscribers that
 made the transactions (e.g., email addresses, names, subscriber keys).}
 
-\item{by}{\code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
+\item{subscription.length}{The time unit that describes the subscription length: \code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
 when determining if subscribers have churned or not.}
 
 \item{subset}{An optional vector specifying a subset of observations to be used in the calculations}
@@ -59,7 +59,9 @@ the  following variables, along with any other variables in the \code{data}:
   \code{churn} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
   \code{tenure} The number of whole periods from the begining of the first subscription
   to the end of the most recent.
-  \code{observation} The number of the subscription for a particular customer, starting from 1.
+  \code{observation} The invoice number for a particular customer, starting from 1.
+  \code{observation.within.period} The number of the subscription for a particular customer, 
+  starting from 1 for each new subscription period (as determined by a common to.period).
 }
 \description{
 Cleans and tidies data for use in growth accounting computations for a startup.

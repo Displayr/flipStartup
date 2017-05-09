@@ -17,21 +17,23 @@
 #' @export
 LifetimeValue <- function(data, remove.last = TRUE)
 {
-    by <- attr(data, "by")
+    subscription.length <- attr(data, "subscription.length")
+    if (remove.last)
+        data <- removeLast(data)
     ns <- Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
     total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
     # Filling in missing row and column totals
-    row.names <- CompleteListPeriodNames(rownames(total), by)
+    row.names <- CompleteListPeriodNames(rownames(total), subscription.length)
     col.names <- 0:max(length(row.names) - 1, as.numeric(colnames(total)))
     total <- FillInMatrix(total, row.names, col.names, 0)
     ns <- FillInVector(ns, row.names, 0)
-    if (remove.last){
-        k <- nrow(total)
-        ns <- ns[-k]
-        total <- total[-k, -k]
-    }
+    # if (remove.last){
+    #      k <- nrow(total)
+    #      ns <- ns[-k]
+    #      total <- total[-k, -k]
+    # }
     total[Triangle(total, position = "lower right")] <- NA
-    names(dimnames(total)) <- c("Commenced", by)
+    names(dimnames(total)) <- c("Commenced", subscription.length)
     value <- sweep(total, 1, ns, "/")
     di <- Diagonal(value, off = TRUE)
     names(di) <- rownames(value)
