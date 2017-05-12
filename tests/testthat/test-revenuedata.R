@@ -12,6 +12,10 @@ for (by in c("week", "month", "quarter", "year"))
             # Beginning and end
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
             expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            
+            # Subset
+            expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$InvoiceLineID, subscription.length = by, subset = d$validInvoice == 1)), NA)
+            expect_equal(length(which(as.character(d$InvoiceLineID[which(d$validInvoice == 0)]) %in% rd$id)), 0)
 
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
             expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
