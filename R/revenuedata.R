@@ -53,8 +53,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     # Units.
     units <- Periods(1, subscription.length)
     data <- data.frame(id = as.character(id), value, from, to)
-    # Sorting by company name and start-date
-    data <- data[with(data, order(id, from)), ]    
+    
     # Filtering data.
     n.initial <- nrow(data)
     cat(paste0(n.initial, " transactions.\n"))
@@ -64,6 +63,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
         cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
         data <- subset(data, subset = subset)
     }
+    # Sorting by company name and start-date
+    data <- data[with(data, order(id, from)), ]
     # Removing observations that start after the end.
     zero <- data$value == 0
     n.zero <- sum(zero)
