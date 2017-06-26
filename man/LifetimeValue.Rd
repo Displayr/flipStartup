@@ -14,6 +14,8 @@ LifetimeValue(data, remove.last = TRUE)
 \value{
 A \code{list} containing the following elements:
 \item{total}{The total value of transactions, by \code{subscriber.from.period} and \code{period.counter}.}
+\item{subscribers}{The number of subscribers by cohort.}
+\item{revenue.per.subscriber}{The revenue per subsciber.}
 \item{mean}{The average value of transactions, where the base is the number of subscribers
 in the \code{subscriber.from.period}, by \code{subscriber.from.period} and \code{period.counter}.}
 \item{cumulative}{The cumulative means.}
