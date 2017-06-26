@@ -25,5 +25,6 @@ Computes retention, by cohort.
 }
 \details{
 Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-is included in the churn.
+is included in the churn. Churn is show for all periods that have data in \code{data$to.period}, even if
+they occur in the future.
 }

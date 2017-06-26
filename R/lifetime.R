@@ -7,10 +7,13 @@
 #' @param remove.last Remove the final period (as usually is incomplete).
 #' @return A \code{list} containing the following elements:
 #' \item{total}{The total value of transactions, by \code{subscriber.from.period} and \code{period.counter}.}
+#' \item{subscribers}{The number of subscribers by cohort.}
+#' \item{revenue.per.subscriber}{The revenue per subsciber.}
 #' \item{mean}{The average value of transactions, where the base is the number of subscribers
 #' in the \code{subscriber.from.period}, by \code{subscriber.from.period} and \code{period.counter}.}
 #' \item{cumulative}{The cumulative means.}
 #' \item{index}{The \code{cumulative} means divided by the mean from the first period.}
+
 #'
 #' @importFrom flipStatistics Table
 #' @importFrom flipTime CompleteListPeriodNames
@@ -22,17 +25,15 @@ LifetimeValue <- function(data, remove.last = TRUE)
         data <- removeLast(data)
     ns <- Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
     total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
+    counts <- Table(id ~ subscriber.from.period + period.counter, data, FUN = function(x) length(unique(x)))
     # Filling in missing row and column totals
     row.names <- CompleteListPeriodNames(rownames(total), subscription.length)
     col.names <- 0:max(length(row.names) - 1, as.numeric(colnames(total)))
     total <- FillInMatrix(total, row.names, col.names, 0)
+    counts <- FillInMatrix(counts, row.names, col.names, 0)
     ns <- FillInVector(ns, row.names, 0)
-    # if (remove.last){
-    #      k <- nrow(total)
-    #      ns <- ns[-k]
-    #      total <- total[-k, -k]
-    # }
     total[Triangle(total, position = "lower right")] <- NA
+    counts[Triangle(total, position = "lower right")] <- NA
     names(dimnames(total)) <- c("Commenced", subscription.length)
     value <- sweep(total, 1, ns, "/")
     di <- Diagonal(value, off = TRUE)
@@ -50,6 +51,8 @@ LifetimeValue <- function(data, remove.last = TRUE)
     lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
     lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns), na.rm = TRUE)
     result <- list(total = total,
+                   subscribers = counts,
+                   revenue.per.subscriber = value / counts, 
                    mean = value,
                    cumulative = cumulative,
                    index = index,
