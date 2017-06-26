@@ -4,7 +4,8 @@
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param volume Weights the results by volume.
 #' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-#' is included in the churn.
+#' is included in the churn. Churn is show for all periods that have data in \code{data$to.period}, even if
+#' they occur in the future.
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{id}{The \code{id} values of subscribers to churn.}
 #'   \item{base}{The number of subscribers to renew or churn in the time period.}
