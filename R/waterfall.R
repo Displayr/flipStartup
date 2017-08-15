@@ -51,7 +51,7 @@ plot.Waterfall <- function(x, ...)
     y <- y * 100
     bs <- c(y[1], sum(y[1:2]), sum(y[1:2]), sum(y[1:3]), sum(y[1:4]))
     y.cum <- cumsum(y)
-    y.cum.text <- FormatAsPercent(y.cum / 100, 3)
+    y.cum.text <- unname(FormatAsPercent(y.cum / 100, 3))
     # Adding text to show values
     label.offsets <- (y.cum[length(y.cum)] - min(y.cum)) / 30
     annotation.y <- c(y[1], y[1] + y[2],  bs[-1:-2] + y[-1:-2] )
