@@ -11,7 +11,7 @@ for (by in c("week", "month", "quarter", "year"))
           {
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
             expect_error(capture.output(print(Growth(rd))), NA)
-            expect_error(flipTime::TimeSeriesColumnChart(Growth(rd)$growth, by = by, FALSE), NA)
+            expect_error(Chart(Growth(rd)$growth, fit.type="Smooth"), NA)
 })
 
 
