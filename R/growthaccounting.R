@@ -12,12 +12,12 @@
 #' used to determine whether a subscriber is considered to have contracted/expanded or not.
 #' @importFrom flipStatistics Table
 #' @importFrom stats aggregate xtabs
-#' @importFrom flipTime PeriodNameToDate
+#' @importFrom flipTime AsDate
 #' @importFrom methods is
 #' @export
 RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
 {
-    period.date <- PeriodNameToDate(data$from.period)
+    period.date <- AsDate(data$from.period, on.parse.failure = "silent")
     if (remove.last)
         data <- removeLast(data)
     id <- data$id
@@ -37,7 +37,8 @@ RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
     data$value[is.na(data$value)] <- 0
     data$diff <- c(0, data$value[-1] - data$value[-length(data$value)])
     data$cum <- cumsum(data$value)
-    data$cum <- data$cum - rep(data$cum[c(TRUE, rep(FALSE, n.periods))], rep(n.periods + 1, n.id))
+    data$cum <- data$cum - rep(data$cum[c(TRUE, rep(FALSE, n.periods))],
+                               rep(n.periods + 1, n.id))
 #print(data[, c("id", "value", "diff", "cum")])
     data <- data[c(FALSE, rep(TRUE, n.periods)), ]
     data$period <- periods

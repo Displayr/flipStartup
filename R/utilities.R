@@ -77,13 +77,13 @@ Diagonal <- function(x, off = FALSE)
 #'
 #' @description Removes the final data period from a \code{RevenueData} object.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @importFrom flipTime PeriodNameToDate
+#' @importFrom flipTime AsDate
 #' @export
 removeLast <- function(data)
 {
     subscription.length <- attr(data, "subscription.length")
     end <- attr(data, "end")
-    period.date <- PeriodNameToDate(data$from.period)
+    period.date <- AsDate(data$from.period, on.parse.failure = "silent")
     max.from <- max(period.date)
     data = subset(data, period.date != max.from)
     attr(data, "end") <- end
@@ -93,9 +93,10 @@ removeLast <- function(data)
 
 #' \code{removeIncompleteSubscriptions}
 #'
-#' @description Removes from the data any subscriptions that have yet to be completed.
-#' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @importFrom flipTime PeriodNameToDate
+#' @description Removes from the data any subscriptions that have yet to be
+#' completed.
+#' @param data A \code{data.frame} that has the same variables as a
+#' \code{RevenueData} object.
 #' @export
 removeIncompleteSubscriptions <- function(data)
 {
