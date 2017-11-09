@@ -1,7 +1,7 @@
 Package: flipStartup
 Type: Package
 Title: Analytics for startups
-Version: 0.1.0
+Version: 1.0.0
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
 Description: Various analytics to assist in the analysis of the performance of startups.
@@ -14,7 +14,7 @@ Imports:
     flipFormat,
     flipStatistics,
     flipStandardCharts,
-    flipTime,
+    flipTime (>= 1.2.2),
     ggplot2,
     lubridate,
     methods,
