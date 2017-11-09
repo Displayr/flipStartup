@@ -11,58 +11,76 @@ RevenueData(value, from, to, start = min(from), end = max(from), id,
 \arguments{
 \item{value}{A vector of containing the revenue per transaction.}
 
-\item{from}{A vector of class \code{POSIXct} or \code{POSIXt}, recording the date
-and time each subscription commences.}
+\item{from}{A vector of class \code{POSIXct} or \code{POSIXt},
+recording the date and time each subscription commences.}
 
-\item{to}{A vector of class \code{POSIXct} or \code{POSIXt}, recording the date
-and time each subscription ends}
+\item{to}{A vector of class \code{POSIXct} or \code{POSIXt},
+recording the date and time each subscription ends}
 
-\item{start}{The date at which the analysis outputs should commence. By default,
-the earliest date recorded in \code{from}.}
+\item{start}{The date at which the analysis outputs should
+commence. By default, the earliest date recorded in
+\code{from}.}
 
-\item{end}{The date at which the analysis ends, which is used to determine churn.
-By default, the most recent  date recorded in \code{from}.}
+\item{end}{The date at which the analysis ends, which is used to
+determine churn.  By default, the most recent date recorded in
+\code{from}.}
 
-\item{id}{A vector of \code{character}, unique identifier for subscribers that
-made the transactions (e.g., email addresses, names, subscriber keys).}
+\item{id}{A vector of \code{character}, unique identifier for
+subscribers that made the transactions (e.g., email addresses,
+names, subscriber keys).}
 
-\item{subscription.length}{The time unit that describes the subscription length: \code{year} to view the data by year, \code{quarter}, and \code{month}. This is assumed to be the billing period
-when determining if subscribers have churned or not.}
+\item{subscription.length}{The time unit that describes the
+subscription length: \code{year} to view the data by year,
+\code{quarter}, and \code{month}. This is assumed to be the
+billing period when determining if subscribers have churned or
+not.}
 
-\item{subset}{An optional vector specifying a subset of observations to be used in the calculations}
+\item{subset}{An optional vector specifying a subset of
+observations to be used in the calculations}
 
-\item{profiling}{A \code{data.frame} containing data, unique by \code{id}, to be included in the final \code{data.frame}.
-Either it must contain the unique identifiers in a variable called \code{id}, or, the  \code{rownames} must match
-the values of \code{id}.}
+\item{profiling}{A \code{data.frame} containing data, unique by
+\code{id}, to be included in the final
+\code{data.frame}. Either it must contain the unique
+identifiers in a variable called \code{id}, or, the
+\code{rownames} must match the values of \code{id}.}
 
-\item{trim.id}{The maximum length of the strings to be used showing ID names (used to avoid situations where
-string names are so long as to make reading of tables impossible.}
+\item{trim.id}{The maximum length of the strings to be used showing
+ID names (used to avoid situations where string names are so
+long as to make reading of tables impossible.}
 }
 \value{
-A \code{\link{data.frame}} qhwew where the rows represent unique combinations of periods
-and subscribers. Where a subscriber has multiple transactions in a period, they are aggregated. Contains
-the  following variables, along with any other variables in the \code{data}:
-  \code{id}{The unique identifier.}
-  \code{value}{The total fee/price for a subscription.}
-  \code{from}{The commencement date of a subscription.}
-  \code{from.period} The \code{period} of the subscription commencement as a character.
-  \code{period.counter} The number of the period, where 0 indicates the initial period.
-  \code{to}{The end-date of a subscription.}
-  \code{to.period} The \code{period} of the subscription end as a character.
-  \code{subscriber.from} The date of a customer's first subscription's commencement.
-  \code{subscriber.from.period} The \code{period} of \code{subscriber.from}.
-  \code{subscriber.to} The final date of their most recent subscription.
-  \code{subscriber.to.period} The period of \code{subscriber.to}.
-  \code{last.from} The \code{from} date of the most recent subscription.
-  \code{last.from.period} The period of \code{last.from}.
-  \code{churned} A \code{logical} indicating if the subscriber had ceased subscribing prior to \code{end}.
-  \code{churn} A \code{logical} indicating if the subscriber had ceased subscribing in that period.
-  \code{tenure} The number of whole periods from the begining of the first subscription
-  to the end of the most recent.
-  \code{observation} The invoice number for a particular customer, starting from 1.
-  \code{observation.within.period} The number of the subscription for a particular customer, 
-  starting from 1 for each new subscription period (as determined by a common to.period).
+A \code{\link{data.frame}} qhwew where the rows represent
+    unique combinations of periods and subscribers. Where a
+    subscriber has multiple transactions in a period, they are
+    aggregated. Contains the following variables, along with any
+    other variables in the \code{data}: \code{id}{The unique
+    identifier.}  \code{value}{The total fee/price for a
+    subscription.}  \code{from}{The commencement date of a
+    subscription.}  \code{from.period} The \code{period} of the
+    subscription commencement as a character.
+    \code{period.counter} The number of the period, where 0
+    indicates the initial period.  \code{to}{The end-date of a
+    subscription.}  \code{to.period} The \code{period} of the
+    subscription end as a character.  \code{subscriber.from} The
+    date of a customer's first subscription's commencement.
+    \code{subscriber.from.period} The \code{period} of
+    \code{subscriber.from}.  \code{subscriber.to} The final date of
+    their most recent subscription.  \code{subscriber.to.period}
+    The period of \code{subscriber.to}.  \code{last.from} The
+    \code{from} date of the most recent subscription.
+    \code{last.from.period} The period of \code{last.from}.
+    \code{churned} A \code{logical} indicating if the subscriber
+    had ceased subscribing prior to \code{end}.  \code{churn} A
+    \code{logical} indicating if the subscriber had ceased
+    subscribing in that period.  \code{tenure} The number of whole
+    periods from the begining of the first subscription to the end
+    of the most recent.  \code{observation} The invoice number for
+    a particular customer, starting from 1.
+    \code{observation.within.period} The number of the subscription
+    for a particular customer, starting from 1 for each new
+    subscription period (as determined by a common to.period).
 }
 \description{
-Cleans and tidies data for use in growth accounting computations for a startup.
+Cleans and tidies data for use in growth accounting
+    computations for a startup.
 }
