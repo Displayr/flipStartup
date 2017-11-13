@@ -5,10 +5,7 @@
 \alias{q.invoice.lines}
 \title{Variables from Q's invoicelines table.}
 \format{data.frame}
-\usage{
-q.invoice.lines
-}
 \description{
 Information about Q's subscriber history.
 }
-\keyword{datasets}
+\keyword{data}

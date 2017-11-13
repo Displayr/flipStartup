@@ -2,4 +2,7 @@
 #'
 #' @description Information about Q's subscriber history.
 #' @format data.frame
-"q.invoice.lines"
+#' @name q.invoice.lines
+#' @docType data
+#' @keywords data
+NULL

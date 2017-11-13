@@ -11,7 +11,7 @@
 #' @return A vector showing number of subscribers over time.
 #'
 #' @importFrom lubridate '%within%' seconds floor_date
-#' @importFrom flipTime Periods TimeSeriesColumnChart
+#' @importFrom flipTime Periods
 #' @export
 Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
 {

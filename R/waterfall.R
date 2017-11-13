@@ -37,7 +37,7 @@ Waterfall <- function(x, periods = NULL)
 #' Creates a waterfall chart showing the source(s) of change in sales for one period, relative to the previous period.
 #' @param x An object of class \code{Waterfall}.
 #' @param ... Additional parameters.
-#' @importFrom plotly plot_ly add_trace layout config add_annotations
+#' @importFrom plotly plot_ly add_trace layout config add_annotations add_text
 #' @importFrom flipFormat FormatAsPercent
 #' @export
 plot.Waterfall <- function(x, ...)
@@ -51,7 +51,7 @@ plot.Waterfall <- function(x, ...)
     y <- y * 100
     bs <- c(y[1], sum(y[1:2]), sum(y[1:2]), sum(y[1:3]), sum(y[1:4]))
     y.cum <- cumsum(y)
-    y.cum.text <- FormatAsPercent(y.cum / 100, 3)
+    y.cum.text <- unname(FormatAsPercent(y.cum / 100, 3))
     # Adding text to show values
     label.offsets <- (y.cum[length(y.cum)] - min(y.cum)) / 30
     annotation.y <- c(y[1], y[1] + y[2],  bs[-1:-2] + y[-1:-2] )
@@ -72,15 +72,15 @@ plot.Waterfall <- function(x, ...)
             marker = list(color = colors[i]),
             type = "bar")
     # Adding annotations
-    annotations <- list()
     for (i in 1:(n.y <- length(y)))
     {
-        p <- add_annotations(p,
+        p <- add_text(p,
             x = categories[i],
             y = annotation.y.with.offset[i],
             text = y.cum.text[i],
             textposition = "bottom middle",
-            showarrow = FALSE
+            textfont = list(color = "black"),
+            marker = NULL
         )
     }
     # Differences.
@@ -88,43 +88,16 @@ plot.Waterfall <- function(x, ...)
     small.bar <- abs(y) < 4
     text.position <- ifelse(small.bar, bs - label.offsets, middle.of.bar) # Correcting for situations where the columns are small.
 
-    t <- list(
-        #family = "sans serif",
-        #size = 18,
-        color = "white"#)#plotly::toRGB("grey50")#
-    )
-    # plot_ly(mtcars, x = ~wt, y = ~mpg, text = rownames(mtcars)) %>%
-    #     add_markers() %>%
-    #     add_text(textfont = t, textposition = "top middle")
-
     for (i in 1:n.y)
     {
-        p <- plotly::add_text(p,
+        p <- add_text(p,
                 x = categories[i],
                 y = text.position[i],
                 text = y.text[i],
                 textposition = if(small.bar[i]) "lower middle" else "middle",
                 textfont = list(color = if(small.bar[i]) "black" else "white"),
                 marker = NULL
-                #bgcolor = "white",
-                #color = "white",
-                #font = list(color = if(small.bar[i]) NULL else "white"),
-               # showarrow = FALSE
             )
-
-
-
-    #     p <- add_annotations(p,
-    #         x = categories[i],
-    #         y = middle.of.bar[i],
-    #         text = y.text[i],
-    #         textposition = "top middle",
-    #         textfont = t,
-    #         #bgcolor = "white",
-    #         #color = "white",
-    # font = "white",#        #font = list(color = if(small.bar[i]) NULL else "white"),
-    #         showarrow = FALSE
-    #     )
     }
     # Finalizing the lotting options
     p <- config(p, displayModeBar = FALSE)
