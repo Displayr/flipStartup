@@ -4,7 +4,7 @@
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 #' is asumed to have been retained during the period where the account was suspended. Where
-#' a subscriber for some reason had a subscription length that was different to the specified.  
+#' a subscriber for some reason had a subscription length that was different to the specified.
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{counts}{The number of subscribers per \code{period} by \code{subscriber.from.period}}
 #'   \item{index}{The percentage (proportion * 100) of subscribers to remain subscribers}
@@ -16,7 +16,7 @@
 #'   \item{average.life.span}{Estimated average subscriber lifespan (1 / churn) subscriber retention.}
 #'   \item{average.volume}{Retention, weighted by subscriber value in the preceeding period.}
 #'   \item{churn.volume}{Churn, weighted by subscriber value in the preceeding period.}
-#' @importFrom flipTime PeriodNameToDate CompleteListPeriodNames Period Periods
+#' @importFrom flipTime AsDate CompleteListPeriodNames Period Periods
 #' @importFrom lubridate as_date
 #' @export
 Retention <- function(data)
@@ -25,10 +25,11 @@ Retention <- function(data)
     data <- removeIncompleteSubscriptions(data)
     data.id <- data[data$observation == 1, ]
     data.id$final.end <- as_date(data.id$subscriber.to)
-    last.period <- as_date(max(PeriodNameToDate(data.id$subscriber.from.period, subscription.length)))
+    last.period <- as_date(max(AsDate(data.id$subscriber.from.period,
+                                      on.parse.failure = "silent")))
     data.id$final.end[data.id$final.end > last.period] <- last.period
     data.id$final.end <- Period(data.id$final.end, subscription.length)
-    max.from <- max(PeriodNameToDate(data$from.period, subscription.length))
+    max.from <- max(AsDate(data$from.period, on.parse.failure = "silent"))
     final.period <- Period(max.from + Periods(1, subscription.length), by = subscription.length)
     period.names <- unique(c(unique(data$from.period), final.period))
     periods <- CompleteListPeriodNames(period.names, subscription.length)

@@ -7,8 +7,10 @@
 removeIncompleteSubscriptions(data)
 }
 \arguments{
-\item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+\item{data}{A \code{data.frame} that has the same variables as a
+\code{RevenueData} object.}
 }
 \description{
-Removes from the data any subscriptions that have yet to be completed.
+Removes from the data any subscriptions that have yet to be
+completed.
 }

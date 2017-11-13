@@ -11,10 +11,10 @@ for (by in c("week", "month", "quarter", "year"))
           {
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
             expect_error(ch <- Churn(rd, volume = FALSE), NA)
-            expect_error(p <- TimeSeriesColumnChart(ch$rate, ch$by, tickformat = "%"), NA)
+            expect_error(p <- Chart(ch$rate*100, fit.type="Smooth", y.tick.suffix="%"), NA)
             expect_error(capture.output(print(p)), NA)
             expect_error(ch <- Churn(rd, volume = TRUE), NA)
-            expect_error(p <- TimeSeriesColumnChart(ch$rate, ch$by, tickformat = "%"), NA)
+            expect_error(p <- Chart(ch$rate*100, fit.type="Smooth", y.tick.suffix="%"), NA)
             expect_error(capture.output(print(p)), NA)
 })
 

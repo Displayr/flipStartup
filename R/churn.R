@@ -13,13 +13,13 @@
 #'   to churn in a period, and the second contains the number that have churned. Where \code{volume}
 #'   is \code{TRUE} the data is volume-weighted}.
 #'   \item{rates}{The percentage to churn (weighted if the counts are weighted)}.
-#' @importFrom flipTime PeriodNameToDate
+#' @importFrom flipTime AsDate
 #' @export
 Churn <- function(data, volume = FALSE)
 {
 
     by <- attr(data, "subscription.length")
-    to.period <- PeriodNameToDate(data$to.period, by)
+    to.period <- AsDate(data$to.period, on.parse.failure = "silent")
     data <- removeIncompleteSubscriptions(data)
     # Retaining only the initial invoice in a period
     idag <- aggregate(id ~ to.period, data = data[data$churn,], FUN = unique)

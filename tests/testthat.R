@@ -1,4 +1,5 @@
 library(testthat)
 library(flipStartup)
+library(flipStandardCharts)
 library(lubridate)
 test_check("flipStartup")
