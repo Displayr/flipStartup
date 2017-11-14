@@ -12,15 +12,6 @@ for (by in c("week", "month", "quarter", "year"))
           {
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
             expect_error(a <- Acquisition(rd, volume = FALSE), NA)
-<<<<<<< HEAD
-            expect_error(p <- flipTime::TimeSeriesColumnChart(a$counts, a$subscription.length, ytitle = "New customers"), NA)
-            expect_error(print(p), NA)
-            expect_error(a <- Acquisition(rd, volume = FALSE, number.periods = 12), NA)
-            expect_error(p <- flipTime::TimeSeriesColumnChart(a$counts, a$subscription.length, ytitle = "New customers"), NA)
-            expect_error(print(p), NA)
-            expect_error(a <- Acquisition(rd, volume = TRUE), NA)
-            expect_error(p <- flipTime::TimeSeriesColumnChart(a$counts, a$subscription.length, ytitle = "New customers"), NA)
-=======
             expect_error(p <- Chart(a$counts, y.title = "New customers", fit.type="Smooth"), NA)
             expect_error(print(p), NA)
             expect_error(a <- Acquisition(rd, volume = FALSE, number.periods = 12), NA)
@@ -28,7 +19,6 @@ for (by in c("week", "month", "quarter", "year"))
             expect_error(print(p), NA)
             expect_error(a <- Acquisition(rd, volume = TRUE), NA)
             expect_error(p <- Chart(a$counts, y.title = "New customers", fit.type="Smooth"), NA)
->>>>>>> origin/master
             expect_error(capture.output(print(p)), NA)
 })
 
