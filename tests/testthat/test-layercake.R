@@ -11,6 +11,7 @@ for (by in c("week", "month", "quarter", "year"))
           {
               capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1))
               lc <- LayerCake(rd)
+              LayerCake(rd, as.table = TRUE)
               expect_error(capture.output(print(lc), NA))
 })
 
