@@ -17,7 +17,7 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
 {
     if (!volume)
         data <- data[data$observation == 1, ]
-    start <- min(data$from)
+    start <- floor_date(min(data$from), unit = by)
     n <- interval(start, end) %/% Periods(1, by) + 1
     result <- rep(NA, n) + 1
     starts <- start + Periods(0:(n-1), by)
