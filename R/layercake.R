@@ -3,15 +3,18 @@
 #' @description Plots revenue by year and start year, as a stacked revenue chart.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param title The title to show above the plot.
+#' @param as.table Return a table rather than a chart.
 #' @return A plotly plot.
 #' @importFrom flipStandardCharts Area
 #' @importFrom flipStatistics Table
 #' @importFrom scales col_numeric
 #' @export
-LayerCake <- function(data, title = 'Revenue "layercake"')
+LayerCake <- function(data, title = 'Revenue "layercake"', as.table = FALSE)
 {
     table <- Table(value ~ subscriber.from.period + from.period, data = data, FUN = sum)
     names(dimnames(table)) <- c("Start", "Year")
+    if (as.table)
+        return(table)
     k <- nrow(table)
     date.format <- switch(attr(data, "subscription.length"),
                           "year" = "%Y", "%b %Y")
