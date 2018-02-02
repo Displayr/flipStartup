@@ -70,7 +70,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         subscription.length = "year", subset = rep(TRUE, length(id)),
                         profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
-    default.start.end <- start == min(from) & end == max(from)
+    default.start.end <- start == min(from, na.rm = TRUE) & end == max(from, na.rm = TRUE)
     # Units.
     units <- Periods(1, subscription.length)
     data <- data.frame(id = as.character(id), value, from, to)
@@ -109,7 +109,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     to <- as.Date(data$to)
     n <- length(to)
     to.day.month <- to - lubridate::years(year(to))
-    print(to.day.month)
+    #print(to.day.month)
     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
     max.n.subscriptions <- max(n.subscriptions)
