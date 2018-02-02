@@ -1,10 +1,8 @@
-#' \code{LifetimeValue}
+#' \code{Lifetime}
 #'
-#' @description The value that subscribers have historically provided the firm. This is sometimes
-#' referred to as "lifetime value". \code{LifetimeValue} estimates the value of a subscriber
-#' based on both historical value and likely future value.
+#' @description Calculations of the lifetime revenue and length of a customers' relationships.
 #' @param data A \code{RevenueData} object.
-#' @param remove.last Remove the final period (as usually is incomplete).
+#' @param end The date at which the last observation in the data as
 #' @return A \code{list} containing the following elements:
 #' \item{total}{The total value of transactions, by \code{subscriber.from.period} and \code{period.counter}.}
 #' \item{subscribers}{The number of subscribers by cohort.}
@@ -16,15 +14,17 @@
 
 #'
 #' @importFrom flipStatistics Table
-#' @importFrom flipTime CompleteListPeriodNames
+#' @importFrom flipTime CompleteListPeriodNames 
 #' @export
-LifetimeValue <- function(data, remove.last = TRUE)
+Lifetime <- function(data, end = attr(data, "end"))
 {
     subscription.length <- attr(data, "subscription.length")
-    if (remove.last)
-        data <- removeLast(data)
     ns <- Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
+    end.numeric <- as.numeric(as.Date(end))
+    data$to.as.numeric <- as.numeric(as.Date(data$to))
+    incomplete <- Table(to.as.numeric ~ subscriber.from.period + period.counter, data, FUN = max) > end.numeric
     total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
+    total[incomplete] <- 
     counts <- Table(id ~ subscriber.from.period + period.counter, data, FUN = function(x) length(unique(x)))
     # Filling in missing row and column totals
     row.names <- CompleteListPeriodNames(rownames(total), subscription.length)
@@ -42,12 +42,8 @@ LifetimeValue <- function(data, remove.last = TRUE)
     cumulative <- t(apply(value, 1, cumsum))
     churn <- 1 - Retention(data)$retention.rate.volume.by.period
     churn <- churn[match(names(di), names(churn))]
-#    annual.churn <- 1 - (1 - churn) ^ switch(by, day = 366.25, week = 52.25, month = 12, quarter = 4, year = 1)
-   # print(annual.churn)
-#print(di)
-#print(churn)
     future.revenue <- di / churn
-    #future.revenue <- ns * future.revenue
+    future.revenue[!is.finite(future.revenue)] <- NA
     lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
     lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns), na.rm = TRUE)
     result <- list(total = total,
@@ -61,27 +57,4 @@ LifetimeValue <- function(data, remove.last = TRUE)
     class(result) <- c("LifetimeValue", class(result))
     result
 }
-
-#' #' CumulativeValuePlot
-#' #'
-#' #' Plots the cumulative value over time.
-#' #' @param x A \code{LifetimeValue} object.
-#' #' @import ggplot2
-#' #' @importFrom scales dollar
-#' #' @export
-#' CumulativeValuePlot <- function(x)
-#' {
-#'     if (!is(x, "LifetimeValue"))
-#'         stop("'x' must be a 'LifetimeValue' object.")
-#'     #x <- x$cumulative
-#'     #k <- nrow(x)
-#'     # dat <- data.frame(Cumulative = as.numeric(x), Commenced = rownames(x), Year = rep(colnames(x), rep(k, k)))
-#'     # dat <- dat[!is.na(data$Value), ]
-#'     # print(dat)
-#'     # p <- ggplot(dat, aes_string(x = "Year", y = "Cumulative", group = "Commenced")) +
-#'     #      geom_line(aes_string(color = "Commenced")) +
-#'     #      scale_y_continuous(labels = dollar) +
-#'     #      geom_point(aes_string(color = "Commenced"))
-#'     # p
-#' }
 
