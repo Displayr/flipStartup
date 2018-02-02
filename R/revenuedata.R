@@ -64,7 +64,7 @@
 #'
 #' @importFrom lubridate period year years quarter month week weeks
 #' day days interval floor_date tz  "tz<-"
-#' @importFrom flipTime Period Periods AsDate
+#' @importFrom flipTime Period Periods AsDate DiffPeriod
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         subscription.length = "year", subset = rep(TRUE, length(id)),
@@ -105,7 +105,26 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     cat(paste0(n, " transactions remaining.\n"))
     if (n == 0)
         return(NULL)
-    # Aggregating transactions that occor in the same time period.
+    # Splitting apart transactions that exceed the subscription length.
+    to <- as.Date(data$to)
+    n <- length(to)
+    to.day.month <- to - lubridate::years(year(to))
+    print(to.day.month)
+    mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
+    n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+    max.n.subscriptions <- max(n.subscriptions)
+    if (max.n.subscriptions > 1)
+        for (i in 1:max.n.subscriptions)
+        {
+            to <- as.Date(data$to)
+            from <- as.Date(data$to)
+            new.from <- to - units
+            
+            
+        }
+        
+
+    # Aggregating transactions that occur in the same time period.
     data$to.period <- Period(data$to, subscription.length)
     data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
     n <- nrow(data)

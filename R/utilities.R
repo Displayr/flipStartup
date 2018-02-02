@@ -85,7 +85,7 @@ removeLast <- function(data)
     end <- attr(data, "end")
     period.date <- AsDate(data$from.period, on.parse.failure = "silent")
     max.from <- max(period.date)
-    data = subset(data, period.date != max.from)
+    data <- subset(data, period.date != max.from)
     attr(data, "end") <- end
     attr(data, "subscription.length") <- subscription.length
     data
@@ -102,8 +102,18 @@ removeIncompleteSubscriptions <- function(data)
 {
     subscription.length <- attr(data, "subscription.length")
     end <- attr(data, "end")
-    data <- subset(data, data$from <= end)
+    data <- subset(data, data$to <= end)
     attr(data, "subscription.length") <- subscription.length
     attr(data, "end") <- end
     data
+}
+
+
+
+removeLastPeriodFromMatrix <- function(x)
+{
+    n.rows <- NROW(x)
+    for (r in n.rows:(n.rows - NCOL(x) + 1))
+        x[r, n.rows - r + 1] <- NA
+    x
 }
