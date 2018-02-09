@@ -5,7 +5,7 @@ library(lubridate)
 #Sys.setenv(TZ='GMT')
 end <-  ISOdate(2016,6,30)
 start <-  ISOdate(2012,7,1)
-by = "year"
+by = "month"
 for (by in c("month", "year"))
     test_that(paste("Creating RevenueData", by),
           {
@@ -13,9 +13,9 @@ for (by in c("month", "year"))
                 
                 
                 rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)
-                z = rd[rd$observation.within.period == 1,]
-                rd[364 > (z$to - z$from), ]
-                #)
+                # z = rd[rd$observation.within.period == 1,]
+                # rd[364 > (z$to - z$from), ]
+                # #)
                 Lifetime(rd)
                 
                 
