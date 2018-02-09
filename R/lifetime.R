@@ -23,8 +23,11 @@ Lifetime <- function(data, end = attr(data, "end"))
     end.numeric <- as.numeric(as.Date(end))
     data$to.as.numeric <- as.numeric(as.Date(data$to))
     incomplete <- Table(to.as.numeric ~ subscriber.from.period + period.counter, data, FUN = max) > end.numeric
+
     total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
-    total[incomplete] <- 
+#    print(round(total[,1:12]))
+#    print(stop("dog"))
+    total[incomplete] <- NA
     counts <- Table(id ~ subscriber.from.period + period.counter, data, FUN = function(x) length(unique(x)))
     # Filling in missing row and column totals
     row.names <- CompleteListPeriodNames(rownames(total), subscription.length)
