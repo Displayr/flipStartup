@@ -22,10 +22,10 @@ test_that("MRR", {
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "year"))
     expect_equal(sum(Revenue(rd, by = "month")), 300)
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "month"))
-    expect_equal(sum(Revenue(rd, by = "month")), 4400)
+    expect_equal(sum(Revenue(rd, by = "month")), 300)
 })
 
-test_that("YRR", {
+test_that("ARR", {
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "year"))
     expect_equal(sum(Revenue(rd, by = "year")), 300)
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "month"))
