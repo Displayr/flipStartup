@@ -65,6 +65,7 @@
 #' @importFrom lubridate period year years quarter month week weeks
 #' day days interval floor_date tz  "tz<-"
 #' @importFrom flipTime Period Periods AsDate DiffPeriod
+#' @importFrom stats ave
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         subscription.length = "year", subset = rep(TRUE, length(id)),

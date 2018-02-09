@@ -14,7 +14,7 @@ Imports:
     flipFormat,
     flipStatistics,
     flipStandardCharts,
-    flipTime (>= 2.7.4),
+    flipTime (>= 2.7.7),
     ggplot2,
     lubridate,
     methods,
