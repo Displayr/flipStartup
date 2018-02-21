@@ -173,7 +173,7 @@ test_that("Displayr",{
         subset = z$subset, 
         id = z$id,
         start = min(z$start, na.rm = TRUE),
-        end = Sys.Date()), NA)
+        end = Sys.Date()))
     
     zdf = structure(list(value = structure(c(NA, NA, NA, NA, NA, 3999, 
 NA, NA, 7998, NA, 1998.86426651879, NA, NA, NA, NA, NA, 3999, 
@@ -280,7 +280,7 @@ NA, NA, NA, NA, NA, 7998), questiontype = "Number", name = "TotalAnnualLicenceVa
         to = zdf$to,
         subscription.length = "month",
         id = zdf$id,
-        start = min(zdf$from[zdf$subset], na.rm = TRUE)), "'value' contains missing values")
+        start = min(zdf$from[zdf$subset], na.rm = TRUE)), NA)
     
 
 })
