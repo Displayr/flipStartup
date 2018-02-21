@@ -288,5 +288,5 @@ checkVariableForLengthAndMissingData <- function(x, n)
     if (any(is.na(x)))
         stop("'", deparse(substitute(x)), "' contains missing values.")
     if (length(x) != n)
-        stop("'" , name, "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
+        stop("'" , deparse(substitute(x)), "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
 }
