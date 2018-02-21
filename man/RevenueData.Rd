@@ -82,5 +82,5 @@ A \code{\link{data.frame}} qhwew where the rows represent
 }
 \description{
 Cleans and tidies data for use in growth accounting
-    computations for a startup.
+    computations for a startup. Turns all dates with 29th of Feb into the 28th.
 }

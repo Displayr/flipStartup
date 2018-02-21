@@ -12,7 +12,7 @@ for (by in c("month", "year"))
 #            expect_error(capture.output(
                 
                 
-                rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)
+                capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1))
                 # z = rd[rd$observation.within.period == 1,]
                 # rd[364 > (z$to - z$from), ]
                 # #)

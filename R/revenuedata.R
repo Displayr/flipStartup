@@ -1,7 +1,7 @@
 #' \code{RevenueData}
 #'
 #' @description Cleans and tidies data for use in growth accounting
-#'     computations for a startup.
+#'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
 #' @param value A vector of containing the revenue per transaction.
 #' @param from A vector of class \code{POSIXct} or \code{POSIXt},
 #'     recording the date and time each subscription commences.
@@ -64,13 +64,24 @@
 #'
 #' @importFrom lubridate period year years quarter month week weeks
 #' day days interval floor_date tz  "tz<-"
-#' @importFrom flipTime Period Periods AsDate DiffPeriod
+#' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th
 #' @importFrom stats ave
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         subscription.length = "year", subset = rep(TRUE, length(id)),
                         profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
+    # Checking the input variables.
+    n = length(value)
+    checkVariableForLengthAndMissingData(value, n)
+    checkVariableForLengthAndMissingData(from, n)
+    checkVariableForLengthAndMissingData(to, n)
+    checkVariableForLengthAndMissingData(id, n)
+
+    # Removing leap years
+    from <- Change29FebTo28th(from)
+    to <- Change29FebTo28th(to)
+    
     default.start.end <- start == min(from, na.rm = TRUE) & end == max(from, na.rm = TRUE)
     # Units.
     units <- Periods(1, subscription.length)
@@ -106,25 +117,70 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     cat(paste0(n, " transactions remaining.\n"))
     if (n == 0)
         return(NULL)
-    # Splitting apart transactions that exceed the subscription length.
-    to <- as.Date(data$to)
-    n <- length(to)
-    to.day.month <- to - lubridate::years(year(to))
-    #print(to.day.month)
-    mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
-    n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
-    max.n.subscriptions <- max(n.subscriptions)
-    if (max.n.subscriptions > 1)
-        for (i in 1:max.n.subscriptions)
-        {
-            to <- as.Date(data$to)
-            from <- as.Date(data$to)
-            new.from <- to - units
-            
-            
-        }
-        
-
+# 
+#     # Splitting apart transactions that exceed the subscription length. They are split so that the final 
+#     # transaction is the subscription length and ends on the original data. E.g., if a person has a sub-
+#     # scription of 1 year and 6 months, it is changed so that the first subscription is 6 months
+#     # and the second is 1 year.
+#     to <- as.Date(data$to)
+#     n <- length(to)
+#     to.day.month <- to - lubridate::years(year(to))
+#     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
+#     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+#     zero.length.transactions <- n.subscriptions == 0
+#     n.zero.length.transactions <- sum(zero.length.transactions)
+#     if (max(n.subscriptions) > 1)
+#     {
+#         n.long <- sum(n.subscriptions > 1)
+#         cat(n.long, " transactions split into multiple transactions due to being longer than a ", subscription.length, "\n", sep = "")
+#         while (max(n.subscriptions) > 1)
+#         {
+#             long <- n.subscriptions > 0
+#             extra <- data[long, ]
+#  #           print("units")
+#   #          print(units)
+#    #         print(data$from[is.na(data$from + units)])
+#             data$to[long] <- data$from[long] + units
+#             extra$from <- extra$from + units
+#             data <- rbind(data, extra)
+#             to <- as.Date(data$to)
+#     #        print(summary(data$from))
+#      #       print(summary(to))
+#             n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+#         }
+#         n <- nrow(data)
+#     }
+#     max.n.subscriptions <- max(n.subscriptions)
+#     print(max.n.subscriptions)
+#     print(table(n.subscriptions))
+#     print(data[n.subscriptions == 0, ])
+#     if (max.n.subscriptions > 1)
+#         for (i in 1:max.n.subscriptions)
+#         {
+#             to <- as.Date(data$to)
+#             from <- as.Date(data$to)
+#             new.from <- to - units
+#             
+#             
+#         }
+#         
+# 
+#     # Removing transactions that have license running for a single day
+#     to <- as.Date(data$to)
+#     n <- length(to)
+#     to.day.month <- to - lubridate::years(year(to))
+#     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
+#     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+#     zero.length.transactions <- n.subscriptions == 0
+#     n.zero.length.transactions <- sum(zero.length.transactions)
+#     if (n.zero.length.transactions > 0)
+#     {
+#         cat(n.zero.length.transactions, " transactions removed due to finishing on the day they startes\n", sep = "")
+#         data <- subset(data, !zero.length.transactions)
+#         n.subscriptions <- n.subscriptions[!zero.length.transactions]
+#         to <- to[!zero.length.transactions]
+#         n <- nrow(data)
+#     }
     # Aggregating transactions that occur in the same time period.
     data$to.period <- Period(data$to, subscription.length)
     data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
@@ -224,4 +280,13 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     attr(data, "end") <- end
     class(data) <- c(class(data), "RevenueData")
     data
+}
+
+
+checkVariableForLengthAndMissingData <- function(x, n)
+{
+    if (any(is.na(x)))
+        stop("'", deparse(substitute(x)), "' contains missing values.")
+    if (length(x) != n)
+        stop("'" , name, "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
 }

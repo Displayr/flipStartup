@@ -9,7 +9,7 @@ Subscribers(data, end = Sys.time(), by = "month", volume = FALSE)
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
-\item{end}{The time past which revenue is ignored (where its \code{from} data is greater than this value.
+\item{end}{The date on and after which which revenue is ignored.
 Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 can cause unexpected results.}
 

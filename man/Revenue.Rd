@@ -13,13 +13,13 @@ Revenue(data, end = Sys.time(), by)
 Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 can cause unexpected results.}
 
-\item{by}{The time unit. E.g., "month".}
+\item{by}{The time unit for reporting the data. E.g., "month".}
 }
 \value{
 A vector showing number of subscribers over time.
 }
 \description{
-Computes acquisition, by cohort.
+Computes total amount of license revenue at points in time.
 }
 \details{
 Computed based on being a subscribed on the last second of the time period.
