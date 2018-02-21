@@ -2,7 +2,7 @@
 #'
 #' @description Computes acquisition, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param end The time past which revenue is ignored (where its \code{from} data is greater than this value.
+#' @param end The date on and after which which revenue is ignored.
 #' Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 #' can cause unexpected results.
 #' @param by The time unit. E.g., "month".
@@ -10,7 +10,7 @@
 #' @details Computed based on being a subscribed on the last second of the time period.
 #' @return A vector showing number of subscribers over time.
 #'
-#' @importFrom lubridate '%within%' seconds floor_date
+#' @importFrom lubridate '%within%' floor_date
 #' @importFrom flipTime Periods
 #' @export
 Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
@@ -22,22 +22,12 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
     result <- rep(NA, n) + 1
     starts <- start + Periods(0:(n-1), by)
     names(result) <- starts
-    tenure.interval <- interval(data$subscriber.from, data$subscriber.to)
     count <- 0
     for (i in 1:n)
     {
-        result[i] <- if(volume)
-            {
-                start <- starts[i]
-                filt <- start >= data$from & start <= data$to
-                sum(data$value[start >= data$from & start <= data$to])
-            }
-            else
-            {
-                start <- starts[i] + months(1) - seconds(1)
-                sum(start %within% tenure.interval)
-            }
-
+        start <- starts[i]
+        filt <- start >= data$from & start < data$to
+        result[i] <- if(volume) sum(data$value[filt]) else sum(filt)
     }
     class(result) <- c("Subscribers", class(result))
     result
