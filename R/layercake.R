@@ -19,11 +19,10 @@ LayerCake <- function(data, title = 'Revenue "layercake"', as.table = FALSE)
     date.format <- switch(attr(data, "subscription.length"),
                           "year" = "%Y", "%b %Y")
     p <- Area(t(table), type = "Stacked Area",
-          title = title,
+          title = title, y.title = "Revenue",
           x.tick.format = date.format,
           colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3],
           legend.ascending = FALSE)
-    layout(p$plotly.plot, yaxis = list(title = "Revenue"))
 }
 # 
 # 
