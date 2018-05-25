@@ -15,8 +15,6 @@
 #' @export
 Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
 {
-    if (!volume)
-        data <- data[data$observation == 1, ]
     start <- floor_date(min(data$from), unit = by)
     n <- interval(start, end) %/% Periods(1, by) + 1
     result <- rep(NA, n) + 1
@@ -27,7 +25,7 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
     {
         start <- starts[i]
         filt <- start >= data$from & start < data$to
-        result[i] <- if(volume) sum(data$value[filt]) else sum(filt)
+        result[i] <- if(volume) sum(data$value[filt]) else length(unique(data$id[filt]))
     }
     class(result) <- c("Subscribers", class(result))
     result
