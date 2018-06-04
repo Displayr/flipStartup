@@ -23,6 +23,7 @@ LayerCake <- function(data, title = 'Revenue "layercake"', as.table = FALSE)
           x.tick.format = date.format,
           colors = col_numeric("Blues", domain = NULL)(1:(k + 3))[-1:-3],
           legend.ascending = FALSE)
+    p
 }
 # 
 # 
