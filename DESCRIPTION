@@ -27,4 +27,5 @@ Remotes:
     Displayr/flipStatistics,
     Displayr/flipStandardCharts,
     Displayr/flipTime,
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.0
+Encoding: UTF-8
