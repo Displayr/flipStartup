@@ -63,7 +63,7 @@
 #'     subscription period (as determined by a common to.period).
 #'
 #' @importFrom lubridate period year years quarter month week weeks
-#' day days interval floor_date tz  "tz<-"
+#' day days hour minute interval floor_date tz  "tz<-"
 #' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th
 #' @importFrom stats ave
 #' @export
@@ -268,9 +268,11 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     {
         window <- interval(start, end)
         old.tz <- tz(from)
-        from <- AsDate(data$from.period, on.parse.failure = "silent")
+        from0 <- AsDate(data$from.period, on.parse.failure = "silent")
+        from <- ISOdate(year(from0), month(from0), day(from0), hour(from0), minute(from0), tz = tz(from0))
         tz(from) <- old.tz
-        to <- AsDate(data$to.period, on.parse.failure = "silent")
+        to0 <- AsDate(data$to.period, on.parse.failure = "silent")
+        to <- ISOdate(year(to0), month(to0), day(to0), hour(to0), minute(to0), tz = tz(to0))
         tz(to) <- old.tz
         data <- data[to %within% window | from %within% window | from < start & to > end, ]
         cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
