@@ -167,8 +167,8 @@ test_that("Displayr",{
         "from", "to", "subscription.length", "subset", "id", "start", 
         "end"), row.names = c(NA, -23L), class = "data.frame")
     expect_error(DisplayrTotalPaymentMonthlyRevenueData <- RevenueData(value = z$value, 
-        from = z$from,
-        to = z$end,
+        from = as.Date(z$from),
+        to = as.Date(z$end),
         subscription.length = "month",
         subset = z$subset, 
         id = z$id,

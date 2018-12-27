@@ -12,8 +12,6 @@
 #' with a prorated price of $1000/12, then the recurring revenue is $2,000.
 #' @return A vector showing number of subscribers over time.
 #'
-#' @importFrom lubridate '%within%' floor_date
-#' @importFrom flipTime Periods
 #' @export
 RecurringRevenue <- function(data, end = Sys.time(),  by = "month")
 {
