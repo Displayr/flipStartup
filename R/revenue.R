@@ -7,7 +7,7 @@
 #' can cause unexpected results.
 #' @param by The time unit for reporting the data. E.g., "month".
 #' @details Computed based on being a subscribed on the last second of the time period.
-#' @return A vector showing number of subscribers over time.
+#' @return A vector showing the revenue at specific points in time.
 #'
 #' @export
 Revenue <- function(data, end = Sys.time(), by)
