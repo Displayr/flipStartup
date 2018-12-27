@@ -7,26 +7,29 @@
 #' can cause unexpected results.
 #' @param by The time unit. E.g., "month".
 #' @param volume The number of subscribers in terms of their value.
+#' @param recurring If TRUE, and \code{volume} is also TRUE, computes the recurring revenue.
 #' @details Computed based on being a subscribed on the last second of the time period.
 #' @return A vector showing number of subscribers over time.
 #'
-#' @importFrom lubridate '%within%' floor_date
+#' @importFrom lubridate '%within%' floor_date ceiling_date
 #' @importFrom flipTime Periods
 #' @export
-Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE)
+Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE, recurring = FALSE)
 {
+    end = ceiling_date(end, unit = by)
     start <- floor_date(min(data$from), unit = by)
     n <- interval(start, end) %/% Periods(1, by) + 1
     result <- rep(NA, n) + 1
     starts <- start + Periods(0:(n-1), by)
     names(result) <- starts
     count <- 0
+    value = if (recurring) data$recurring.value else data$value
     for (i in 1:n)
     {
         start <- starts[i]
         filt <- start >= data$from & start < data$to
-        result[i] <- if(volume) sum(data$value[filt]) else length(unique(data$id[filt]))
+        result[i] <- if(volume) sum(value[filt]) else length(unique(data$id[filt]))
     }
-    class(result) <- c("Subscribers", class(result))
+#    class(result) <- c("Subscribers", class(result))
     result
 }
