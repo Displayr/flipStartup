@@ -10,7 +10,7 @@
 #' Partial revenue is multipled out. For exmaple, if with yearly data, if a customer has an annual license for $1,000
 #' from 1 February to 1 February of the next year, and a second license which starts on 1 January of the last year
 #' with a prorated price of $1000/12, then the recurring revenue is $2,000.
-#' @return A vector showing number of subscribers over time.
+#' @return A vector showing the recurring revenue by time points.
 #'
 #' @export
 RecurringRevenue <- function(data, end = Sys.time(),  by = "month")
