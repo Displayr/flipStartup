@@ -11,7 +11,6 @@ for (by in c("week", "month", "quarter", "year"))
               {
                   expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
                   expect_error(capture.output(Subscribers(rd, by = by)), NA)
-#plot(Subscribers(rd, by = by))
               })
 
 

@@ -18,12 +18,14 @@ dollars <- c(100, 100, 100, 100)
 from <- as.Date(c("2016/01/01", "2016/06/01", "2016/08/01", "2016/10/01"))
 to <- as.Date(c("2016/12/31", "2016/12/31", "2017/07/31", "2017/10/31"))
 name <- c("A", "A", "B", "C")
-test_that("ARR by month", {
+test_that("Revenue", {
     # Years ending the day before 12 months
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "year"))
+
     r <- Revenue(rd, by = "month")
     expect_equal(sum(r), 4400)
     expect_equal(unname(r["2017-01-01"]), 200)
+
     
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "month"))
     r <- Revenue(rd, by = "month")

@@ -4,7 +4,8 @@
 \alias{Subscribers}
 \title{\code{Subscribers}}
 \usage{
-Subscribers(data, end = Sys.time(), by = "month", volume = FALSE)
+Subscribers(data, end = Sys.time(), by = "month", volume = FALSE,
+  recurring = FALSE)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
@@ -16,6 +17,8 @@ can cause unexpected results.}
 \item{by}{The time unit. E.g., "month".}
 
 \item{volume}{The number of subscribers in terms of their value.}
+
+\item{recurring}{If TRUE, and \code{volume} is also TRUE, computes the recurring revenue.}
 }
 \value{
 A vector showing number of subscribers over time.

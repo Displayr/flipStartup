@@ -31,7 +31,7 @@
 #' @param trim.id The maximum length of the strings to be used showing
 #'     ID names (used to avoid situations where string names are so
 #'     long as to make reading of tables impossible.
-#' @return A \code{\link{data.frame}} qhwew where the rows represent
+#' @return A \code{\link{data.frame}}  where the rows represent
 #'     unique combinations of periods and subscribers. Where a
 #'     subscriber has multiple transactions in a period, they are
 #'     aggregated. Contains the following variables, along with any
@@ -61,6 +61,9 @@
 #'     \code{observation.within.period} The number of the subscription
 #'     for a particular customer, starting from 1 for each new
 #'     subscription period (as determined by a common to.period).
+#'     \code{recurring.value} The value divided by proportion of the typicaly invoice period
+#'     that was covered by the invoice. There are some rounding error issues (e.g., leap years,
+#'     inconsistncies in how people enter data).
 #'
 #' @importFrom lubridate period year years quarter month week weeks
 #' day days interval floor_date 
@@ -279,6 +282,10 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     }
     attr(data, "subscription.length") <- subscription.length
     attr(data, "end") <- end
+    # Computing recurring.revenue
+    period.proportion = as.numeric(data$to - data$from) / as.numeric(data$to + units - data$to)
+    period.proportion[round(period.proportion, 2) == 1] = 1
+    data$recurring.value = data$value / period.proportion
     class(data) <- c(class(data), "RevenueData")
     data
 }

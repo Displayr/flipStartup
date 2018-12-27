@@ -49,7 +49,7 @@ ID names (used to avoid situations where string names are so
 long as to make reading of tables impossible.}
 }
 \value{
-A \code{\link{data.frame}} qhwew where the rows represent
+A \code{\link{data.frame}}  where the rows represent
     unique combinations of periods and subscribers. Where a
     subscriber has multiple transactions in a period, they are
     aggregated. Contains the following variables, along with any
@@ -79,6 +79,9 @@ A \code{\link{data.frame}} qhwew where the rows represent
     \code{observation.within.period} The number of the subscription
     for a particular customer, starting from 1 for each new
     subscription period (as determined by a common to.period).
+    \code{recurring.value} The value divided by proportion of the typicaly invoice period
+    that was covered by the invoice. There are some rounding error issues (e.g., leap years,
+    inconsistncies in how people enter data).
 }
 \description{
 Cleans and tidies data for use in growth accounting
