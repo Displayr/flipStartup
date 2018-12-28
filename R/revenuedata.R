@@ -66,7 +66,7 @@
 #'     inconsistncies in how people enter data).
 #'
 #' @importFrom lubridate period year years quarter month week weeks
-#' day days interval floor_date
+#' day days interval floor_date as.duration
 #' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
 #' @importFrom stats ave
 #' @export
