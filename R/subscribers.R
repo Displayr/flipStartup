@@ -30,6 +30,5 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE, r
         filt <- start >= data$from & start < data$to
         result[i] <- if(volume) sum(value[filt]) else length(unique(data$id[filt]))
     }
-#    class(result) <- c("Subscribers", class(result))
     result
 }

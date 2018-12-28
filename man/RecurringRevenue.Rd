@@ -4,26 +4,23 @@
 \alias{RecurringRevenue}
 \title{\code{RecurringRevenue}}
 \usage{
-RecurringRevenue(data, end = Sys.time(), by = "month")
+RecurringRevenue(data, end = Sys.time(), by)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
-\item{end}{The date on and after which which revenue is ignored.
+\item{end}{The time past which revenue is ignored (where its \code{from} data is greater than this value.
 Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 can cause unexpected results.}
 
-\item{by}{The time unit. E.g., "month".}
+\item{by}{The time unit for reporting the data. E.g., "month".}
 }
 \value{
-A vector showing the recurring revenue by time points.
+A vector showing the revenue at specific points in time.
 }
 \description{
-Computes recurring revenue, by cohort.
+Computes total amount of license revenue at points in time.
 }
 \details{
-Computed based on being a subscribed on the last second of the time period. 
-Partial revenue is multipled out. For exmaple, if with yearly data, if a customer has an annual license for $1,000
-from 1 February to 1 February of the next year, and a second license which starts on 1 January of the last year
-with a prorated price of $1000/12, then the recurring revenue is $2,000.
+Computed based on being a subscribed on the last second of the time period.
 }
