@@ -16,7 +16,7 @@ can cause unexpected results.}
 \item{by}{The time unit for reporting the data. E.g., "month".}
 }
 \value{
-A vector showing number of subscribers over time.
+A vector showing the revenue at specific points in time.
 }
 \description{
 Computes total amount of license revenue at points in time.

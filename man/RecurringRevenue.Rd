@@ -16,7 +16,7 @@ can cause unexpected results.}
 \item{by}{The time unit. E.g., "month".}
 }
 \value{
-A vector showing number of subscribers over time.
+A vector showing the recurring revenue by time points.
 }
 \description{
 Computes recurring revenue, by cohort.

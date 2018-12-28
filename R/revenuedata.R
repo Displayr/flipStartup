@@ -66,8 +66,8 @@
 #'     inconsistncies in how people enter data).
 #'
 #' @importFrom lubridate period year years quarter month week weeks
-#' day days interval floor_date 
-#' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th
+#' day days interval floor_date
+#' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
 #' @importFrom stats ave
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
@@ -283,8 +283,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     attr(data, "subscription.length") <- subscription.length
     attr(data, "end") <- end
     # Computing recurring.revenue
-    period.proportion = as.numeric(data$to - data$from) / as.numeric(data$to + units - data$to)
-    period.proportion[round(period.proportion, 2) == 1] = 1
+    period.proportion = as.numeric(data$to - data$from, "days") /  as.numeric(as.duration(units), "days")
+    period.proportion = round(period.proportion, 2)
     data$recurring.value = data$value / period.proportion
     class(data) <- c(class(data), "RevenueData")
     data
