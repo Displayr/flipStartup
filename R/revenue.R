@@ -12,8 +12,6 @@
 #' @export
 Revenue <- function(data, end = Sys.time(), by)
 {
-    result <- Subscribers(data, by = by, end = end, volume = TRUE, recurring = FALSE)
-#    class(result) <- c("Revenue", class(result))
-    result
+    Subscribers(data, by = by, end = end, volume = TRUE, recurring = FALSE)
 }
 
