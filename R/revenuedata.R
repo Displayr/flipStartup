@@ -232,7 +232,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
         id.data <- cbind(id.data, profiling[lookup, ])
     }
     # Creating time-based metrics.
-    id.data$last.from <- aggregate(from ~ id, data, max)[, 1]
+    id.data$last.from <- aggregate(from ~ id, data, max)[, 2]
     id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], subscription.length), subscription.length)
     cat(paste0(nrow(id.data), " subscribers.\n"))
     id.data$subscription.to <- aggregate(to ~ id, data, max)$to
