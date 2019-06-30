@@ -284,7 +284,9 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     attr(data, "end") <- end
     # Computing recurring.revenue
     period.proportion = as.numeric(data$to - data$from, "days") /  as.numeric(as.duration(units), "days")
-    period.proportion = round(period.proportion, 2)
+    rounded.period.proportion = round(period.proportion, 2)
+    rnd = rounded.period.proportion %in% c(.25,.5, .75, 1, 2, 3, 4, 5, 6)
+    period.proportion[rnd] = rounded.period.proportion[rnd]
     data$recurring.value = data$value / period.proportion
     class(data) <- c(class(data), "RevenueData")
     data
