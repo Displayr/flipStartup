@@ -17,7 +17,7 @@
 #'
 #' @importFrom flipStatistics Table
 #' @export
-Acquisition <- function(data, remove.last = TRUE, volume = FALSE, number.periods = 1)
+Acquisition <- function(data, remove.last = FALSE, volume = FALSE, number.periods = 1)
 {
     subscription.length <- attr(data, "subscription.length")
     if (remove.last)
