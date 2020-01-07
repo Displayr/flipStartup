@@ -7,8 +7,8 @@
 #' @param number.periods The number of periods of data that are treated as being 'acquisitions'. By default, this is 1, 
 #' which means that only sales in the initial period are counted as acquisitions. If set to 12, for example, it would
 #' means that the first 12 periods are treated as acquisitions (e.g., the first year, if the data has been setup as monthly).
-#' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-#' is asusmed to have been retained during the period where the account was suspended.
+#' is assumed to have been retained during the period where the account was suspended.
+#' @param subset an optional vector specifying a subset of observations to be used in the fitting process.#' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{id}{The \code{id} values of subscribers to churn.}
 #'   \item{base}{The number of subscribers to renew or churn in the time period.}
@@ -17,8 +17,10 @@
 #'
 #' @importFrom flipStatistics Table
 #' @export
-Acquisition <- function(data, remove.last = FALSE, volume = FALSE, number.periods = 1)
+Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, number.periods = 1)
 {
+    if (!missing(subset))
+        data <- subset(data, subset)
     subscription.length <- attr(data, "subscription.length")
     if (remove.last)
         data <- removeLast(data)
