@@ -4,8 +4,13 @@
 \alias{Subscribers}
 \title{\code{Subscribers}}
 \usage{
-Subscribers(data, end = Sys.time(), by = "month", volume = FALSE,
-  recurring = FALSE)
+Subscribers(
+  data,
+  end = Sys.time(),
+  by = "month",
+  volume = FALSE,
+  recurring = FALSE
+)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}

@@ -4,12 +4,24 @@
 \alias{RevenueData}
 \title{\code{RevenueData}}
 \usage{
-RevenueData(value, from, to, start = min(from), end = max(from), id,
-  subscription.length = "year", subset = rep(TRUE, length(id)),
-  profiling = NULL, trim.id = 50)
+RevenueData(
+  value,
+  from,
+  to,
+  start,
+  end,
+  id,
+  subscription.length,
+  subset,
+  profiling = NULL,
+  trim.id
+)
 }
 \arguments{
-\item{value}{A vector of containing the revenue per transaction.}
+\item{value}{A vector of containing the revenue per transaction, or, a data frame, 
+that contains 3 columns represeting code{value}, \code{from},  \code{to}, and \code{id}. 
+and has all the other required paramters a attributes other than
+ \code{profiling} (i.e., only 2 arguments)..}
 
 \item{from}{A vector of class \code{POSIXct} or \code{POSIXt},
 recording the date and time each subscription commences.}
@@ -33,7 +45,7 @@ names, subscriber keys).}
 subscription length: \code{year} to view the data by year,
 \code{quarter}, and \code{month}. This is assumed to be the
 billing period when determining if subscribers have churned or
-not.}
+not. Defaults to \code{year"}.}
 
 \item{subset}{An optional vector specifying a subset of
 observations to be used in the calculations}
@@ -46,7 +58,7 @@ identifiers in a variable called \code{id}, or, the
 
 \item{trim.id}{The maximum length of the strings to be used showing
 ID names (used to avoid situations where string names are so
-long as to make reading of tables impossible.}
+long as to make reading of tables impossible. Defaults to 50.}
 }
 \value{
 A \code{\link{data.frame}}  where the rows represent

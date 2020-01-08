@@ -34,7 +34,23 @@ Churn <- function(data, volume = FALSE)
         }
     base <- table(data$to.period[data$observation.within.period == 1])
     rates <- prop.table(counts, 2)[2, ]
-    result <-list(id = id, base = base, counts = t(counts), rates = rates, by = by)
+    result <-list(id = id, base = base, counts = t(counts), rates = rates, by = by, volume = volume)
     class(result) <- c("Churn", class(result))
     result
 }
+
+
+#' @importFrom flipStandardCharts Chart
+#' @export
+plot.Churn <- function(x, ...)
+{
+    rates <- x$rates
+    period.names <- names(rates)
+    title <- if(x$volume) "Churn ($)" else "Churn (customers)"
+    p <- Chart(rates,  x.tick.angle=0,
+               y.title = title, fit.type = "Smooth", fit.ignore.last = TRUE,
+               fit.line.type = "solid", fit.line.width = 2, fit.line.colors="Custom color", 
+               fit.line.colors.custom.color="#ED7D31")
+    print(p)
+}
+

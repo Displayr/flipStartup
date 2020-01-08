@@ -2,7 +2,10 @@
 #'
 #' @description Cleans and tidies data for use in growth accounting
 #'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
-#' @param value A vector of containing the revenue per transaction.
+#' @param value A vector of containing the revenue per transaction, or, a data frame, 
+#' that contains 3 columns represeting code{value}, \code{from},  \code{to}, and \code{id}. 
+#' and has all the other required paramters a attributes other than
+#'  \code{profiling} (i.e., only 2 arguments)..
 #' @param from A vector of class \code{POSIXct} or \code{POSIXt},
 #'     recording the date and time each subscription commences.
 #' @param to A vector of class \code{POSIXct} or \code{POSIXt},
@@ -20,7 +23,7 @@
 #'     subscription length: \code{year} to view the data by year,
 #'     \code{quarter}, and \code{month}. This is assumed to be the
 #'     billing period when determining if subscribers have churned or
-#'     not.
+#'     not. Defaults to \code{year"}.
 #' @param subset An optional vector specifying a subset of
 #'     observations to be used in the calculations
 #' @param profiling A \code{data.frame} containing data, unique by
@@ -30,7 +33,7 @@
 #'     \code{rownames} must match the values of \code{id}.
 #' @param trim.id The maximum length of the strings to be used showing
 #'     ID names (used to avoid situations where string names are so
-#'     long as to make reading of tables impossible.
+#'     long as to make reading of tables impossible. Defaults to 50.
 #' @return A \code{\link{data.frame}}  where the rows represent
 #'     unique combinations of periods and subscribers. Where a
 #'     subscriber has multiple transactions in a period, they are
@@ -70,10 +73,57 @@
 #' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
 #' @importFrom stats ave
 #' @export
-RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
-                        subscription.length = "year", subset = rep(TRUE, length(id)),
-                        profiling = NULL, trim.id = 50) #, tolerance = .01)
+RevenueData <- function(value, 
+                        from, 
+                        to, 
+                        start, 
+                        end, 
+                        id, 
+                        subscription.length, 
+                        subset,
+                        profiling = NULL, 
+                        trim.id) #, tolerance = .01)
 {
+    if (!NCOL(value) %in% c(1,4))
+        stop("'value' must be a single vector, or, a data.frame with four variables")
+    if (NCOL(value) == 4)
+    {
+        if (!missing(from) |
+            !missing(to) |
+            !missing(id) | 
+            !missing(start) | 
+            !missing(end) |
+            !missing(subscription.length) | 
+            !missing(subset) |
+            !missing(trim.id))
+            stop("If using a data frame for 'values', it must be the only argument.")
+        from <- value[, 2]
+        to <- value[, 3]
+        id <- value[, 4]
+        if (!is.null(attr(value, "start")))
+            start <- attr(value, "start")
+        if (!is.null(attr(value, "end")))
+            end <- attr(value, "end")
+        if (!is.null(attr(value, "subscription.length")))
+            subscription.length <- attr(value, "subscription.length")
+        if (!is.null(attr(value, "subset")))
+            subset <- attr(value, "subset")
+        if (!is.null(attr(value, "trim.id")))
+            trim.id <- attr(value, "trim.id")
+        value <- value[, 1]
+    }
+    # Default values
+  if (missing(start))
+      start <- min(from)
+  if (missing(end))
+      end <- max(from)
+  if (missing(subscription.length))
+      subscription.length = "year"
+  if (missing(subset))
+      subset <- rep(TRUE, NROW(value))
+  if (missing(trim.id))
+      trim.id <- 50
+
     # Checking the input variables.
     n = length(value)
     checkVariableForLengthAndMissingData(value, n)
@@ -82,6 +132,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     checkVariableForLengthAndMissingData(id, n)
 
     # Removing leap years
+    from <- AsDate(from)
+    to <- AsDate(from)
     from <- Change29FebTo28th(from)
     to <- Change29FebTo28th(to)
     
@@ -120,70 +172,6 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     cat(paste0(n, " transactions remaining.\n"))
     if (n == 0)
         return(NULL)
-# 
-#     # Splitting apart transactions that exceed the subscription length. They are split so that the final 
-#     # transaction is the subscription length and ends on the original data. E.g., if a person has a sub-
-#     # scription of 1 year and 6 months, it is changed so that the first subscription is 6 months
-#     # and the second is 1 year.
-#     to <- as.Date(data$to)
-#     n <- length(to)
-#     to.day.month <- to - lubridate::years(year(to))
-#     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
-#     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
-#     zero.length.transactions <- n.subscriptions == 0
-#     n.zero.length.transactions <- sum(zero.length.transactions)
-#     if (max(n.subscriptions) > 1)
-#     {
-#         n.long <- sum(n.subscriptions > 1)
-#         cat(n.long, " transactions split into multiple transactions due to being longer than a ", subscription.length, "\n", sep = "")
-#         while (max(n.subscriptions) > 1)
-#         {
-#             long <- n.subscriptions > 0
-#             extra <- data[long, ]
-#  #           print("units")
-#   #          print(units)
-#    #         print(data$from[is.na(data$from + units)])
-#             data$to[long] <- data$from[long] + units
-#             extra$from <- extra$from + units
-#             data <- rbind(data, extra)
-#             to <- as.Date(data$to)
-#     #        print(summary(data$from))
-#      #       print(summary(to))
-#             n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
-#         }
-#         n <- nrow(data)
-#     }
-#     max.n.subscriptions <- max(n.subscriptions)
-#     print(max.n.subscriptions)
-#     print(table(n.subscriptions))
-#     print(data[n.subscriptions == 0, ])
-#     if (max.n.subscriptions > 1)
-#         for (i in 1:max.n.subscriptions)
-#         {
-#             to <- as.Date(data$to)
-#             from <- as.Date(data$to)
-#             new.from <- to - units
-#             
-#             
-#         }
-#         
-# 
-#     # Removing transactions that have license running for a single day
-#     to <- as.Date(data$to)
-#     n <- length(to)
-#     to.day.month <- to - lubridate::years(year(to))
-#     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
-#     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
-#     zero.length.transactions <- n.subscriptions == 0
-#     n.zero.length.transactions <- sum(zero.length.transactions)
-#     if (n.zero.length.transactions > 0)
-#     {
-#         cat(n.zero.length.transactions, " transactions removed due to finishing on the day they startes\n", sep = "")
-#         data <- subset(data, !zero.length.transactions)
-#         n.subscriptions <- n.subscriptions[!zero.length.transactions]
-#         to <- to[!zero.length.transactions]
-#         n <- nrow(data)
-#     }
     # Aggregating transactions that occur in the same time period.
     data$to.period <- Period(data$to, subscription.length)
     data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)

@@ -4,8 +4,7 @@
 \alias{as.data.frame.Trajectories}
 \title{\code{as.data.frame.Trajectories}}
 \usage{
-\method{as.data.frame}{Trajectories}(x, row.names = NULL,
-  optional = FALSE, ...)
+\method{as.data.frame}{Trajectories}(x, row.names = NULL, optional = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{Trajectories} object.}
