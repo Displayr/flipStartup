@@ -9,6 +9,8 @@ PriceSensitivityMeter(
   colors = c("#FF0000", "#FF0000", "#008000", "#008000"),
   line.type = c("dot", "solid", "solid", "dot"),
   line.thickness = c(1, 2, 2, 1),
+  resolution = 0.05,
+  currency = "$",
   global.font.family = "Arial",
   global.font.color = rgb(44, 44, 44, maxColorValue = 255),
   title.font.size = 16,
@@ -22,11 +24,10 @@ PriceSensitivityMeter(
   x.tick.font.size = 10,
   data.label.font.size = 10,
   x.title = "Price",
-  x.tick.prefix = "$",
+  x.tick.prefix = currency,
   x.hovertext.format = ".2f",
   y.title = "Proportion of respondents",
   y.tick.format = "\%",
-  resolution = 0.05,
   intersection.show = TRUE,
   intersection.arrow.color = global.font.color,
   intersection.arrow.size = 1.6,
@@ -38,7 +39,7 @@ PriceSensitivityMeter(
   intersection.label.font.size = 10,
   intersection.label.wrap = TRUE,
   intersection.label.wrap.nchar = 21,
-  font.unit = "px",
+  font.units = "px",
   ...
 )
 }
@@ -52,6 +53,12 @@ At what price would you consider this product/brand to be
 \item{line.type}{Character; one of 'solid', 'dot', 'dashed'.}
 
 \item{line.thickness}{Thickness, in pixels, of the series line}
+
+\item{resolution}{Numeric; controls the intervals between which "Proportion of respondents"
+is computed.}
+
+\item{currency}{Character; Currency symbol to prepend to the intersection labels. These
+will also be used to set the default prefix to the x tick labels and hovertext.}
 
 \item{global.font.family}{Character; font family for all occurrences of any
 font attribute for the chart unless specified individually.}
@@ -93,8 +100,6 @@ to turn off set to "FALSE".}
 \item{y.tick.format}{A string representing a d3 formatting code.
 See https://github.com/d3/d3/blob/master/API.md#number-formats-d3-format}
 
-\item{resolution}{Controls how grid points on the x-axis.}
-
 \item{intersection.show}{Logical; Whether to show labels to the intersection points of the lines.}
 
 \item{intersection.arrow.color}{Color of the arrows to the intersection points.}
@@ -119,7 +124,7 @@ character format (e.g. "black") or an a hex code.}
 \item{intersection.label.wrap.nchar}{Number of characters (approximately) in each
 line of the intersection label when \code{intersection.label.wrap} \code{TRUE}.}
 
-\item{font.unit}{One of "px" of "pt". By default all font sizes are specified in terms of
+\item{font.units}{One of "px" of "pt". By default all font sizes are specified in terms of
 pixels ("px"). But changing this to "pt" will mean that the font sizes will be in terms
 points ("pt"), which will be consistent with font sizes in text boxes.}
 
