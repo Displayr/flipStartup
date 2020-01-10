@@ -4,8 +4,7 @@
 \alias{Index}
 \title{\code{Index}}
 \usage{
-Index(x, by.row = TRUE, i = 1, STATS = NULL, remove = "",
-  remove.diag = FALSE)
+Index(x, by.row = TRUE, i = 1, STATS = NULL, remove = "", remove.diag = FALSE)
 }
 \arguments{
 \item{x}{The data to be indexed.}

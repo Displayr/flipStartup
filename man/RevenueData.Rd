@@ -4,9 +4,18 @@
 \alias{RevenueData}
 \title{\code{RevenueData}}
 \usage{
-RevenueData(value, from, to, start = min(from), end = max(from), id,
-  subscription.length = "year", subset = rep(TRUE, length(id)),
-  profiling = NULL, trim.id = 50)
+RevenueData(
+  value,
+  from,
+  to,
+  start = min(from),
+  end = max(from),
+  id,
+  subscription.length = "year",
+  subset = rep(TRUE, length(id)),
+  profiling = NULL,
+  trim.id = 50
+)
 }
 \arguments{
 \item{value}{A vector of containing the revenue per transaction.}
