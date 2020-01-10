@@ -1,7 +1,7 @@
 Package: flipStartup
 Type: Package
 Title: Analytics for startups
-Version: 1.1.0
+Version: 1.2.0
 Author: Displayr <opensource@displayr.com>
 Maintainer: Displayr <opensource@displayr.com>
 Description: Various analytics to assist in the analysis of the performance of startups.
@@ -27,5 +27,5 @@ Remotes:
     Displayr/flipStatistics,
     Displayr/flipStandardCharts,
     Displayr/flipTime,
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Encoding: UTF-8
