@@ -4,13 +4,7 @@
 \alias{Acquisition}
 \title{\code{Acquisition}}
 \usage{
-Acquisition(
-  data,
-  subset,
-  remove.last = FALSE,
-  volume = FALSE,
-  number.periods = 1
-)
+Acquisition(data, remove.last = TRUE, volume = FALSE, number.periods = 1)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}

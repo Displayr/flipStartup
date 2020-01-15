@@ -8,13 +8,13 @@ RevenueData(
   value,
   from,
   to,
-  start,
-  end,
+  start = min(from),
+  end = max(from),
   id,
-  subscription.length,
-  subset,
+  subscription.length = "year",
+  subset = rep(TRUE, length(id)),
   profiling = NULL,
-  trim.id
+  trim.id = 50
 )
 }
 \arguments{
