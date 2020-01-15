@@ -3,9 +3,8 @@
 #' @description Cleans and tidies data for use in growth accounting
 #'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
 #' @param value A vector of containing the revenue per transaction, or, a data frame, 
-#' that contains 3 columns represeting code{value}, \code{from},  \code{to}, and \code{id}. 
-#' and has all the other required paramters a attributes other than
-#'  \code{profiling} (i.e., only 2 arguments)..
+#' that contains 3 columns represeting \code{value}, \code{from},  \code{to}, and \code{id}. 
+#' and has other parameters optionally provided as attributes. 
 #' @param from A vector of class \code{POSIXct} or \code{POSIXt},
 #'     recording the date and time each subscription commences.
 #' @param to A vector of class \code{POSIXct} or \code{POSIXt},
@@ -23,7 +22,7 @@
 #'     subscription length: \code{year} to view the data by year,
 #'     \code{quarter}, and \code{month}. This is assumed to be the
 #'     billing period when determining if subscribers have churned or
-#'     not. Defaults to \code{year"}.
+#'     not. Defaults to \code{"year"}.
 #' @param subset An optional vector specifying a subset of
 #'     observations to be used in the calculations
 #' @param profiling A \code{data.frame} containing data, unique by
@@ -100,16 +99,18 @@ RevenueData <- function(value,
         from <- value[, 2]
         to <- value[, 3]
         id <- value[, 4]
-        if (!is.null(attr(value, "start")))
+        if (missing(start) & !is.null(attr(value, "start")))
             start <- attr(value, "start")
-        if (!is.null(attr(value, "end")))
+        if (missing(end) & !is.null(attr(value, "end")))
             end <- attr(value, "end")
-        if (!is.null(attr(value, "subscription.length")))
+        if (missing(subscription.length) & !is.null(attr(value, "subscription.length")))
             subscription.length <- attr(value, "subscription.length")
-        if (!is.null(attr(value, "subset")))
+        if (missing(subset) & !is.null(attr(value, "subset")))
             subset <- attr(value, "subset")
-        if (!is.null(attr(value, "trim.id")))
-            trim.id <- attr(value, "trim.id")
+        if (missing(profiling) & !is.null(attr(value, "profiling")))
+           profiling <- attr(value, "profiling")
+        if (missing(trim.id) & !is.null(attr(value, "trim.id")))
+           trim.id <- attr(value, "trim.id")
         value <- value[, 1]
     }
     # Default values
@@ -280,6 +281,38 @@ RevenueData <- function(value,
     data
 }
 
+#' RevenueDataPreparation
+#' 
+#' @description Cleans and tidies data for use in growth accounting
+#'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
+#' @param value A vector of containing the revenue per transaction..
+#' @inherit RevenueData
+#' @return A \code{\link{data.frame}} that satisfies the input requirements for \code{value}
+#' in \code{\link{RevenueData}}.
+#' @export 
+RevenueDataPreparation <- function(value, 
+                            from, 
+                            to, 
+                            start, 
+                            end, 
+                            id, 
+                            subscription.length, 
+                            subset,
+                            trim.id)
+{
+    df <- data.frame(value, from, to, id)
+    if (!missing(start))
+        attr(df, "start") <- start
+    if (!missing(end))
+        attr(df, "end") <- end
+    if (!missing(subscription.length))
+        attr(df, "subscription.length") <- subscription.length
+    if (!missing(subscription.length))
+        attr(df, "subset") <- subset
+    if (!missing(trim.id))
+        attr(df, "trim.id") <- trim.id
+    df
+}
 
 checkVariableForLengthAndMissingData <- function(x, n)
 {

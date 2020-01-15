@@ -10,16 +10,18 @@ start <-  ISOdate(2012,7,1)
 for (by in c("week", "month", "quarter", "year"))
     test_that(paste(by, ": vector versus data frame"),
           {
-              by = "year"
               rd <- RevenueData(d$AUD,
                                 d$ValidFrom,
                                 d$ValidTo, 
                                 id = d$name, 
                                 subscription.length = by,
                                 subset = d$validInvoice == 1)
-              df <- data.frame(d$AUD, d$ValidFrom, d$ValidTo, id = d$name)
-              attr(df, "subscription.length") = by
-              attr(df, "subset") = d$validInvoice == 1
+              df <- RevenueDataPreparation(d$AUD, 
+                                           d$ValidFrom, 
+                                           d$ValidTo, 
+                                           id = d$name,
+                                           subscription.length = by,
+                                           subset= d$validInvoice == 1)
               rd1 <- RevenueData(df)
               expect_equal(rd, rd1)
           })          

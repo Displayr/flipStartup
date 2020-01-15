@@ -19,9 +19,8 @@ RevenueData(
 }
 \arguments{
 \item{value}{A vector of containing the revenue per transaction, or, a data frame, 
-that contains 3 columns represeting code{value}, \code{from},  \code{to}, and \code{id}. 
-and has all the other required paramters a attributes other than
- \code{profiling} (i.e., only 2 arguments)..}
+that contains 3 columns represeting \code{value}, \code{from},  \code{to}, and \code{id}. 
+and has other parameters optionally provided as attributes.}
 
 \item{from}{A vector of class \code{POSIXct} or \code{POSIXt},
 recording the date and time each subscription commences.}
@@ -45,7 +44,7 @@ names, subscriber keys).}
 subscription length: \code{year} to view the data by year,
 \code{quarter}, and \code{month}. This is assumed to be the
 billing period when determining if subscribers have churned or
-not. Defaults to \code{year"}.}
+not. Defaults to \code{"year"}.}
 
 \item{subset}{An optional vector specifying a subset of
 observations to be used in the calculations}
