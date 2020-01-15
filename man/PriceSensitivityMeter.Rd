@@ -89,8 +89,6 @@ font attribute for the chart unless specified individually.}
 \item{x.title}{Character, x-axis title; defaults to chart input values;
 to turn off set to "FALSE".}
 
-\item{x.tick.prefix}{x-axis tick label prefix}
-
 \item{x.hovertext.format}{A string representing a d3 formatting code.
 See https://github.com/mbostock/d3/wiki/Formatting#numbers}
 

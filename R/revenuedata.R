@@ -2,9 +2,7 @@
 #'
 #' @description Cleans and tidies data for use in growth accounting
 #'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
-#' @param value A vector of containing the revenue per transaction, or, a data frame, 
-#' that contains 3 columns represeting \code{value}, \code{from},  \code{to}, and \code{id}. 
-#' and has other parameters optionally provided as attributes. 
+#' @param value A vector of containing the revenue per transaction.
 #' @param from A vector of class \code{POSIXct} or \code{POSIXt},
 #'     recording the date and time each subscription commences.
 #' @param to A vector of class \code{POSIXct} or \code{POSIXt},
@@ -22,7 +20,7 @@
 #'     subscription length: \code{year} to view the data by year,
 #'     \code{quarter}, and \code{month}. This is assumed to be the
 #'     billing period when determining if subscribers have churned or
-#'     not. Defaults to \code{"year"}.
+#'     not.
 #' @param subset An optional vector specifying a subset of
 #'     observations to be used in the calculations
 #' @param profiling A \code{data.frame} containing data, unique by
@@ -32,7 +30,7 @@
 #'     \code{rownames} must match the values of \code{id}.
 #' @param trim.id The maximum length of the strings to be used showing
 #'     ID names (used to avoid situations where string names are so
-#'     long as to make reading of tables impossible. Defaults to 50.
+#'     long as to make reading of tables impossible.
 #' @return A \code{\link{data.frame}}  where the rows represent
 #'     unique combinations of periods and subscribers. Where a
 #'     subscriber has multiple transactions in a period, they are
@@ -72,252 +70,233 @@
 #' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
 #' @importFrom stats ave
 #' @export
-RevenueData <- function(value, 
-                        from, 
-                        to, 
-                        start, 
-                        end, 
-                        id, 
-                        subscription.length, 
-                        subset,
-                        profiling = NULL, 
-                        trim.id) #, tolerance = .01)
+RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
+                        subscription.length = "year", subset = rep(TRUE, length(id)),
+                        profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
-    if (!NCOL(value) %in% c(1,4))
-        stop("'value' must be a single vector, or, a data.frame with four variables")
-    if (NCOL(value) == 4)
+  # Checking the input variables.
+  n = length(value)
+  checkVariableForLengthAndMissingData(value, n)
+  checkVariableForLengthAndMissingData(from, n)
+  checkVariableForLengthAndMissingData(to, n)
+  checkVariableForLengthAndMissingData(id, n)
+  
+  # Removing leap years
+  from <- Change29FebTo28th(from)
+  to <- Change29FebTo28th(to)
+  
+  default.start.end <- start == min(from, na.rm = TRUE) & end == max(from, na.rm = TRUE)
+  # Units.
+  units <- Periods(1, subscription.length)
+  data <- data.frame(id = as.character(id), value, from, to)
+  
+  # Filtering data.
+  n.initial <- nrow(data)
+  cat(paste0(n.initial, " transactions.\n"))
+  n.subset <- sum(subset)
+  if (n.subset < n.initial)
+  {
+    cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
+    data <- subset(data, subset = subset)
+  }
+  # Sorting by company name and start-date
+  data <- data[with(data, order(id, from)), ]
+  # Removing observations that start after the end.
+  zero <- data$value == 0
+  n.zero <- sum(zero)
+  if (n.zero > 0)
+  {
+    cat(paste0(n.zero, " transactions removed due to having 0 value.\n"))
+    data <- subset(data, !zero)
+  }
+  negative <- data$value < 0
+  n.negative <- sum(negative)
+  if (n.negative > 0)
+  {
+    cat(paste0(n.negative, " transactions removed due to having a negative value.\n"))
+    data <- subset(data, !negative)
+  }
+  n <- nrow(data)
+  cat(paste0(n, " transactions remaining.\n"))
+  if (n == 0)
+    return(NULL)
+  # 
+  #     # Splitting apart transactions that exceed the subscription length. They are split so that the final 
+  #     # transaction is the subscription length and ends on the original data. E.g., if a person has a sub-
+  #     # scription of 1 year and 6 months, it is changed so that the first subscription is 6 months
+  #     # and the second is 1 year.
+  #     to <- as.Date(data$to)
+  #     n <- length(to)
+  #     to.day.month <- to - lubridate::years(year(to))
+  #     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
+  #     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+  #     zero.length.transactions <- n.subscriptions == 0
+  #     n.zero.length.transactions <- sum(zero.length.transactions)
+  #     if (max(n.subscriptions) > 1)
+  #     {
+  #         n.long <- sum(n.subscriptions > 1)
+  #         cat(n.long, " transactions split into multiple transactions due to being longer than a ", subscription.length, "\n", sep = "")
+  #         while (max(n.subscriptions) > 1)
+  #         {
+  #             long <- n.subscriptions > 0
+  #             extra <- data[long, ]
+  #  #           print("units")
+  #   #          print(units)
+  #    #         print(data$from[is.na(data$from + units)])
+  #             data$to[long] <- data$from[long] + units
+  #             extra$from <- extra$from + units
+  #             data <- rbind(data, extra)
+  #             to <- as.Date(data$to)
+  #     #        print(summary(data$from))
+  #      #       print(summary(to))
+  #             n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+  #         }
+  #         n <- nrow(data)
+  #     }
+  #     max.n.subscriptions <- max(n.subscriptions)
+  #     print(max.n.subscriptions)
+  #     print(table(n.subscriptions))
+  #     print(data[n.subscriptions == 0, ])
+  #     if (max.n.subscriptions > 1)
+  #         for (i in 1:max.n.subscriptions)
+  #         {
+  #             to <- as.Date(data$to)
+  #             from <- as.Date(data$to)
+  #             new.from <- to - units
+  #             
+  #             
+  #         }
+  #         
+  # 
+  #     # Removing transactions that have license running for a single day
+  #     to <- as.Date(data$to)
+  #     n <- length(to)
+  #     to.day.month <- to - lubridate::years(year(to))
+  #     mode.day.month <- ave(to.day.month, data$id, FUN = function(x) names(sort(-table(x)))[1])
+  #     n.subscriptions <- DiffPeriod(data$from, to, ceiling = TRUE, by = subscription.length)
+  #     zero.length.transactions <- n.subscriptions == 0
+  #     n.zero.length.transactions <- sum(zero.length.transactions)
+  #     if (n.zero.length.transactions > 0)
+  #     {
+  #         cat(n.zero.length.transactions, " transactions removed due to finishing on the day they startes\n", sep = "")
+  #         data <- subset(data, !zero.length.transactions)
+  #         n.subscriptions <- n.subscriptions[!zero.length.transactions]
+  #         to <- to[!zero.length.transactions]
+  #         n <- nrow(data)
+  #     }
+  # Aggregating transactions that occur in the same time period.
+  data$to.period <- Period(data$to, subscription.length)
+  data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
+  n <- nrow(data)
+  cat(paste0(n, " aggregated transactions (i.e., summed together when sharing a from and end date) remaining.\n"))
+  # Subscriber-level calculations.
+  id.data <- aggregate(from ~ id, data, min)
+  names(id.data)[2] <- "subscriber.from"
+  id.data$subscriber.to <- aggregate(to ~ id, data, max)[, 2]
+  if (!is.null(profiling))
+  {
+    if (("id" %in% names(profiling)))
     {
-        if (!missing(from) |
-            !missing(to) |
-            !missing(id) | 
-            !missing(start) | 
-            !missing(end) |
-            !missing(subscription.length) | 
-            !missing(subset) |
-            !missing(trim.id))
-            stop("If using a data frame for 'values', it must be the only argument.")
-        from <- value[, 2]
-        to <- value[, 3]
-        id <- value[, 4]
-        if (missing(start) & !is.null(attr(value, "start")))
-            start <- attr(value, "start")
-        if (missing(end) & !is.null(attr(value, "end")))
-            end <- attr(value, "end")
-        if (missing(subscription.length) & !is.null(attr(value, "subscription.length")))
-            subscription.length <- attr(value, "subscription.length")
-        if (missing(subset) & !is.null(attr(value, "subset")))
-            subset <- attr(value, "subset")
-        if (missing(profiling) & !is.null(attr(value, "profiling")))
-           profiling <- attr(value, "profiling")
-        if (missing(trim.id) & !is.null(attr(value, "trim.id")))
-           trim.id <- attr(value, "trim.id")
-        value <- value[, 1]
+      profiling.id <- as.character(profiling$id)
+      profiling$id <- NULL
     }
-    # Default values
-  if (missing(start))
-      start <- min(from)
-  if (missing(end))
-      end <- max(from)
-  if (missing(subscription.length))
-      subscription.length = "year"
-  if (missing(subset))
-      subset <- rep(TRUE, NROW(value))
-  if (missing(trim.id))
-      trim.id <- 50
-
-    # Checking the input variables.
-    n = length(value)
-    checkVariableForLengthAndMissingData(value, n)
-    checkVariableForLengthAndMissingData(from, n)
-    checkVariableForLengthAndMissingData(to, n)
-    checkVariableForLengthAndMissingData(id, n)
-
-    # Removing leap years
-    from <- AsDate(from)
-    to <- AsDate(from)
-    from <- Change29FebTo28th(from)
-    to <- Change29FebTo28th(to)
+    else
+      profiling.id <- rownames(profiling)
+    profiling.id <- as.character(profiling.id)
     
-    default.start.end <- start == min(from, na.rm = TRUE) & end == max(from, na.rm = TRUE)
-    # Units.
-    units <- Periods(1, subscription.length)
-    data <- data.frame(id = as.character(id), value, from, to)
-
-    # Filtering data.
-    n.initial <- nrow(data)
-    cat(paste0(n.initial, " transactions.\n"))
-    n.subset <- sum(subset)
-    if (n.subset < n.initial)
+    lookup <- match(as.character(id.data$id), profiling.id)
+    if (sum(!is.na(lookup)) == 0)
     {
-        cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
-        data <- subset(data, subset = subset)
+      stop("The 'profiling' data is needs to either contain an 'id' variable, or have rownames that contain the 'id' values.")
     }
-    # Sorting by company name and start-date
-    data <- data[with(data, order(id, from)), ]
-    # Removing observations that start after the end.
-    zero <- data$value == 0
-    n.zero <- sum(zero)
-    if (n.zero > 0)
+    else if (sum(is.na(lookup)) > 0)
     {
-        cat(paste0(n.zero, " transactions removed due to having 0 value.\n"))
-        data <- subset(data, !zero)
+      missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
+      stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))
     }
-    negative <- data$value < 0
-    n.negative <- sum(negative)
-    if (n.negative > 0)
+    if (pos <- "value" %in% names(profiling))
     {
-        cat(paste0(n.negative, " transactions removed due to having a negative value.\n"))
-        data <- subset(data, !negative)
+      names(profiling)[pos] <- "value.profiling"
+      cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
     }
-    n <- nrow(data)
-    cat(paste0(n, " transactions remaining.\n"))
-    if (n == 0)
-        return(NULL)
-    # Aggregating transactions that occur in the same time period.
-    data$to.period <- Period(data$to, subscription.length)
-    data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
-    n <- nrow(data)
-    cat(paste0(n, " aggregated transactions (i.e., summed together when sharing a from and end date) remaining.\n"))
-    # Subscriber-level calculations.
-    id.data <- aggregate(from ~ id, data, min)
-    names(id.data)[2] <- "subscriber.from"
-    id.data$subscriber.to <- aggregate(to ~ id, data, max)[, 2]
-    if (!is.null(profiling))
+    if (pos <- "from" %in% names(profiling))
     {
-        if (("id" %in% names(profiling)))
-        {
-            profiling.id <- as.character(profiling$id)
-            profiling$id <- NULL
-        }
-        else
-            profiling.id <- rownames(profiling)
-        profiling.id <- as.character(profiling.id)
-
-        lookup <- match(as.character(id.data$id), profiling.id)
-        if (sum(!is.na(lookup)) == 0)
-        {
-            stop("The 'profiling' data is needs to either contain an 'id' variable, or have rownames that contain the 'id' values.")
-        }
-        else if (sum(is.na(lookup)) > 0)
-        {
-            missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
-            stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))
-        }
-        if (pos <- "value" %in% names(profiling))
-        {
-            names(profiling)[pos] <- "value.profiling"
-            cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
-        }
-        if (pos <- "from" %in% names(profiling))
-        {
-            names(profiling)[pos] <- "from.profiling"
-            cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
-        }
-        if (pos <- "to" %in% names(profiling))
-        {
-            names(profiling)[pos] <- "to.profiling"
-            cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
-        }
-        id.data <- cbind(id.data, profiling[lookup, ])
+      names(profiling)[pos] <- "from.profiling"
+      cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
     }
-    # Creating time-based metrics.
-    id.data$last.from <- aggregate(from ~ id, data, max)[, 2]
-    id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], subscription.length), subscription.length)
-    cat(paste0(nrow(id.data), " subscribers.\n"))
-    id.data$subscription.to <- aggregate(to ~ id, data, max)$to
-    tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
-    id.data$tenure <- tenure.interval %/% units
-    id.data$subscriber.from.period <- Period(id.data$subscriber.from, subscription.length)
-    id.data$subscriber.to.period <- Period(id.data$subscriber.to, subscription.length)
-    id.data$churned <- id.data$subscriber.to <= end
-    not.churned <- !id.data$churned
-    data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
-    data$from.period <- Period(data$from, subscription.length)
-    data$to.period <- Period(data$to, subscription.length)
-    data$churn <- data$churned & data$from.period == data$last.from.period
-    data$period.counter <- interval(data$subscriber.from, data$from) %/% units
-    # Sorting.
-    data <- data[order(data$id, data$from),]
-    # Creating a variable indicating observation number. Randomly sorts ties.
-    observation <- observation.within.period <- rep(1, n <- nrow(data))
-    if (n > 1)
+    if (pos <- "to" %in% names(profiling))
     {
-        ids <- data$id
-        for (i in 2:n)
-            if (ids[i] == ids[i - 1])
-            {
-                if (data$to.period[i] == data$to.period[i - 1])
-                    observation.within.period[i] = observation.within.period[i - 1] + 1
-                observation[i] = observation[i - 1] + 1
-
-            }
+      names(profiling)[pos] <- "to.profiling"
+      cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
     }
-    data$observation <- observation
-    data$observation.within.period <- observation.within.period
-
-    data$id <- sub("\\s+$", "", as.character(data$id))
-    if (!default.start.end)
-    {
-        window <- interval(start, end)
-        from0 <- AsDate(data$from.period, on.parse.failure = "silent")
-        to0 <- AsDate(data$to.period, on.parse.failure = "silent")
+    id.data <- cbind(id.data, profiling[lookup, ])
+  }
+  # Creating time-based metrics.
+  id.data$last.from <- aggregate(from ~ id, data, max)[, 2]
+  id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], subscription.length), subscription.length)
+  cat(paste0(nrow(id.data), " subscribers.\n"))
+  id.data$subscription.to <- aggregate(to ~ id, data, max)$to
+  tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
+  id.data$tenure <- tenure.interval %/% units
+  id.data$subscriber.from.period <- Period(id.data$subscriber.from, subscription.length)
+  id.data$subscriber.to.period <- Period(id.data$subscriber.to, subscription.length)
+  id.data$churned <- id.data$subscriber.to <= end
+  not.churned <- !id.data$churned
+  data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
+  data$from.period <- Period(data$from, subscription.length)
+  data$to.period <- Period(data$to, subscription.length)
+  data$churn <- data$churned & data$from.period == data$last.from.period
+  data$period.counter <- interval(data$subscriber.from, data$from) %/% units
+  # Sorting.
+  data <- data[order(data$id, data$from),]
+  # Creating a variable indicating observation number. Randomly sorts ties.
+  observation <- observation.within.period <- rep(1, n <- nrow(data))
+  if (n > 1)
+  {
+    ids <- data$id
+    for (i in 2:n)
+      if (ids[i] == ids[i - 1])
+      {
+        if (data$to.period[i] == data$to.period[i - 1])
+          observation.within.period[i] = observation.within.period[i - 1] + 1
+        observation[i] = observation[i - 1] + 1
         
-        # ignore hour/timezone which has been unreliable since calling aggregate in line 192
-        from <- ISOdate(year(from0), month(from0), day(from0))
-        to <- ISOdate(year(to0), month(to0), day(to0))
-        data <- data[to %within% window | from %within% window | from < start & to > end, ]
-        cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
-        cat(paste0(length(unique(data$id)), " subscribers left after taking 'start' and/or 'end' into account.\n"))
-    }
-    attr(data, "subscription.length") <- subscription.length
-    attr(data, "end") <- end
-    # Computing recurring.revenue
-    period.proportion = as.numeric(data$to - data$from, "days") /  as.numeric(as.duration(units), "days")
-    rounded.period.proportion = round(period.proportion, 2)
-    rnd = rounded.period.proportion %in% c(.25,.5, .75, 1, 2, 3, 4, 5, 6)
-    period.proportion[rnd] = rounded.period.proportion[rnd]
-    data$recurring.value = data$value / period.proportion
-    class(data) <- c(class(data), "RevenueData")
-    data
+      }
+  }
+  data$observation <- observation
+  data$observation.within.period <- observation.within.period
+  
+  data$id <- sub("\\s+$", "", as.character(data$id))
+  if (!default.start.end)
+  {
+    window <- interval(start, end)
+    from0 <- AsDate(data$from.period, on.parse.failure = "silent")
+    to0 <- AsDate(data$to.period, on.parse.failure = "silent")
+    
+    # ignore hour/timezone which has been unreliable since calling aggregate in line 192
+    from <- ISOdate(year(from0), month(from0), day(from0))
+    to <- ISOdate(year(to0), month(to0), day(to0))
+    data <- data[to %within% window | from %within% window | from < start & to > end, ]
+    cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
+    cat(paste0(length(unique(data$id)), " subscribers left after taking 'start' and/or 'end' into account.\n"))
+  }
+  attr(data, "subscription.length") <- subscription.length
+  attr(data, "end") <- end
+  # Computing recurring.revenue
+  period.proportion = as.numeric(data$to - data$from, "days") /  as.numeric(as.duration(units), "days")
+  rounded.period.proportion = round(period.proportion, 2)
+  rnd = rounded.period.proportion %in% c(.25,.5, .75, 1, 2, 3, 4, 5, 6)
+  period.proportion[rnd] = rounded.period.proportion[rnd]
+  data$recurring.value = data$value / period.proportion
+  class(data) <- c(class(data), "RevenueData")
+  data
 }
 
-#' RevenueDataPreparation
-#' 
-#' @description Cleans and tidies data for use in growth accounting
-#'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
-#' @param value A vector of containing the revenue per transaction..
-#' @inherit RevenueData
-#' @return A \code{\link{data.frame}} that satisfies the input requirements for \code{value}
-#' in \code{\link{RevenueData}}.
-#' @export 
-RevenueDataPreparation <- function(value, 
-                            from, 
-                            to, 
-                            start, 
-                            end, 
-                            id, 
-                            subscription.length, 
-                            subset,
-                            trim.id)
-{
-    df <- data.frame(value, from, to, id)
-    if (!missing(start))
-        attr(df, "start") <- start
-    if (!missing(end))
-        attr(df, "end") <- end
-    if (!missing(subscription.length))
-        attr(df, "subscription.length") <- subscription.length
-    if (!missing(subscription.length))
-        attr(df, "subset") <- subset
-    if (!missing(trim.id))
-        attr(df, "trim.id") <- trim.id
-    df
-}
 
 checkVariableForLengthAndMissingData <- function(x, n)
 {
-    if (any(is.na(x)))
-        stop("'", deparse(substitute(x)), "' contains missing values.")
-    if (length(x) != n)
-        stop("'" , deparse(substitute(x)), "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
+  if (any(is.na(x)))
+    stop("'", deparse(substitute(x)), "' contains missing values.")
+  if (length(x) != n)
+    stop("'" , deparse(substitute(x)), "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
 }
