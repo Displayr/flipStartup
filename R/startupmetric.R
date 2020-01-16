@@ -2,78 +2,80 @@
 #'
 #' @description Creates a small multiple plot by sub-groups
 #' @inherit RevenueData
+#' @param FUN A function that calculates a metric
+#' @param as.plot If \code{TRUE}, outputs the metric as a plot
 #' @param profiling Separate analyses are conducted among each unique combination of these variables.
-#' @FUN A function that calculates a metric
-#' @as.plot If \code{TRUE}, outputs the metric as a plot
 #' @importFrom plotly add_annotations subplot
 #' @return A plotly plot#?
 #' @export
-StartupMetric <- function(value, 
-                          from, 
-                          to, 
-                          start, 
-                          end, 
-                          id, 
-                          subscription.length, 
-                          subset,
-                          profiling = NULL, 
-                          trim.id = 50,
-                          FUN = "Acquisition",
-                          as.plot = TRUE)
+StartupMetric <- function(FUN = "Acquisition",
+                          as.plot = TRUE,
+                          # parameters from RevenueData
+                          value, from, to, start = min(from), end = max(from), id,
+                          subscription.length = "year", subset = rep(TRUE, length(id)),
+                          profiling = NULL, trim.id = 50)
 {
-    filters <- createFilters(profiling, subset)
+    filters <- createFilters(profiling, subset = NULL, id)
     n.filters <- length(filters)
     out <- list()
     for (i in 1:n.filters)
     {
-        rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], trim.id)
+        rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id)
         out[[i]] <- do.call(FUN, list(rd))
     }
+    names(out) <- names(filters)
     if (as.plot)
         plotSubGroups(out)
     else out
 }
     
 
-createFilters <- function(profiling, subset = NULL)
+createFilters <- function(profiling, subset, id)
 {
+    if (is.null(subset))
+        subset <- rep(TRUE, length(id))
     if (is.null(profiling))
         return(list(subset))
     subsets <- list()
     # Converting all variables to factors
     for (i in 1:NCOL(profiling))
     {
-        p <- as.character(profiling[[i]])
+        p <- trimws(as.character(profiling[[i]]))
         p[is.na(p)] <- "MISSING DATA"
-        profiling[[i]] <- factor(p)
+        profiling[[i]] <- p
     }
     if (is.null(subset))
         subset <- TRUE
     n.profiling <- nrow(profiling)
-    levs <- as.data.frame(sapply(profiling, levels))
+    levs <- lapply(profiling, unique)
     combs <- expand.grid(levs)
     n.combinations <- nrow(combs)
     for (i in 1:n.combinations)
     {
         filts <- combs[rep(i, n.profiling), , drop = FALSE]
-        subsets[[i]] <- which(apply(profiling == filts, 1, all) & subset)
+        f <- apply(profiling == filts, 1, all) & subset
+        f[is.na(f)] <- FALSE
+        subsets[[i]] <- f
     }
     nms <- apply(combs,1, function(x) paste(as.character(x), collapse = " + "))
-    nms <- paste0(nms, " n: ", sapply(nms, length))
+    nms <- trimws(nms)
+    nms <- paste0(nms, "\nn: ", sapply(subsets, function(x) length(unique(id[x]))))
     names(subsets) <- nms
-    subsets
+    # Filtering out empty subsets
+    subsets[sapply(subsets, function(x) length(x) > 0)]
 }
 
 
-#' 
-#' 
-plotSubGroups <- function(data.to.be.plotted, ...)
+plotSubGroups <- function(x, ...)
 {
-    plots <- lapply(data.to.be.plotted, FUN = plot, ...)
+    n.plots <- length(x)
+    if (n.plots == 1)
+        return(print(plot(x[[1]])))
+    plots <- lapply(x, FUN = plot, suppress.print = FALSE, ...)
     # Adding titles
     for (i in seq_along(plots))
         plots[[i]]  <- add_annotations(plots[[i]], 
-                                     text = names(data.to.be.plotted)[i],
+                                     text = names(x)[i],
                                      x = 0.5,
                                      y = 1,
                                      yref = "paper",
@@ -82,7 +84,9 @@ plotSubGroups <- function(data.to.be.plotted, ...)
                                      yanchor = "top",
                                      showarrow = FALSE,
                                      font = list(size = 15))
-    subplot(plots, shareX = TRUE, shareY = TRUE)
+    nr <- floor(sqrt(n.plots - 1))
+    print(nr)
+    print(subplot(plots, nrows = nr, shareX = TRUE, shareY = TRUE))
 }
 
 

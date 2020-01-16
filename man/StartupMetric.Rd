@@ -5,21 +5,25 @@
 \title{\code{StartupMetric}}
 \usage{
 StartupMetric(
+  FUN = "Acquisition",
+  as.plot = TRUE,
   value,
   from,
   to,
-  start,
-  end,
+  start = min(from),
+  end = max(from),
   id,
-  subscription.length,
-  subset,
+  subscription.length = "year",
+  subset = rep(TRUE, length(id)),
   profiling = NULL,
-  trim.id = 50,
-  FUN = "Acquisition",
-  as.plot = TRUE
+  trim.id = 50
 )
 }
 \arguments{
+\item{FUN}{A function that calculates a metric}
+
+\item{as.plot}{If \code{TRUE}, outputs the metric as a plot}
+
 \item{value}{A vector of containing the revenue per transaction.}
 
 \item{from}{A vector of class \code{POSIXct} or \code{POSIXt},

@@ -6,8 +6,46 @@ library(lubridate)
 end <-  ISOdate(2016,2,15)
 start <-  ISOdate(2012,7,1)
 
-StartupMetric(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
+# merging categories
+d$country <- as.character(d$country)
+t <- table(d$country)
+d$country[d$country %in% names(t[t < 100])] <- "Other"
 
+d$salesman <- as.character(d$salesman)
+t <- table(d$salesman)
+d$salesman[d$salesman %in% names(t[t < 100])] <- "Other"
+
+# create Subsets
+test_that("Create subsets",
+          {
+              # Country
+              s <- flipStartup:::createFilters(d[, "country", drop = FALSE], subset = NULL, id = d$name)
+              expect_equal(length(names(s)), 5)
+              expect_equal(names(s)[1], "Australia n: 385")
+              expect_equal(length(s[[1]]), 2390) # Observations, companies can have multiple observations
+              # Saleman
+              s <- flipStartup:::createFilters(d[, "salesman", drop = FALSE], subset = NULL, id = d$name)
+              expect_equal(length(names(s)), 4)
+              expect_equal(names(s)[1], "MISSING DATA n: 486")
+              # Country and salesman
+              s <- flipStartup:::createFilters(d[, c("country", "salesman")], subset = NULL, id = d$name)
+              expect_equal(length(names(s)), 20)
+              expect_equal(names(s)[1], "Australia + MISSING DATA n: 191")
+          })
+
+# Just an aggreget metric
+StartupMetric(FUN = "Acquisition",as.plot = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
+StartupMetric(FUN = "Acquisition",as.plot = TRUE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
+
+# one profiling
+p <- d[, "country", drop = FALSE]
+StartupMetric(FUN = "Acquisition", as.plot = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
+StartupMetric(FUN = "Acquisition", as.plot = TRUE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
+
+# two  profiling
+p <- d[, c("country", "salesman")]
+zz <- StartupMetric(FUN = "Acquisition", as.plot = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
+StartupMetric(FUN = "Acquisition", as.plot = TRUE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
 
 
 
