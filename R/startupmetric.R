@@ -105,29 +105,3 @@ plotSubGroups <- function(x, ...)
     pp <- layout(pp, annotations = annotations)
     print(pp)
 }
-
-
-# 
-# 
-# subplots
-# 
-# out <- list(Overall = plot(Acquisition(x)),
-#             Overall = plot(Acquisition(x, subset = x$Product == "Q")),
-#             Overall = plot(Acquisition(x, subset = x$Product == "Displayr")))
-# 
-# plotly::subplot(out, shareX = TRUE, shareY = TRUE)
-# 
-# 
-# 
-# 
-# 
-# 
-# 
-# gg <- local({
-#     k <- function(y)f(y)
-#     f <- function(x) if(x) x*k(x-1) else 1
-# })
-# gg(10)
-# sapply(1:5, gg)
-# 
-# 

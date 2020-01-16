@@ -53,16 +53,4 @@ plot.Acquisition <- function(x,  ...)
 }
 
 
-#' @export
-Tab <- function(x)
-{
-    UseMethod("Tab", x)
-}
-
-#' @export
-Tab.Acquisition <- function(x, ...)
-{
-    sapply(x$id, paste, collapse = ",")
-}
-
 

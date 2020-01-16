@@ -30,7 +30,6 @@ Churn <- function(data, volume = FALSE)
         else
         {
             Table( ~ churn + to.period, data = data[data$observation.within.period == 1,])
-            #apply(xt, c(1, 2), max)
         }
     base <- table(data$to.period[data$observation.within.period == 1])
     rates <- prop.table(counts, 2)[2, ]
@@ -53,4 +52,12 @@ plot.Churn <- function(x, ...)
                fit.line.colors.custom.color="#ED7D31")
     print(p)
 }
+
+
+#' @export
+Tab.Churn <- function(x, ...)
+{
+    sapply(x$id, paste, collapse = ",")
+}
+
 
