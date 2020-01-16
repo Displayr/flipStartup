@@ -39,7 +39,7 @@ Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, numbe
 
 #' @importFrom flipStandardCharts Chart
 #' @export
-plot.Acquisition <- function(x, suppress.print = FALSE, ...)
+plot.Acquisition <- function(x,  ...)
 {
     rates <- x$counts
     period.names <- names(rates)
@@ -49,6 +49,20 @@ plot.Acquisition <- function(x, suppress.print = FALSE, ...)
          y.title = title, fit.type = smooth, fit.ignore.last = TRUE,
          fit.line.type = "solid", fit.line.width = 2, fit.line.colors="Custom color", 
          fit.line.colors.custom.color="#ED7D31")
-    if (suppress.print) p else print(p)
+    print(p)
 }
+
+
+#' @export
+Tab <- function(x)
+{
+    UseMethod("Tab", x)
+}
+
+#' @export
+Tab.Acquisition <- function(x, ...)
+{
+    sapply(x$id, paste, collapse = ",")
+}
+
 

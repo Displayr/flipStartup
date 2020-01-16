@@ -3,13 +3,13 @@
 #' @description Creates a small multiple plot by sub-groups
 #' @inherit RevenueData
 #' @param FUN A function that calculates a metric
-#' @param as.plot If \code{TRUE}, outputs the metric as a plot
+#' @param output Whether to output as a Plot, Table, or List. 
 #' @param profiling Separate analyses are conducted among each unique combination of these variables.
 #' @importFrom plotly add_annotations subplot
 #' @return A plotly plot#?
 #' @export
 StartupMetric <- function(FUN = "Acquisition",
-                          as.plot = TRUE,
+                          output = c("Plot", "Table", "List")[1],
                           # parameters from RevenueData
                           value, from, to, start = min(from), end = max(from), id,
                           subscription.length = "year", subset = rep(TRUE, length(id)),
@@ -24,9 +24,10 @@ StartupMetric <- function(FUN = "Acquisition",
         out[[i]] <- do.call(FUN, list(rd))
     }
     names(out) <- names(filters)
-    if (as.plot)
-        plotSubGroups(out)
-    else out
+    switch(output,
+           Plot = plotSubGroups(out),
+           Table = lapply(out, Tab),
+           List = out)
 }
     
 
@@ -71,7 +72,7 @@ plotSubGroups <- function(x, ...)
     n.plots <- length(x)
     if (n.plots == 1)
         return(print(plot(x[[1]])))
-    plots <- lapply(x, FUN = plot, suppress.print = FALSE, ...)
+    plots <- lapply(x, FUN = plot, ...)
     # Adding titles
     for (i in seq_along(plots))
         plots[[i]]  <- add_annotations(plots[[i]], 

@@ -6,7 +6,7 @@
 \usage{
 StartupMetric(
   FUN = "Acquisition",
-  as.plot = TRUE,
+  output = c("Plot", "Table", "List")[1],
   value,
   from,
   to,
@@ -22,7 +22,7 @@ StartupMetric(
 \arguments{
 \item{FUN}{A function that calculates a metric}
 
-\item{as.plot}{If \code{TRUE}, outputs the metric as a plot}
+\item{output}{Whether to output as a Plot, Table, or List.}
 
 \item{value}{A vector of containing the revenue per transaction.}
 
