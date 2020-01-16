@@ -37,7 +37,7 @@ Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, numbe
     result
 }
 
-#' @importFrom flipStandardCharts Chart
+#' @importFrom flipStandardCharts Column
 #' @export
 plot.Acquisition <- function(x,  ...)
 {
@@ -45,11 +45,11 @@ plot.Acquisition <- function(x,  ...)
     period.names <- names(rates)
     smooth <- if (length(x$counts) < 4) "None" else "Smooth"
     title <- if(x$volume) "Acquisition (% volume)" else "Acquisition (subscribers)"
-    p <- Chart(rates,  x.tick.angle=0,
+    p <- Column(rates,  x.tick.angle=0,
          y.title = title, fit.type = smooth, fit.ignore.last = TRUE,
-         fit.line.type = "solid", fit.line.width = 2, fit.line.colors="Custom color", 
-         fit.line.colors.custom.color="#ED7D31")
-    print(p)
+         fit.line.type = "solid", fit.line.width = 2, 
+         fit.line.colors = "#ED7D31", ...)
+    print(p$htmlwidget)
 }
 
 

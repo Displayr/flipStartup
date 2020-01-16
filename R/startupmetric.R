@@ -18,14 +18,23 @@ StartupMetric <- function(FUN = "Acquisition",
     filters <- createFilters(profiling, subset = NULL, id)
     n.filters <- length(filters)
     out <- list()
+    y.max <- 0
     for (i in 1:n.filters)
     {
         rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id)
         out[[i]] <- do.call(FUN, list(rd))
+        y.max <- max(y.max, out[[i]]$counts) # not sure if this works for other FUN??
     }
     names(out) <- names(filters)
     switch(output,
-           Plot = plotSubGroups(out),
+           Plot = plotSubGroups(out,
+                # need to specify bounds to ensure subplot share axis properly 
+                x.bounds.minimum = format(min(from), "%Y-%m-%d"), # pass date as a string
+                x.bounds.maximum = format(max(from), "%Y-%m-%d"),
+                x.tick.format = "%b %Y",  # specify date format to help flipStandardChart figure out parsing
+                y.bounds.maximum = y.max,
+                y.bounds.minimum = 0, 
+                opacity = 1.0),
            Table = lapply(out, Tab),
            List = out)
 }
@@ -73,21 +82,28 @@ plotSubGroups <- function(x, ...)
     if (n.plots == 1)
         return(print(plot(x[[1]])))
     plots <- lapply(x, FUN = plot, ...)
+    nr <- floor(sqrt(n.plots - 1))
+    nc <- ceiling(n.plots/nr)
+    pp <- subplot(plots, nrows = nr, shareX = TRUE, shareY = TRUE)
+
     # Adding titles
+    annotations <- list()       
+    titles.ypos <- rep((nr:1)/nr, each = nc)[1:n.plots]
+    titles.xpos <- rep((1:nc - 0.5)/nc, nr)[1:n.plots]
     for (i in seq_along(plots))
-        plots[[i]]  <- add_annotations(plots[[i]], 
-                                     text = names(x)[i],
-                                     x = 0.5,
-                                     y = 1,
+    {
+        annotations[[i]]  <- list(text = names(x)[i],
+                                     x = titles.xpos[i],
+                                     y = titles.ypos[i],
                                      yref = "paper",
                                      xref = "paper",
-                                     xanchor = "middle",
+                                     xanchor = "center",
                                      yanchor = "top",
                                      showarrow = FALSE,
                                      font = list(size = 15))
-    nr <- floor(sqrt(n.plots - 1))
-    print(nr)
-    print(subplot(plots, nrows = nr, shareX = TRUE, shareY = TRUE))
+    }
+    pp <- layout(pp, annotations = annotations)
+    print(pp)
 }
 
 
