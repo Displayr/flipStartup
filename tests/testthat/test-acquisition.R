@@ -7,19 +7,16 @@ library(lubridate)
 end <-  ISOdate(2016,12,31)
 start <-  ISOdate(2012,7,1)
 by = "week"
-for (by in c("week", "month", "quarter", "year"))
-    test_that(paste("Creating RevenueData", by),
-          {
-            expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(a <- Acquisition(rd, volume = FALSE), NA)
-            expect_error(p <- Chart(a$counts, y.title = "New customers", fit.type="Smooth"), NA)
-            expect_error(print(p), NA)
-            expect_error(a <- Acquisition(rd, volume = FALSE, number.periods = 12), NA)
-            expect_error(p <- Chart(a$counts, y.title = "New customers", fit.type="Smooth"), NA)
-            expect_error(print(p), NA)
-            expect_error(a <- Acquisition(rd, volume = TRUE), NA)
-            expect_error(p <- Chart(a$counts, y.title = "New customers", fit.type="Smooth"), NA)
-            expect_error(capture.output(print(p)), NA)
+for (n in c(1,12))
+    for (v in c(TRUE, FALSE))
+        for (by in c("week", "month", "quarter", "year"))
+            test_that(paste("Acquisition", by, "periods:", n, "volume:", v),
+                  {
+                    expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
+                    expect_error(a <- Acquisition(rd, volume = v, number.periods = n), NA)
+                    expect_false(is.null(attr(a, "detail")))
+                    expect_error(p <- plot(a), NA)
+                    expect_error(print(p), NA)
 })
 
 

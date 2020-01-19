@@ -8,12 +8,14 @@
 #' @export
 ChurnByCohort <- function(data, remove.last = TRUE, volume = FALSE)
 {
-    x <- 1 - Retention(data)[[ if (volume) "retention.rate.volume" else "retention.rate"]]
+    retention <- Retention(data)
+    x <- 1 - retention[[ if (volume) "retention.rate.volume" else "retention.rate"]]
     class(x) <- c("ChurnByCohort", class(x))
     attr(x, "subscription.length") <- attr(data, "subscription.length")
     attr(x, "n.subscriptions") <- attr(data, "n.subscriptions")
     if (remove.last)
         x <- x[-nrow(x), -ncol(x)]
+    attr(x, "detail") <- retention$detail
     x
 }
 
