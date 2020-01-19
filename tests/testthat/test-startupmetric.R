@@ -24,6 +24,13 @@ test_that("Create subsets",
               expect_equal(names(s)[1], "Australia\nn: 385")
               expect_equal(sum(s[[1]]), 2390) # Observations, companies can have multiple observations
               
+              # Country - with a filter
+              f <- d$salesman == "4"
+              s <- flipStartup:::createFilters(d[, "country", drop = FALSE], subset = f, id = d$name)
+              expect_equal(length(names(s)), 5)
+              expect_equal(names(s)[1], "Australia\nn: 49")
+              expect_equal(sum(s[[1]]), 504) 
+
               # Saleman
               s <- flipStartup:::createFilters(d[, "salesman", drop = FALSE], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 4)
@@ -33,36 +40,28 @@ test_that("Create subsets",
               s <- flipStartup:::createFilters(d[, c("country", "salesman")], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 20)
               expect_equal(names(s)[1], "Australia + MISSING DATA\nn: 191")
-              
           })
 
 # This is just checking for errors. Blog projects will be used for checking outputs.
 for (fun in c("Acquisition"))
     for (out in c("List", "Table", "Plot"))
-        test_that(paste("Create subsets", fun, out), 
+        for (vol in c(TRUE, FALSE))
+        test_that(paste("Create subsets", fun, out, vol), 
           {
-              expect_true(TRUE)
-
               capture.output({
                   fun = "Churn"
                   out = "Table"
                   # Aggregate 
-                  StartupMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
-
+                  s = StartupMetric(FUN = fun, output = out, volume = vol, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
+                  expect_error(print(s), NA)
                   # one profiling
                   p <- d[, "country", drop = FALSE]
-                  StartupMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
-    
+                  s = StartupMetric(FUN = fun, output = out, volume = vol, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
+                  expect_error(print(s), NA)
+                  
                   # two profiling
                   p <- d[, c("country", "salesman")]
-                  StartupMetric(fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
-            })
+                  s = StartupMetric(fun, output = out, d$AUD, volume = vol, d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
+                  expect_error(print(s), NA)
+              })
           })
-
-
-# 
-# 
-# path <- "C:/Users/tim/Dropbox (Numbers)/Planning/Forecasts"
-# data.for.cox <- read.csv(paste0(path, "/DataForCox.csv"))
-# 
-# 

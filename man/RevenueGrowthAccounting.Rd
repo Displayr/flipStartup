@@ -4,11 +4,13 @@
 \alias{RevenueGrowthAccounting}
 \title{\code{RevenueGrowthAccounting}}
 \usage{
-RevenueGrowthAccounting(data, remove.last = TRUE, tol = 1)
+RevenueGrowthAccounting(data, volume = FALSE, remove.last = TRUE, tol = 1)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has variables: \code{id}, \code{period},
 and \code{value} (e.g., a \code{RevenueData} object).}
+
+\item{volume}{Weights the results by volume; doesn't currently work.}
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 

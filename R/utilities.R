@@ -108,8 +108,6 @@ removeIncompleteSubscriptions <- function(data)
     data
 }
 
-
-
 removeLastPeriodFromMatrix <- function(x)
 {
     n.rows <- NROW(x)
@@ -117,3 +115,9 @@ removeLastPeriodFromMatrix <- function(x)
         x[r, n.rows - r + 1] <- NA
     x
 }
+
+properCase <- function(x)
+{
+    paste0(toupper(substr(x, 1, 1)), tolower(substring(x, 2)))
+}
+

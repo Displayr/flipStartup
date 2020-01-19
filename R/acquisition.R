@@ -25,32 +25,41 @@ Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, numbe
     if(remove.last)
         data <- removeLast(data)
     data <- data[data$observation <= number.periods, ]
-    idag <- aggregate(id ~ subscriber.from.period, data = data, FUN = unique)
-    id <- idag[, 2]
-    names(id) <- idag[, 1]
-    counts <- if (volume)
-        Table(value ~ subscriber.from.period, data = data, FUN = sum)
-    else
-        Table( ~ subscriber.from.period, data = data)
+    idByPeriod(data, "subscriber.from.period")
+    counts <- quantityByTime(data, volume, "subscriber.from.period")
     result <-list(volume = volume, id = id, counts = counts, subscription.length = subscription.length)
     class(result) <- c("Acquisition", class(result))
     result
 }
 
-#' @importFrom flipStandardCharts Column
-#' @export
-plot.Acquisition <- function(x,  ...)
+idByPeriod <- function(data, time)
 {
-    rates <- x$counts
-    period.names <- names(rates)
-    smooth <- if (length(x$counts) < 4) "None" else "Smooth"
-    title <- if(x$volume) "Acquisition (% volume)" else "Acquisition (subscribers)"
-    p <- Column(rates,  x.tick.angle=0,
-         y.title = title, fit.type = smooth, fit.ignore.last = TRUE,
-         fit.line.type = "solid", fit.line.width = 2, 
-         fit.line.colors = "#ED7D31", ...)
-    print(p$htmlwidget)
+    data$time <- data[, time]
+    if (nrow(data) == 0)
+        return(NULL)
+    idag <- aggregate(id ~ time, data = data, FUN = unique)
+    id <- idag[, 2]
+    names(id) <- idag[, 1]
+    id
+}   
+
+quantityByTime <- function(data, volume, time)
+{
+    if (volume)
+        Table(value ~ subscriber.from.period, data = data, FUN = sum)
+    else
+        Table( ~ subscriber.from.period, data = data)
 }
 
+#' @export
+YLim.Acquisition <- function(x, ...)
+{
+    range(x$counts)
+}
 
-
+#' @export
+plot.Acquisition <- function(x, ...)
+{
+    y.title <- if(x$volume) "New revenue" else "New subscribers" 
+    columnChart(x$counts, y.title = y.title, ...)
+}

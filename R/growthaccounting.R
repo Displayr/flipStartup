@@ -3,6 +3,7 @@
 #' @description Computes statistics for use in growth accounting of a startup.
 #' @param data A \code{data.frame} that has variables: \code{id}, \code{period},
 #' and \code{value} (e.g., a \code{RevenueData} object).
+#' @param volume Weights the results by volume; doesn't currently work.
 #' @param remove.last Remove the final period (as usually is incomplete).
 #' @param tol The tolerance used in calculations of differences. This defaults to 1 (e.g., $1).
 #' Values or differences less than this amount are treated as being equivalent. E.g., if revenue for
@@ -15,8 +16,10 @@
 #' @importFrom flipTime AsDate
 #' @importFrom methods is
 #' @export
-RevenueGrowthAccounting <- function(data, remove.last = TRUE, tol = 1)
+RevenueGrowthAccounting <- function(data, volume = FALSE, remove.last = TRUE, tol = 1)
 {
+    if (volume)
+        stop("'volume' not currently supported")
     period.date <- AsDate(data$from.period, on.parse.failure = "silent")
     if (remove.last)
         data <- removeLast(data)

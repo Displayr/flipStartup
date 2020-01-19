@@ -4,10 +4,12 @@
 \alias{Growth}
 \title{Growth}
 \usage{
-Growth(data, remove.last = TRUE)
+Growth(data, volume = FALSE, remove.last = TRUE)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+
+\item{volume}{Weights the results by volume.}
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 }

@@ -218,6 +218,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
   }
   attr(data, "subscription.length") <- subscription.length
   attr(data, "end") <- end
+  attr(data, "start") <- start
   # Computing recurring.revenue
   period.proportion = as.numeric(data$to - data$from, "days") /  as.numeric(as.duration(units), "days")
   rounded.period.proportion = round(period.proportion, 2)
