@@ -38,8 +38,23 @@ StartupMetric <- function(FUN = "Acquisition",
     out <- out[!sapply(out, is.null)] # Removing any empty strings
     switch(output,
            Plot = createPlots(out, start, end, y.min, y.max),
-           Table = lapply(out, Tab),
-           List = out)
+           Table = asMatrix(out),
+           Detail = lapply(out, function(x) attr(x, "detail")))
+}
+
+#' @importFrom flipTime AsDate Period
+asMatrix <- function(x)
+{
+    by <- attr(x[[1]], "subscription.length")
+    rng <- sapply(x, function(x) names(x)[c(1, length(x))])
+    mn <- min(AsDate(rng[1,]))
+    mx <- max(AsDate(rng[2,]))
+    dates <- Period(seq.Date(mn, mx, by = by), by)
+    k <- length(x)
+    m <- matrix(NA, length(dates), k, dimnames = list(dates, names(x)))
+    for (i in 1:k)
+        m[names(x[[i]]), i] <- x[[i]]
+    m
 }
     
 
@@ -109,16 +124,36 @@ plotSubGroups <- function(x, ...)
 
 
 #' @export
-Tab <- function(x)
+Detail <- function(x)
 {
     UseMethod("Tab", x)
 }
 
 #' @export
-Tab.default <- function(x, ...)
+Detail.default <- function(x, ...)
 {
-    sapply(x$id, paste, collapse = ", ")
+    attr(x, "detail")
 }
+#' 
+#' #' @export
+#' Data <- function(x)
+#' {
+#'     UseMethod("Data", x)
+#' }
+#' 
+#' #' @export
+#' Data.default <- function(x, ...)
+#' {
+#'     attr(x, "detail")
+#' }
+
+#' #' @export
+#' Detail.default <- function(x, ...)
+#' {
+#'     attr(x, "detail")
+#'     sapply(x$id, paste, collapse = ", ")
+#' }
+
 
 
 #' @export
@@ -144,6 +179,17 @@ columnChart <- function(x,  ...)
                 fit.line.type = "solid", fit.line.width = 2, 
                 fit.line.colors = "#ED7D31", ...)$htmlwidget
 }
+
+#' @importFrom flipStandardCharts Column
+areaChart <- function(x,  ...)
+{
+    Area(x,  x.tick.angle = 0,
+         fit.ignore.last = TRUE,
+         fit.line.type = "solid", fit.line.width = 2, 
+         fit.line.colors = "#ED7D31", ...)$htmlwidget
+}
+
+
 
 createFilters <- function(profiling, subset, id)
 {

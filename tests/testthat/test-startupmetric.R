@@ -43,14 +43,12 @@ test_that("Create subsets",
           })
 
 # This is just checking for errors. Blog projects will be used for checking outputs.
-for (fun in c("Acquisition"))
-    for (out in c("List", "Table", "Plot"))
+for (fun in c("Acquisition", "Churn", "RecurringRevenue"))
+    for (out in c("Table", "Plot", "Detail"))
         for (vol in c(TRUE, FALSE))
         test_that(paste("Create subsets", fun, out, vol), 
           {
               capture.output({
-                  fun = "Churn"
-                  out = "Table"
                   # Aggregate 
                   s = StartupMetric(FUN = fun, output = out, volume = vol, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
                   expect_error(print(s), NA)

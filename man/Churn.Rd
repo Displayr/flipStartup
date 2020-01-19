@@ -14,19 +14,14 @@ Churn(data, volume = FALSE, error.if.no.data = FALSE)
 \item{error.if.no.data}{If TRUE and the data contains no valid cases, an error is thrown.}
 }
 \value{
-A \code{\link{list}} containing the following elements:
-  \item{id}{The \code{id} values of subscribers to churn.}
-  \item{base}{The number of subscribers to renew or churn in the time period.}
-  \item{counts}{A table where the first column contains the number of people not
-  to churn in a period, and the second contains the number that have churned. Where \code{volume}
-  is \code{TRUE} the data is volume-weighted}.
-  \item{rates}{The percentage to churn (weighted if the counts are weighted)}.
+A named vector showing churn.
 }
 \description{
 Computes retention, by cohort.
 }
 \details{
-Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
-is included in the churn. Churn is show for all periods that have data in \code{data$to.period}, even if
-they occur in the future.
+Where subscribers suspends their purchasing for a period, 
+but purchases again later, the subscriber
+is included in the churn. Churn is show for all periods that have 
+data in \code{data$to.period}, even if they occur in the future.
 }

@@ -10,7 +10,7 @@ InitialChurn <- function(data, remove.last = TRUE, volume = FALSE)
 {
     x.matrix <- ChurnByCohort(data, remove.last, volume)
     k <- nrow(x.matrix)
-    x <- x.matrix[diag(k)[, k:1] == 1]
+    x <- diag(x.matrix)#[diag(k)[, k:1] == 1]
     names(x) <- rownames(x.matrix)
     class(x) <- c("InitialChurn", class(x))
     attr(x, "subscription.length") <- attr(data, "subscription.length")
@@ -23,5 +23,5 @@ InitialChurn <- function(data, remove.last = TRUE, volume = FALSE)
 plot.InitialChurn <- function(x, ...)
 {
     y.title <- if(attr(x, "volume")) "Churn rate ($)" else "Churn rate (customers)"
-    columnChart(x$rates, y.title = y.title, ...)
+    columnChart(x, y.title = y.title, ...)
 }

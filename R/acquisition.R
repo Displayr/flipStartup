@@ -21,15 +21,16 @@ Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, numbe
 {
     if (!missing(subset))
         data <- subset(data, subset)
-    subscription.length <- attr(data, "subscription.length")
     if(remove.last)
         data <- removeLast(data)
     data <- data[data$observation <= number.periods, ]
-    idByPeriod(data, "subscriber.from.period")
-    counts <- quantityByTime(data, volume, "subscriber.from.period")
-    result <-list(volume = volume, id = id, counts = counts, subscription.length = subscription.length)
-    class(result) <- c("Acquisition", class(result))
-    result
+    x <- quantityByTime(data, volume, "subscriber.from.period")
+    attr(x, "volume") <- volume
+    id <- idByPeriod(data, "subscriber.from.period")
+    attr(x, "detail") <- sapply(id, paste, collapse = ", ")
+    attr(x, "subscription.length") <- attr(data, "subscription.length")
+    class(x) <- c("Acquisition", class(x))
+    x
 }
 
 idByPeriod <- function(data, time)
@@ -54,12 +55,12 @@ quantityByTime <- function(data, volume, time)
 #' @export
 YLim.Acquisition <- function(x, ...)
 {
-    range(x$counts)
+    range(x)
 }
 
 #' @export
 plot.Acquisition <- function(x, ...)
 {
-    y.title <- if(x$volume) "New revenue" else "New subscribers" 
-    columnChart(x$counts, y.title = y.title, ...)
+    y.title <- if(attr(x, "volume")) "New revenue" else "New subscribers" 
+    columnChart(x, y.title = y.title, ...)
 }

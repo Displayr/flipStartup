@@ -5,6 +5,7 @@
 #' @param end The date on and after which which revenue is ignored.
 #' Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 #' can cause unexpected results.
+#' @param volume Weights the results by volume. Does nothing in this case as volume is already defined this way.
 #' @param by The time unit. E.g., "month".
 #' @details Computed based on being a subscribed on the last second of the time period. 
 #' Partial revenue is multipled out. For exmaple, if with yearly data, if a customer has an annual license for $1,000
@@ -13,7 +14,17 @@
 #' @return A vector showing the recurring revenue by time points.
 #'
 #' @export
-RecurringRevenue <- function(data, end = Sys.time(),  by)
+RecurringRevenue <- function(data, end = Sys.time(), volume = FALSE, by = "day")#attr(data, "subscription.length"))
 {
-    Subscribers(data, by = by, end = end, volume = TRUE, recurring = TRUE)
+    x <- Subscribers(data, by = by, end = end, volume = TRUE, recurring = TRUE)
+    class(x) <- c("RecurringRevenue", class(x))
+    attr(x, "detail") <- data[, c("id", "value", "from", "to")]
+    x
+}
+
+
+#' @export
+plot.RecurringRevenue <- function(x, ...)
+{
+    areaChart(x, y.title = "Annual Recurring Revenue", ...)
 }
