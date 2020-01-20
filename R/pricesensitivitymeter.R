@@ -4,8 +4,7 @@
 #' @param x Input table containing survey responses in 4 columns
 #'   At what price would you consider this product/brand to be 
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
-#' @param resolution Numeric; controls the intervals between which "Proportion of respondents"
-#'    is computed.
+#' @param weights A numeric vector with length equal to the number of rows in \code{x}.
 #' @param currency Character; Currency symbol to prepend to the intersection labels. These
 #'   will also be used to set the default prefix to the x tick labels and hovertext.
 #' @param intersection.show Logical; Whether to show labels to the intersection points of the lines.
@@ -31,10 +30,10 @@
 #' @export
 
 PriceSensitivityMeter <- function(x,
+                                  weights = NULL,
                                   colors = c("#FF0000", "#FF0000", "#008000", "#008000"), 
                                   line.type = c("dot", "solid", "solid", "dot"),
                                   line.thickness = c(1, 2, 2, 1),
-                                  resolution = 0.05,
                                   currency = "$",
                                   global.font.family = "Arial",
                                   global.font.color = rgb(44, 44, 44, maxColorValue = 255),
@@ -89,16 +88,17 @@ PriceSensitivityMeter <- function(x,
         intersection.label.font.size = round(fsc * intersection.label.font.size, 0)
     }
     rg <- range(x, na.rm = TRUE)
-    xpts <- seq(from = rg[1], to = rg[2], by = resolution)
-    
+    xpts <- unique(sort(as.numeric(x)))    
+
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
                       dimnames = list(Price = xpts, c("Less than 'Very cheap'",
                                         "Less than 'Cheap'", "More than 'Expensive'", "More than 'Very expensive'")))
-    psm.dat[,1] <- sapply(xpts, function(xx) mean(x[,1] <= xx, na.rm = TRUE))
-    psm.dat[,2] <- sapply(xpts, function(xx) mean(x[,2] <= xx, na.rm = TRUE))
-    psm.dat[,3] <- sapply(xpts, function(xx) mean(x[,3] >= xx, na.rm = TRUE))
-    psm.dat[,4] <- sapply(xpts, function(xx) mean(x[,4] >= xx, na.rm = TRUE))
+
+    psm.dat[,1] <- propLessorEqual(x[,1], xpts, weights)
+    psm.dat[,2] <- propLessorEqual(x[,2], xpts, weights)
+    psm.dat[,3] <- propGreatorEqual(x[,3], xpts, weights)
+    psm.dat[,4] <- propGreatorEqual(x[,4], xpts, weights)
     
     pp <- Line(psm.dat, colors = colors, line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
@@ -141,4 +141,47 @@ PriceSensitivityMeter <- function(x,
     }
     attr(pp, "ChartData") <- psm.dat
     return(pp)
+}
+
+# Calculates proportion less than or equal to
+# note that pts is sorted and contains all the values in vals
+propLessorEqual <- function(vals, pts, wgts)
+{
+    if (length(wgts) == 0)
+        wgts <- rep(1, length(vals))
+    ord <- order(vals)
+    res <- rep(0, length(pts))
+    denom <- sum(wgts)
+    j <- 1
+    for (i in seq_along(pts))
+    {
+        while(j <= length(vals) && vals[ord[j]] <= pts[i])
+        {
+            res[i] <- res[i] + wgts[ord[j]]
+            j <- j + 1
+        }
+    }
+    res <- cumsum(res)/denom
+}
+
+# Calculates proportion more than or equal to
+# note that pts is sorted and contains all the values in vals
+propGreatorEqual <- function(vals, pts, wgts)
+{
+    if (length(wgts) == 0)
+        wgts <- rep(1, length(vals))
+    pts <- rev(pts)
+    ord <- order(vals, decreasing = TRUE)
+    res <- rep(0, length(pts))
+    denom <- sum(wgts)
+    j <- 1
+    for (i in seq_along(pts))
+    {
+        while(j <= length(vals) && vals[ord[j]] >= pts[i])
+        {
+            res[i] <- res[i] + wgts[ord[j]]
+            j <- j + 1
+        }
+    }
+    res <- rev(cumsum(res)/denom)
 }
