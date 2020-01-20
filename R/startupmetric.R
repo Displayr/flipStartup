@@ -45,6 +45,8 @@ StartupMetric <- function(FUN = "Acquisition",
 #' @importFrom flipTime AsDate Period
 asMatrix <- function(x)
 {
+    if (length(x) == 1)
+        return(as.matrix(x[[1]]))
     by <- attr(x[[1]], "subscription.length")
     rng <- sapply(x, function(x) names(x)[c(1, length(x))])
     mn <- min(AsDate(rng[1,]))
@@ -58,22 +60,11 @@ asMatrix <- function(x)
 }
     
 
-#' @importFrom scales col_numeric rescale
-#' @importFrom stats setNames
-colorScale <- function(x)
-{
-    u <- unique(unlist(lapply(x, function(x) unique(c(x)))))
-    vals <- unique(scales::rescale(u))
-    cols <- col_numeric("Blues", domain = NULL)(vals)
-    setNames(data.frame(vals, cols), NULL)
-}
-
-
 createPlots <- function(x, start, end, y.min, y.max)
 {
     if (requiresHeatmap(x))
     {
-        plotSubGroups(x, colorscale = colorScale(x))
+        plotSubGroups(x, y.max)
     }
     else if ("RevenueByCohort" %in% class(x[[1]]))
         plotSubGroups(x)
@@ -175,9 +166,12 @@ columnChart <- function(x,  ...)
 {
     smooth <- if (length(x) < 4) "None" else "Friedman's super smoother"
     Column(x,  x.tick.angle = 0,
-                fit.type = smooth, fit.ignore.last = TRUE,
-                fit.line.type = "solid", fit.line.width = 2, 
-                fit.line.colors = "#ED7D31", ...)$htmlwidget
+                fit.type = smooth,
+           fit.ignore.last = TRUE,
+                fit.line.type = "solid", 
+           fit.line.width = 2, 
+                fit.line.colors = "#ED7D31",
+           ...)$htmlwidget
 }
 
 #' @importFrom flipStandardCharts Column
@@ -230,4 +224,13 @@ requiresHeatmap <- function(x)
 {
     required.for <- c("ChurnByCohort", "RevenuePerSubscriberByCohortByTime")
     any(required.for %in% class(x[[1]]))
+}
+
+
+#' @importFrom scales colour_ramp
+colorRamp <- function(local.y.max, global.y.max){
+    global.color.ramp <- colour_ramp(c("white", "#3E7DCC"))
+    if (is.null(global.y.max))
+        return(global.color.ramp)
+    colour_ramp(c("white", global.color.ramp(local.y.max / global.y.max)))
 }

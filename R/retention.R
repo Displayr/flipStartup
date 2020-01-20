@@ -33,6 +33,10 @@ Retention <- function(data)
     final.period <- Period(max.from + Periods(1, subscription.length), by = subscription.length)
     period.names <- unique(c(unique(data$from.period), final.period))
     periods <- CompleteListPeriodNames(period.names, subscription.length)
+    # Removing last period
+    periods <- periods[-length(periods)]
+    period.names <- period.names[-length(period.names)]
+    
     n.periods <- length(periods)
     retention.rate.volume <-
         matrix(NA, n.periods, n.periods, dimnames = list(subscriber.from.period = periods, period = periods))
@@ -43,33 +47,33 @@ Retention <- function(data)
     total.by.period <- rep(0, n.periods)
     names(total.by.period) <- periods
     loss.by.period <- total.by.period
-    detail <- data.frame(Cohort = rep(period.names, n.periods),
-                         Time = rep(period.names, rep(n.periods, n.periods)),
-                         ID = "")
-    names(detail) <- paste()
+    detail <- data.frame(Cohort = rep(periods, n.periods),
+                         "Period Ending" = rep(periods, rep(n.periods, n.periods)),
+                         ID = "",
+                         stringsAsFactors = FALSE)
         # Computing the volumetric retention rate
-    for (r in 1:(n.periods)) # Looping through cohorts
+    for (cohort in 1:n.periods) # Looping through cohorts
     {
-        start.period <- periods[r]
+        start.period <- periods[cohort]
         starters <- data$subscriber.from.period == start.period
-        for (c in r:(n.periods)) # Looping through periods in cohort
+        for (c in cohort:n.periods) # Looping through periods in cohort
         {
             period <- periods[c]
-            base <- starters & data$from.period == period
+            base <- starters & data$end.period == period
             revenue <- data$value[base]
             churn <- data$churn[base]
             ids <- data$id[base]
-            detail$ID[(r - 1) * n.periods + c] <- paste(ids[churn], collapse = ", ")
+            detail$ID[(cohort - 1) * n.periods + c] <- paste(ids[churn], collapse = ", ")
             revenue.base <- sum(revenue, na.rm = TRUE)
             revenue.lost <- sum(revenue[churn], na.rm = TRUE)
-            n.subscriptions[r, c] <- n.subscribers <- length(unique(ids))
-            n.retained[r, c] <- retained <-  n.subscribers - length(unique(ids[churn]))
-            retention.rate[r, c] <- retained / n.subscribers
-            retention.rate.volume[r, c] <- (revenue.base - revenue.lost) / revenue.base
+            n.subscriptions[cohort, c] <- n.subscribers <- length(unique(ids))
+            n.retained[cohort, c] <- retained <- n.subscribers - length(unique(ids[churn]))
+            retention.rate[cohort, c] <- retained / n.subscribers
+            retention.rate.volume[cohort, c] <- (revenue.base - revenue.lost) / revenue.base
             total <- total + revenue.base
             total.lost <- total.lost + revenue.lost
-            loss.by.period[r] <- revenue.lost + loss.by.period[r]
-            total.by.period[r] <- revenue.base + total.by.period[r]
+            loss.by.period[c] <- revenue.lost + loss.by.period[cohort]
+            total.by.period[c] <- revenue.base + total.by.period[cohort]
         }
     }
     average.retention.rate <- sum(retention.rate * n.subscriptions, na.rm = TRUE) / sum(n.subscriptions, na.rm = TRUE)

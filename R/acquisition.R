@@ -17,13 +17,13 @@
 #'
 #' @importFrom flipStatistics Table
 #' @export
-Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, number.periods = 1)
+Acquisition <- function(data, subset, remove.last = FALSE, volume = FALSE, number.periods = 0)
 {
     if (!missing(subset))
         data <- subset(data, subset)
     if(remove.last)
         data <- removeLast(data)
-    data <- data[data$observation <= number.periods, ]
+    data <- data[data$period.counter == number.periods, ]
     x <- quantityByTime(data, volume, "subscriber.from.period")
     attr(x, "volume") <- volume
     id <- idByPeriod(data, "subscriber.from.period")

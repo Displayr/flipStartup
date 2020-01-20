@@ -10,30 +10,45 @@ ChurnByCohort <- function(data, remove.last = TRUE, volume = FALSE)
 {
     retention <- Retention(data)
     x <- 1 - retention[[ if (volume) "retention.rate.volume" else "retention.rate"]]
-    class(x) <- c("ChurnByCohort", class(x))
-    attr(x, "subscription.length") <- attr(data, "subscription.length")
-    attr(x, "n.subscriptions") <- attr(data, "n.subscriptions")
     if (remove.last)
         x <- x[-nrow(x), -ncol(x)]
+    class(x) <- c("ChurnByCohort", class(x))
+    attr(x, "subscription.length") <- attr(data, "subscription.length")
+    attr(x, "n.subscriptions") <- attr(retention, "n.subscriptions")
     attr(x, "detail") <- retention$detail
     x
 }
 
+#' @export
+print.ChurnByCohort <- function(x, ...)
+{
+    attr(x, "subscription.length") <- NULL
+    attr(x, "n.subscriptions") <- NULL
+    attr(x, "detail") <- NULL
+    class(x) <- class(x)[-1]
+    print(x)
+}
+
+
 #' @importFrom plotly plot_ly layout
+#' @importFrom flipFormat  FormatAsPercent
 #' @export
 plot.ChurnByCohort <- function(x, ...)
 {
-    colorscale <- list(...)$colorscale
-    colorscale <- colorscale[match(c(x), colorscale[, 1]), ]
     by <- properCase(attr(x, "subscription.length"))
     n <- c(attr(x, "n.subscriptions"))
+    hover.text <- matrix(paste0("Commenced: ", rownames(x), "<br>",
+                        by, ": <br>", colnames(x), "<br>",
+                        "Churn: ", FormatAsPercent(x, decimals = 1), "<br>",
+                        "Base: ", n), nrow(x))#, "<extra></extra>")
     plot_ly(
         x = colnames(x),
         y = rownames(x),
         z = x, 
-        colorscale = colorscale,
-        hovertemplate = paste0("Commenced: %{y}<br>",by,": %{x}<br>Churn: %{z:%}<br>Base: %{n}<extra></extra>"),
+        colors = colorRamp(max(x), list(...)$y.max), 
+        text = hover.text,
+        hoverinfo = "text",
         type = "heatmap", 
         showscale = FALSE
-    )
+    ) %>% config(displayModeBar = FALSE)
 }

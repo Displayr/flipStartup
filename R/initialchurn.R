@@ -8,7 +8,9 @@
 #' @export
 InitialChurn <- function(data, remove.last = TRUE, volume = FALSE)
 {
-    x.matrix <- ChurnByCohort(data, remove.last, volume)
+    x.matrix <- ChurnByCohort(data, remove.last , volume)
+    # if (remove.last)
+    #     x.matrix <- x.matrix[, -ncol(x.matrix)]
     k <- nrow(x.matrix)
     x <- diag(x.matrix)#[diag(k)[, k:1] == 1]
     names(x) <- rownames(x.matrix)
@@ -22,6 +24,6 @@ InitialChurn <- function(data, remove.last = TRUE, volume = FALSE)
 #' @export
 plot.InitialChurn <- function(x, ...)
 {
-    y.title <- if(attr(x, "volume")) "Churn rate ($)" else "Churn rate (customers)"
-    columnChart(x, y.title = y.title, ...)
+    y.title <- if(attr(x, "volume")) "Year 1 Churn rate ($)" else "Year 1 Churn rate (customers)"
+    columnChart(x, y.title = y.title, y.tick.format = "%", ...)
 }

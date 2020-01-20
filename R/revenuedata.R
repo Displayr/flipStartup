@@ -35,40 +35,41 @@
 #'     unique combinations of periods and subscribers. Where a
 #'     subscriber has multiple transactions in a period, they are
 #'     aggregated. Contains the following variables, along with any
-#'     other variables in the \code{data}: \code{id}{The unique
-#'     identifier.}  \code{value}{The total fee/price for a
-#'     subscription.}  \code{from}{The commencement date of a
-#'     subscription.}  \code{from.period} The \code{period} of the
-#'     subscription commencement as a character.
-#'     \code{period.counter} The number of the period, where 0
-#'     indicates the initial period.  \code{to}{The end-date of a
-#'     subscription.}  \code{to.period} The \code{period} of the
-#'     subscription end as a character.  \code{subscriber.from} The
-#'     date of a customer's first subscription's commencement.
-#'     \code{subscriber.from.period} The \code{period} of
-#'     \code{subscriber.from}.  \code{subscriber.to} The final date of
-#'     their most recent subscription.  \code{subscriber.to.period}
-#'     The period of \code{subscriber.to}.  \code{last.from} The
-#'     \code{from} date of the most recent subscription.
-#'     \code{last.from.period} The period of \code{last.from}.
-#'     \code{churned} A \code{logical} indicating if the subscriber
-#'     had ceased subscribing prior to \code{end}.  \code{churn} A
-#'     \code{logical} indicating if the subscriber had ceased
-#'     subscribing in that period.  \code{tenure} The number of whole
-#'     periods from the begining of the first subscription to the end
-#'     of the most recent.  \code{observation} The invoice number for
-#'     a particular customer, starting from 1.
-#'     \code{observation.within.period} The number of the subscription
-#'     for a particular customer, starting from 1 for each new
-#'     subscription period (as determined by a common to.period).
-#'     \code{recurring.value} The value divided by proportion of the typicaly invoice period
-#'     that was covered by the invoice. There are some rounding error issues (e.g., leap years,
-#'     inconsistncies in how people enter data).
-#'
+#'     other variables in the \code{data}: 
+#'     \itemize{
+#'        \code{id} {The unique identifier.}  
+#'        \code{value} {The total fee/price for a subscription.}
+#'        \code{from} {The commencement date of a subscription.}
+#'        \code{from.period} {The \code{period} of the subscription commencement as a character.}
+#'        \code{from.renewal} {The beginning of the renewal period (i.e., the ealiest from data
+#'        of invoices that are in the same period.}
+#'        \code{from.renewal.period} {The \code{period} of the \code{from.renewal}}.
+#'        \code{from.renewal.period} {The beginning of the renewal period. For example, 
+#'        if a person The \code{period} of the subscription commencement as a character.}
+#'        \code{period.counter} {The number of the period, where 0 indicates the initial period.}
+#'        \code{to} {The end-date of a subscription.}
+#'        \code{to.period} {The \code{period} of the subscription end as a character.}
+#'        \code{subscriber.from} {The date of a customer's first subscription's commencement.}
+#'        \code{subscriber.from.period} {The \code{period} of \code{subscriber.from}}.
+#'        \code{subscriber.to} {The final date of their most recent subscription.}
+#'        \code{subscriber.to.period} {The period of \code{subscriber.to}}.
+#'        \code{last.from} {The \code{from} date of the most recent subscription.}
+#'        \code{last.from.period} {The period of \code{last.from}}.
+#'        \code{churned} {A \code{logical} indicating if the subscriber had ceased subscribing prior to \code{end}}.
+#'        \code{churn} {A \code{logical} indicating if the subscriber had ceased subscribing in that period.}
+#'        \code{tenure} {The number of whole periods from the begining of the first subscription to the end of the most recent.}
+#'        \code{observation} {The invoice number for a particular customer, starting from 1.}
+#'        \code{observation.within.period} {The number of the subscription for a particular customer, 
+#'        starting from 1 for each new subscription period (as determined by a common to.period).}
+#'        \code{recurring.value} {The value divided by proportion of the typicaly invoice period
+#'        that was covered by the invoice. There are some rounding error issues (e.g., leap years,
+#'        inconsistencies in how people enter data)}.
+#'    }
 #' @importFrom lubridate period year years quarter month week weeks
-#' day days interval floor_date as.duration
+#' day days interval floor_date as.duration 
 #' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
 #' @importFrom stats ave
+#' @importFrom plyr mapvalues
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         subscription.length = "year", subset = rep(TRUE, length(id)),
@@ -180,7 +181,17 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
   not.churned <- !id.data$churned
   data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
   data$from.period <- Period(data$from, subscription.length)
+  #from.renewal <- aggregate(from ~ id + 
+  #data$from.renewal.period <- Period(data$from, subscription.length)
   data$to.period <- Period(data$to, subscription.length)
+  data$id.to.period <- paste(data$id, data$to.period)
+  
+  fr <- aggregate(from ~ id.to.period, data = data, FUN = min)
+  renewal.from <- mapvalues(data$id.to.period, fr[, 1], as.character(fr[,2]))
+  data$renewal.from <- AsDate(renewal.from)
+  data$renewal.from.period <- Period(data$renewal.from, subscription.length)
+  data$id.to.period <- NULL
+  
   data$churn <- data$churned & data$from.period == data$last.from.period
   data$period.counter <- interval(data$subscriber.from, data$from) %/% units
   # Sorting.

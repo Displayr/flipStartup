@@ -41,7 +41,7 @@ Churn <- function(data, volume = FALSE, error.if.no.data = FALSE)
 plot.Churn <- function(x, ...)
 {
     y.title <- if (attr(x, "volume")) "Churn rate ($)" else "Churn rate (customers)"
-    columnChart(x, y.title = y.title, ...)
+    columnChart(x, y.title = y.title, y.tick.format = "%")
 }
 
 churnCountsByTime <- function(data, volume)

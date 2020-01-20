@@ -3,8 +3,8 @@ data(q.invoice.lines)
 d <- q.invoice.lines
 library(lubridate)
 #Sys.setenv(TZ='GMT')
-end <-  ISOdate(2016,6,30)
-by = "week"
+end <-  ISOdate(2015,12,31)
+by = "year"
 for (by in c("week", "month", "quarter", "year"))
     test_that(paste("Creating RevenueData", by),
           {
