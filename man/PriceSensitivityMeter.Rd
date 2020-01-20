@@ -6,10 +6,10 @@
 \usage{
 PriceSensitivityMeter(
   x,
+  weights = NULL,
   colors = c("#FF0000", "#FF0000", "#008000", "#008000"),
   line.type = c("dot", "solid", "solid", "dot"),
   line.thickness = c(1, 2, 2, 1),
-  resolution = 0.05,
   currency = "$",
   global.font.family = "Arial",
   global.font.color = rgb(44, 44, 44, maxColorValue = 255),
@@ -48,14 +48,13 @@ PriceSensitivityMeter(
 At what price would you consider this product/brand to be 
 1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.}
 
+\item{weights}{A numeric vector with length equal to the number of rows in \code{x}.}
+
 \item{colors}{Character; a vector containing one or more colors specified as hex codes.}
 
 \item{line.type}{Character; one of 'solid', 'dot', 'dashed'.}
 
 \item{line.thickness}{Thickness, in pixels, of the series line}
-
-\item{resolution}{Numeric; controls the intervals between which "Proportion of respondents"
-is computed.}
 
 \item{currency}{Character; Currency symbol to prepend to the intersection labels. These
 will also be used to set the default prefix to the x tick labels and hovertext.}
