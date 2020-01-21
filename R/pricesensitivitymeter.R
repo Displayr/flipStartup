@@ -4,7 +4,11 @@
 #' @param x Input table containing survey responses in 4 columns
 #'   At what price would you consider this product/brand to be 
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
-#' @param weights A numeric vector with length equal to the number of rows in \code{x}.
+#' @param weights A numeric vector with length equal to the number of rows in \code{x}. They are applied
+#'   whem computing the proportions of respondents for each question
+#' @param resolution Numeric; controls the intervals (in terms of price) between which 
+#'   "Proportion of respondents" is computed. If set to \code{NULL} (default), the proportion
+#'   will be computed at the observed values, which may be irregularly spaced.
 #' @param currency Character; Currency symbol to prepend to the intersection labels. These
 #'   will also be used to set the default prefix to the x tick labels and hovertext.
 #' @param intersection.show Logical; Whether to show labels to the intersection points of the lines.
@@ -31,6 +35,7 @@
 
 PriceSensitivityMeter <- function(x,
                                   weights = NULL,
+                                  resolution = NULL,
                                   colors = c("#FF0000", "#FF0000", "#008000", "#008000"), 
                                   line.type = c("dot", "solid", "solid", "dot"),
                                   line.thickness = c(1, 2, 2, 1),
@@ -66,12 +71,14 @@ PriceSensitivityMeter <- function(x,
                                   font.units = "px", 
                                   ...)
 {
+    x <- as.matrix(x)
     if (ncol(x) < 4)
         stop("Price sensitivity meter needs input data containing 4 columns: ",
              "'Very cheap', 'Cheap', 'Expensive', 'Very expensive'")
+    if (length(weights) > 1 && any(is.na(weights)))
+        stop("Weights contain missing values")
     
-    # For the other chart types, the font size conversion
-    # happens inside flipChart::CChart but ParallelCoordinates is called separately.
+    # For the standard charts, the font size conversion happens inside flipChart::CChart
     if (tolower(font.units) %in% c("pt", "point", "points"))
     {
         fsc <- 1.3333
@@ -88,13 +95,13 @@ PriceSensitivityMeter <- function(x,
         intersection.label.font.size = round(fsc * intersection.label.font.size, 0)
     }
     rg <- range(x, na.rm = TRUE)
-    xpts <- unique(sort(as.numeric(x)))    
+    xpts <- if (!is.null(resolution)) seq(from = rg[1], to = rg[2], by = resolution)
+            else                      unique(sort(as.numeric(x)))    
 
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
                       dimnames = list(Price = xpts, c("Less than 'Very cheap'",
                                         "Less than 'Cheap'", "More than 'Expensive'", "More than 'Very expensive'")))
-
     psm.dat[,1] <- propLessorEqual(x[,1], xpts, weights)
     psm.dat[,2] <- propLessorEqual(x[,2], xpts, weights)
     psm.dat[,3] <- propGreatorEqual(x[,3], xpts, weights)
@@ -112,16 +119,16 @@ PriceSensitivityMeter <- function(x,
     
     if (intersection.show)
     {
-        ind.intersect <- rep(NA, 4)
-        ind.intersect[1] <- which.min(abs(psm.dat[,1] - psm.dat[,3]))
-        ind.intersect[2] <- which.min(abs(psm.dat[,1] - psm.dat[,4]))
-        ind.intersect[3] <- which.min(abs(psm.dat[,2] - psm.dat[,3]))
-        ind.intersect[4] <- which.min(abs(psm.dat[,2] - psm.dat[,4]))
-        
+        intersect.pts <- matrix(NA, 4, 2)
+        intersect.pts[1,] <- getIntersect(psm.dat[,1], psm.dat[,3], xpts)    
+        intersect.pts[2,] <- getIntersect(psm.dat[,1], psm.dat[,4], xpts)    
+        intersect.pts[3,] <- getIntersect(psm.dat[,2], psm.dat[,3], xpts)    
+        intersect.pts[4,] <- getIntersect(psm.dat[,2], psm.dat[,4], xpts)    
+
         pp$htmlwidget <- layout(pp$htmlwidget,
                                 annotations = list(xref = "x", yref = "y",
-                                                   x = xpts[ind.intersect],
-                                                   y = c(psm.dat[ind.intersect[1:2],1],psm.dat[ind.intersect[3:4],2]),
+                                                   x = intersect.pts[,1],
+                                                   y = intersect.pts[,2], 
                                                    arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
                                                    arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
                                                    axref = "pixel", ax = c(-10, 0, 0, 10) * intersection.arrow.length,
@@ -131,7 +138,7 @@ PriceSensitivityMeter <- function(x,
                                                    text = autoFormatLongLabels(sprintf("%s %s%.2f", c("Point of marginal cheapness",
                                                                                                      "Optimal price point", "Indifference point price",
                                                                                                      "Point of marginal expensiveness"), 
-                                                                               currency, xpts[ind.intersect]), 
+                                                                               currency, intersect.pts[,1]), 
                                                                                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)))
         
         # allow labels to be movable - but turn off editing to other parts of the text
@@ -149,15 +156,18 @@ propLessorEqual <- function(vals, pts, wgts)
 {
     if (length(wgts) == 0)
         wgts <- rep(1, length(vals))
-    ord <- order(vals)
+    ord <- order(vals, na.last = NA)
+    n <- length(ord)
+    denom <- sum(wgts[ord])
     res <- rep(0, length(pts))
-    denom <- sum(wgts)
+    
     j <- 1
     for (i in seq_along(pts))
     {
-        while(j <= length(vals) && vals[ord[j]] <= pts[i])
+        while(j <= n && vals[ord[j]] <= pts[i])
         {
-            res[i] <- res[i] + wgts[ord[j]]
+            if (!is.na(wgts[ord[j]]))
+                res[i] <- res[i] + wgts[ord[j]]
             j <- j + 1
         }
     }
@@ -170,18 +180,32 @@ propGreatorEqual <- function(vals, pts, wgts)
 {
     if (length(wgts) == 0)
         wgts <- rep(1, length(vals))
+    ord <- order(vals, decreasing = TRUE, na.last = NA)
+    n <- length(ord)
     pts <- rev(pts)
-    ord <- order(vals, decreasing = TRUE)
+    denom <- sum(wgts[ord])
     res <- rep(0, length(pts))
-    denom <- sum(wgts)
+
     j <- 1
     for (i in seq_along(pts))
     {
-        while(j <= length(vals) && vals[ord[j]] >= pts[i])
+        while(j <= n && vals[ord[j]] >= pts[i])
         {
             res[i] <- res[i] + wgts[ord[j]]
             j <- j + 1
         }
     }
     res <- rev(cumsum(res)/denom)
+}
+
+getIntersect <- function(y1, y2, x)
+{
+    # Create function to interpolate
+    tmp.f1 <- splinefun(x, y1)
+    tmp.fd <- splinefun(x, y2 - y1)
+
+    intersect <- uniroot(tmp.fd, range(x))
+    x.pt <- intersect$root
+    y.pt <- tmp.f1(x.pt)
+    return(c(x.pt, y.pt))
 }

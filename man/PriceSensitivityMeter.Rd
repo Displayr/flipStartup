@@ -7,6 +7,7 @@
 PriceSensitivityMeter(
   x,
   weights = NULL,
+  resolution = NULL,
   colors = c("#FF0000", "#FF0000", "#008000", "#008000"),
   line.type = c("dot", "solid", "solid", "dot"),
   line.thickness = c(1, 2, 2, 1),
@@ -48,7 +49,12 @@ PriceSensitivityMeter(
 At what price would you consider this product/brand to be 
 1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.}
 
-\item{weights}{A numeric vector with length equal to the number of rows in \code{x}.}
+\item{weights}{A numeric vector with length equal to the number of rows in \code{x}. They are applied
+whem computing the proportions of respondents for each question}
+
+\item{resolution}{Numeric; controls the intervals (in terms of price) between which 
+"Proportion of respondents" is computed. If set to \code{NULL} (default), the proportion
+will be computed at the observed values, which may be irregularly spaced.}
 
 \item{colors}{Character; a vector containing one or more colors specified as hex codes.}
 
