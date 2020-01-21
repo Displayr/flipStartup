@@ -38,6 +38,7 @@ PriceSensitivityMeter(
   intersection.label.font.family = global.font.family,
   intersection.label.font.color = global.font.color,
   intersection.label.font.size = 10,
+  intersection.label.decimals = 2,
   intersection.label.wrap = TRUE,
   intersection.label.wrap.nchar = 21,
   font.units = "px",
@@ -123,6 +124,8 @@ See https://github.com/d3/d3/blob/master/API.md#number-formats-d3-format}
 character format (e.g. "black") or an a hex code.}
 
 \item{intersection.label.font.size}{Integer; intersection label font size}
+
+\item{intersection.label.decimals}{Integer; number of decimals to show on intersection label.}
 
 \item{intersection.label.wrap}{Logical; whether the intersection label text should be wrapped.}
 
