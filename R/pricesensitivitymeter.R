@@ -21,6 +21,7 @@
 #' character format (e.g. "black") or an a hex code.
 #' @param intersection.label.font.family Character; intersection.label font family
 #' @param intersection.label.font.size Integer; intersection label font size
+#' @param intersection.label.decimals Integer; number of decimals to show on intersection label.
 #' @param intersection.label.wrap Logical; whether the intersection label text should be wrapped.
 #' @param intersection.label.wrap.nchar Number of characters (approximately) in each
 #' line of the intersection label when \code{intersection.label.wrap} \code{TRUE}.
@@ -30,6 +31,7 @@
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config
+#' @importFrom stats splinefun uniroot
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
 #' @export
 
@@ -66,6 +68,7 @@ PriceSensitivityMeter <- function(x,
                                   intersection.label.font.family = global.font.family,
                                   intersection.label.font.color = global.font.color,
                                   intersection.label.font.size = 10,
+                                  intersection.label.decimals = 2,
                                   intersection.label.wrap = TRUE,
                                   intersection.label.wrap.nchar = 21,
                                   font.units = "px", 
@@ -123,28 +126,26 @@ PriceSensitivityMeter <- function(x,
         intersect.pts[1,] <- getIntersect(psm.dat[,1], psm.dat[,3], xpts)    
         intersect.pts[2,] <- getIntersect(psm.dat[,1], psm.dat[,4], xpts)    
         intersect.pts[3,] <- getIntersect(psm.dat[,2], psm.dat[,3], xpts)    
-        intersect.pts[4,] <- getIntersect(psm.dat[,2], psm.dat[,4], xpts)    
+        intersect.pts[4,] <- getIntersect(psm.dat[,2], psm.dat[,4], xpts)
 
         pp$htmlwidget <- layout(pp$htmlwidget,
                                 annotations = list(xref = "x", yref = "y",
-                                                   x = intersect.pts[,1],
-                                                   y = intersect.pts[,2], 
-                                                   arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
-                                                   arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
-                                                   axref = "pixel", ax = c(-10, 0, 0, 10) * intersection.arrow.length,
-                                                   ayref = "pixel", ay = c(2, -5, 5, 2) * intersection.arrow.length,
-                                                   font = list(family = intersection.label.font.family,
-                                                               color = intersection.label.font.color, size = intersection.label.font.size),
-                                                   text = autoFormatLongLabels(sprintf("%s %s%.2f", c("Point of marginal cheapness",
-                                                                                                     "Optimal price point", "Indifference point price",
-                                                                                                     "Point of marginal expensiveness"), 
-                                                                               currency, intersect.pts[,1]), 
-                                                                               wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)))
-        
+                                x = intersect.pts[,1], y = intersect.pts[,2], 
+                                arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
+                                arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
+                                axref = "pixel", ax = c(-10, 0, 0, 10) * intersection.arrow.length,
+                                ayref = "pixel", ay = c(2, -5, 5, 2) * intersection.arrow.length,
+                                font = list(family = intersection.label.font.family,
+                                color = intersection.label.font.color, size = intersection.label.font.size),
+                                text = autoFormatLongLabels(sprintf(paste0("%s %s%.", intersection.label.decimals, "f"), 
+                                c("Point of marginal cheapness", "Optimal price point", "Indifference point price",
+                                "Point of marginal expensiveness"), currency, intersect.pts[,1]), 
+                                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)))
+
         # allow labels to be movable - but turn off editing to other parts of the text
         pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE, 
                                 edits = list(annotationPosition = FALSE, annotationText = FALSE,
-                                             axisTitleText = FALSE, titleText = FALSE))
+                                             axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     }
     attr(pp, "ChartData") <- psm.dat
     return(pp)
@@ -198,7 +199,7 @@ propGreatorEqual <- function(vals, pts, wgts)
     res <- rev(cumsum(res)/denom)
 }
 
-getIntersect <- function(y1, y2, x)
+getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
 {
     # Create function to interpolate
     tmp.f1 <- splinefun(x, y1)
@@ -207,5 +208,9 @@ getIntersect <- function(y1, y2, x)
     intersect <- uniroot(tmp.fd, range(x))
     x.pt <- intersect$root
     y.pt <- tmp.f1(x.pt)
+    if (!is.na(y.min))
+        y.pt <- max(y.min, y.pt)
+    if (!is.na(y.max))
+        y.pt <- min(y.max, y.pt)
     return(c(x.pt, y.pt))
 }
