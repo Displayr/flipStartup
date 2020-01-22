@@ -4,11 +4,12 @@
 #' @param x Input table containing survey responses in 4 columns
 #'   At what price would you consider this product/brand to be 
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
-#' @param weights A numeric vector with length equal to the number of rows in \code{x}. They are applied
-#'   whem computing the proportions of respondents for each question
+#' @param weights A numeric vector with length equal to the number of rows in \code{x}. 
+#'   They are applied whem computing the proportions of respondents for each question
 #' @param resolution Numeric; controls the intervals (in terms of price) between which 
-#'   "Proportion of respondents" is computed. If set to \code{NULL} (default), the proportion
-#'   will be computed at the observed values, which may be irregularly spaced.
+#'   "Proportion of respondents" is computed. For example, set to \code{0.1}, to
+#'   evaluate proportions every 10 cents. By default, 200 equally spaced points
+#'   are chosen between the 1% and 99% quantile.
 #' @param currency Character; Currency symbol to prepend to the intersection labels. These
 #'   will also be used to set the default prefix to the x tick labels and hovertext.
 #' @param intersection.show Logical; Whether to show labels to the intersection points of the lines.
@@ -31,7 +32,7 @@
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config
-#' @importFrom stats splinefun uniroot
+#' @importFrom stats splinefun uniroot quantile
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
 #' @export
 
@@ -97,9 +98,22 @@ PriceSensitivityMeter <- function(x,
         data.label.font.size = round(fsc * data.label.font.size, 0)
         intersection.label.font.size = round(fsc * intersection.label.font.size, 0)
     }
-    rg <- range(x, na.rm = TRUE)
-    xpts <- if (!is.null(resolution)) seq(from = rg[1], to = rg[2], by = resolution)
-            else                      unique(sort(as.numeric(x)))    
+
+    # Determine x-positions to calculate proportions
+    rg.raw <- range(x, na.rm = TRUE)
+    if (is.null(resolution))
+    {
+        rg.trim <- quantile(x, c(0.01, 0.99), na.rm = TRUE)
+        xpts <- seq(from = rg.trim[1], to = rg.trim[2], length = 200)
+        if (rg.raw[1] < rg.trim[1])
+            xpts <- c(rg.raw[1], xpts)
+        if (rg.raw[2] > rg.trim[2])
+            xpts <- c(xpts, rg.raw[2])
+    }
+    else if (resolution == "observed")          # only for testing - results unreliable
+        xpts <- unique(sort(as.numeric(x))) 
+    else
+        xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
 
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
@@ -199,17 +213,17 @@ propGreatorEqual <- function(vals, pts, wgts)
     res <- rev(cumsum(res)/denom)
 }
 
+# x and y values are sorted
 getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
 {
     # Create function to interpolate
     tmp.f1 <- splinefun(x, y1)
     tmp.fd <- splinefun(x, y2 - y1)
-     
-    rg1 <- x[min(which(y1 >= 0.05))]
-    rg2 <- x[max(which(y1 <= 0.95))]
-    intersect <- try(uniroot(tmp.fd, c(rg1, rg2)), silent = TRUE)
-    if (inherits(intersect, "try-error"))
-        intersect <- uniroot(tmp.fd, range(x))
+   
+    n <- length(x) 
+    rg <- if (n > 4) x[c(2, n-1)]
+          else       x[c(1,n)]
+    intersect <- uniroot(tmp.fd, rg)
     x.pt <- intersect$root
     y.pt <- tmp.f1(x.pt)
     if (!is.na(y.min))

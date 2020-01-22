@@ -25,7 +25,7 @@ test_that("PSM",
 fake <- data.frame(A = 1:10, B = (1:10) + 1, C = (1:10) + 2, D = (1:10) + 3)
 test_that("Check proportions",
 {
-    psm0 <- PriceSensitivityMeter(fake)
+    psm0 <- PriceSensitivityMeter(fake, resolution = 1)
     expect_equal(attr(psm0, "ChartData")[,1], c((1:10)/10, 1.0, 1.0, 1.0), check.attributes = FALSE)
     psm1 <- PriceSensitivityMeter(fake, resolution = 0.1)
     expect_equal(attr(psm1, "ChartData")[,3], 
@@ -53,7 +53,7 @@ test_that("Check proportions",
         `11.9` = 0.1, `12` = 0.1, `12.1` = 0, `12.2` = 0, `12.3` = 0, 
         `12.4` = 0, `12.5` = 0, `12.6` = 0, `12.7` = 0, `12.8` = 0, `12.9` = 0, 
         `13` = 0))
-    psm2 <- PriceSensitivityMeter(fake, weights = 1:10)
+    psm2 <- PriceSensitivityMeter(fake, weights = 1:10, resolution = 1)
     expect_equal(attr(psm2, "ChartData")[,2],
        c(`1` = 0, `2` = 0.0181818181818182, `3` = 0.0545454545454545, 
        `4` = 0.109090909090909, `5` = 0.181818181818182, `6` = 0.272727272727273, 
