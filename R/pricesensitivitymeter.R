@@ -61,10 +61,10 @@ PriceSensitivityMeter <- function(x,
                                   y.tick.format = "%",
                                   intersection.show = TRUE,
                                   intersection.arrow.color = global.font.color,
-                                  intersection.arrow.size = 1.6,
+                                  intersection.arrow.size = 0,
                                   intersection.arrow.width = 0.7,
                                   intersection.arrow.length = 10,
-                                  intersection.arrow.standoff = 3,
+                                  intersection.arrow.standoff = 0,
                                   intersection.label.font.family = global.font.family,
                                   intersection.label.font.color = global.font.color,
                                   intersection.label.font.size = 10,
@@ -204,8 +204,12 @@ getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
     # Create function to interpolate
     tmp.f1 <- splinefun(x, y1)
     tmp.fd <- splinefun(x, y2 - y1)
-
-    intersect <- uniroot(tmp.fd, range(x))
+     
+    rg1 <- x[min(which(y1 >= 0.05))]
+    rg2 <- x[max(which(y1 <= 0.95))]
+    intersect <- try(uniroot(tmp.fd, c(rg1, rg2)), silent = TRUE)
+    if (inherits(intersect, "try-error"))
+        intersect <- uniroot(tmp.fd, range(x))
     x.pt <- intersect$root
     y.pt <- tmp.f1(x.pt)
     if (!is.na(y.min))
