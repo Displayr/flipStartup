@@ -8,8 +8,7 @@
 #'   They are applied whem computing the proportions of respondents for each question
 #' @param resolution Numeric; controls the intervals (in terms of price) between which 
 #'   "Proportion of respondents" is computed. For example, set to \code{0.1}, to
-#'   evaluate proportions every 10 cents. By default, 200 equally spaced points
-#'   are chosen between the 1% and 99% quantile.
+#'   evaluate proportions every 10 cents. By default, we use observed values. 
 #' @param currency Character; Currency symbol to prepend to the intersection labels. These
 #'   will also be used to set the default prefix to the x tick labels and hovertext.
 #' @param intersection.show Logical; Whether to show labels to the intersection points of the lines.
@@ -32,7 +31,6 @@
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config
-#' @importFrom stats splinefun uniroot quantile
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
 #' @export
 
@@ -76,6 +74,13 @@ PriceSensitivityMeter <- function(x,
                                   ...)
 {
     x <- as.matrix(x)
+    ind <- which(x < 0)
+    if (length(ind) > 0)
+    {
+        warning("Negative prices have been ignored")
+        x[ind] <- NA
+    }
+
     if (ncol(x) < 4)
         stop("Price sensitivity meter needs input data containing 4 columns: ",
              "'Very cheap', 'Cheap', 'Expensive', 'Very expensive'")
@@ -101,17 +106,8 @@ PriceSensitivityMeter <- function(x,
 
     # Determine x-positions to calculate proportions
     rg.raw <- range(x, na.rm = TRUE)
-    if (is.null(resolution))
-    {
-        rg.trim <- quantile(x, c(0.01, 0.99), na.rm = TRUE)
-        xpts <- seq(from = rg.trim[1], to = rg.trim[2], length = 200)
-        if (rg.raw[1] < rg.trim[1])
-            xpts <- c(rg.raw[1], xpts)
-        if (rg.raw[2] > rg.trim[2])
-            xpts <- c(xpts, rg.raw[2])
-    }
-    else if (resolution == "observed")          # only for testing - results unreliable
-        xpts <- unique(sort(as.numeric(x))) 
+    if (is.null(resolution)) 
+        xpts <- sort(unique(as.numeric(x))) 
     else
         xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
 
@@ -213,22 +209,18 @@ propGreatorEqual <- function(vals, pts, wgts)
     res <- rev(cumsum(res)/denom)
 }
 
-# x and y values are sorted
 getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
 {
-    # Create function to interpolate
-    tmp.f1 <- splinefun(x, y1)
-    tmp.fd <- splinefun(x, y2 - y1)
-   
-    n <- length(x) 
-    rg <- if (n > 4) x[c(2, n-1)]
-          else       x[c(1,n)]
-    intersect <- uniroot(tmp.fd, rg)
-    x.pt <- intersect$root
-    y.pt <- tmp.f1(x.pt)
-    if (!is.na(y.min))
-        y.pt <- max(y.min, y.pt)
-    if (!is.na(y.max))
-        y.pt <- min(y.max, y.pt)
-    return(c(x.pt, y.pt))
+    # We assume that curves start with y2 > y1 and end with y1 < y2
+    diff <- y2 - y1
+    ind0 <- max(which(diff >= 0))
+    ind1 <- min(which(diff <= 0))
+    if (diff[ind0] == 0)
+        return(c(x[ind0], y1[ind0])) 
+
+    r <- diff[ind0]/(diff[ind0] - diff[ind1])
+    x.delta <- r * (x[ind1] - x[ind0])
+    x.mid <- x[ind0] + x.delta
+    y.mid <- y1[ind0] + (y1[ind1] - y1[ind0])/(x[ind1] - x[ind0]) * x.delta
+    return(c(x.mid, y.mid))
 }

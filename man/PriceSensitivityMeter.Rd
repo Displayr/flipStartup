@@ -55,8 +55,7 @@ They are applied whem computing the proportions of respondents for each question
 
 \item{resolution}{Numeric; controls the intervals (in terms of price) between which 
 "Proportion of respondents" is computed. For example, set to \code{0.1}, to
-evaluate proportions every 10 cents. By default, 200 equally spaced points
-are chosen between the 1% and 99% quantile.}
+evaluate proportions every 10 cents. By default, we use observed values.}
 
 \item{colors}{Character; a vector containing one or more colors specified as hex codes.}
 
