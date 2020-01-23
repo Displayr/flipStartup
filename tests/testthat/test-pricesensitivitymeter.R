@@ -20,6 +20,9 @@ test_that("PSM",
     dat[5,1] <- NA
     dat[6,4] <- NA
     expect_error(PriceSensitivityMeter(dat), NA)
+    
+    dat.missing <- cbind(dat[,1:3], 'Very expensive' = rep(NA, NROW(dat)))
+    expect_error(PriceSensitivityMeter(dat.missing), NA)
 })
 
 fake <- data.frame(A = 1:10, B = (1:10) + 1, C = (1:10) + 2, D = (1:10) + 3)
