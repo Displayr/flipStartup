@@ -113,14 +113,14 @@ PriceSensitivityMeter <- function(x,
 
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
-                      dimnames = list(Price = xpts, c("Less than 'Very cheap'",
-                                        "Less than 'Cheap'", "More than 'Expensive'", "More than 'Very expensive'")))
+                      dimnames = list(Price = xpts, c("Less than 'Very cheap'", "Less than 'Cheap'",
+                                        "More than 'Expensive'", "More than 'Very expensive'")))
     psm.dat[,1] <- propLessorEqual(x[,1], xpts, weights)
     psm.dat[,2] <- propLessorEqual(x[,2], xpts, weights)
     psm.dat[,3] <- propGreatorEqual(x[,3], xpts, weights)
     psm.dat[,4] <- propGreatorEqual(x[,4], xpts, weights)
     
-    pp <- Line(psm.dat, colors = colors, line.type = line.type, line.thickness = line.thickness,
+    pp <- suppressWarnings(Line(psm.dat, colors = colors, line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
                x.title = x.title, x.tick.prefix = x.tick.prefix, x.hovertext.format = x.hovertext.format,
                y.title = y.title, y.tick.format = y.tick.format, ...,
@@ -128,7 +128,7 @@ PriceSensitivityMeter <- function(x,
                footer.font.size = footer.font.size, legend.font.size = legend.font.size,
                hovertext.font.size = hovertext.font.size, data.label.font.size  = data.label.font.size,
                y.title.font.size = y.title.font.size, y.tick.font.size = y.tick.font.size,
-               x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size)
+               x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size))
     
     if (intersection.show)
     {
@@ -137,19 +137,30 @@ PriceSensitivityMeter <- function(x,
         intersect.pts[2,] <- getIntersect(psm.dat[,1], psm.dat[,4], xpts)    
         intersect.pts[3,] <- getIntersect(psm.dat[,2], psm.dat[,3], xpts)    
         intersect.pts[4,] <- getIntersect(psm.dat[,2], psm.dat[,4], xpts)
+        rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
+                                   "Indifference point price", "Point of marginal expensiveness")
+        intersect.ax <- c(-10, 0, 0, 10) * intersection.arrow.length
+        intersect.ay <- c(2, -5, 5, 2) * intersection.arrow.length
+        ind.na <- which(is.na(intersect.pts[,1]) | is.na(intersect.pts[,2]))
+        if (length(ind.na) > 0)
+        {
+            intersect.pts <- intersect.pts[-ind.na,, drop = FALSE]
+            intersect.ax <- intersect.ax[-ind.na]
+            intersect.ay <- intersect.ay[-ind.na]
+        }
 
         pp$htmlwidget <- layout(pp$htmlwidget,
                                 annotations = list(xref = "x", yref = "y",
                                 x = intersect.pts[,1], y = intersect.pts[,2], 
                                 arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
                                 arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
-                                axref = "pixel", ax = c(-10, 0, 0, 10) * intersection.arrow.length,
-                                ayref = "pixel", ay = c(2, -5, 5, 2) * intersection.arrow.length,
+                                axref = "pixel", ax = intersect.ax,
+                                ayref = "pixel", ay = intersect.ay, 
                                 font = list(family = intersection.label.font.family,
                                 color = intersection.label.font.color, size = intersection.label.font.size),
-                                text = autoFormatLongLabels(sprintf(paste0("%s %s%.", intersection.label.decimals, "f"), 
-                                c("Point of marginal cheapness", "Optimal price point", "Indifference point price",
-                                "Point of marginal expensiveness"), currency, intersect.pts[,1]), 
+                                text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
+                                intersection.label.decimals, "f"), 
+                                rownames(intersect.pts), currency, intersect.pts[,1]), 
                                 wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)))
 
         # allow labels to be movable - but turn off editing to other parts of the text
@@ -211,6 +222,9 @@ propGreatorEqual <- function(vals, pts, wgts)
 
 getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
 {
+    if (!any(is.finite(y1)) || !any(is.finite(y2)) || !any(is.finite(x)))
+        return(c(NA, NA))
+
     # We assume that curves start with y2 > y1 and end with y1 < y2
     diff <- y2 - y1
     ind0 <- max(which(diff >= 0))
