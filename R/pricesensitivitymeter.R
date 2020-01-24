@@ -149,7 +149,8 @@ PriceSensitivityMeter <- function(x,
             intersect.ay <- intersect.ay[-ind.na]
         }
 
-        pp$htmlwidget <- layout(pp$htmlwidget,
+        if (NROW(intersect.pts) > 0)
+            pp$htmlwidget <- layout(pp$htmlwidget,
                                 annotations = list(xref = "x", yref = "y",
                                 x = intersect.pts[,1], y = intersect.pts[,2], 
                                 arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
