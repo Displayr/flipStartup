@@ -150,19 +150,23 @@ PriceSensitivityMeter <- function(x,
         }
 
         if (NROW(intersect.pts) > 0)
-            pp$htmlwidget <- layout(pp$htmlwidget,
-                                annotations = list(xref = "x", yref = "y",
-                                x = intersect.pts[,1], y = intersect.pts[,2], 
+        {
+            annot <- list()
+            for (i in 1:NROW(intersect.pts))
+                annot[[i]] = list(xref = "x", yref = "y",
+                                x = intersect.pts[i,1], y = intersect.pts[i,2],
                                 arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
                                 arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
-                                axref = "pixel", ax = intersect.ax,
-                                ayref = "pixel", ay = intersect.ay, 
+                                axref = "pixel", ax = intersect.ax[i],
+                                ayref = "pixel", ay = intersect.ay[i], 
                                 font = list(family = intersection.label.font.family,
                                 color = intersection.label.font.color, size = intersection.label.font.size),
                                 text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
                                 intersection.label.decimals, "f"), 
-                                rownames(intersect.pts), currency, intersect.pts[,1]), 
-                                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)))
+                                rownames(intersect.pts)[i], currency, intersect.pts[i,1]), 
+                                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
+            pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
+        }
 
         # allow labels to be movable - but turn off editing to other parts of the text
         pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE, 
