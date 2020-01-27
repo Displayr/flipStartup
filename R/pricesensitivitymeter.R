@@ -162,8 +162,8 @@ PriceSensitivityMeter <- function(x,
                                 font = list(family = intersection.label.font.family,
                                 color = intersection.label.font.color, size = intersection.label.font.size),
                                 text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
-                                intersection.label.decimals, "f"), 
-                                rownames(intersect.pts)[i], currency, intersect.pts[i,1]), 
+                                intersection.label.decimals, "f", " (%.0f%%)"), 
+                                rownames(intersect.pts)[i], currency, intersect.pts[i,1], intersect.pts[i,2]*100),
                                 wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
             pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
         }
