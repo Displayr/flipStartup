@@ -113,12 +113,12 @@ PriceSensitivityMeter <- function(x,
 
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
-                      dimnames = list(Price = xpts, c("Less than 'Too cheap'", "Less than 'Cheap'",
-                                        "More than 'Expensive'", "More than 'Too expensive'")))
-    psm.dat[,1] <- propLessorEqual(x[,1], xpts, weights)
-    psm.dat[,2] <- propLessorEqual(x[,2], xpts, weights)
-    psm.dat[,3] <- propGreatorEqual(x[,3], xpts, weights)
-    psm.dat[,4] <- propGreatorEqual(x[,4], xpts, weights)
+                      dimnames = list(Price = xpts, c("Too cheap", "Cheap",
+                                        "Expensive", "Too expensive")))
+    psm.dat[,1] <- propGreatorEqual(x[,1], xpts, weights)
+    psm.dat[,2] <- propGreatorEqual(x[,2], xpts, weights)
+    psm.dat[,3] <- propLessorEqual(x[,3], xpts, weights)
+    psm.dat[,4] <- propLessorEqual(x[,4], xpts, weights)
     
     pp <- suppressWarnings(Line(psm.dat, colors = colors, line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
@@ -133,12 +133,12 @@ PriceSensitivityMeter <- function(x,
     if (intersection.show)
     {
         intersect.pts <- matrix(NA, 4, 2)
-        intersect.pts[1,] <- getIntersect(psm.dat[,1], psm.dat[,3], xpts)    
-        intersect.pts[2,] <- getIntersect(psm.dat[,1], psm.dat[,4], xpts)    
-        intersect.pts[3,] <- getIntersect(psm.dat[,2], psm.dat[,3], xpts)    
-        intersect.pts[4,] <- getIntersect(psm.dat[,2], psm.dat[,4], xpts)
-        rownames(intersect.pts) <- c("Point of marginal cheapness", "Indifference price point",
-                                   "Optimal price point", "Point of marginal expensiveness")
+        intersect.pts[1,] <- getIntersect(psm.dat[,3], psm.dat[,1], xpts)    
+        intersect.pts[2,] <- getIntersect(psm.dat[,4], psm.dat[,1], xpts)    
+        intersect.pts[3,] <- getIntersect(psm.dat[,3], psm.dat[,2], xpts)    
+        intersect.pts[4,] <- getIntersect(psm.dat[,4], psm.dat[,2], xpts)
+        rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
+                                   "Indifference price point", "Point of marginal expensiveness")
         intersect.ax <- c(-10, 0, 0, 10) * intersection.arrow.length
         intersect.ay <- c(2, -5, 5, 2) * intersection.arrow.length
         ind.na <- which(is.na(intersect.pts[,1]) | is.na(intersect.pts[,2]))
