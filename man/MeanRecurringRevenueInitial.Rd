@@ -4,10 +4,12 @@
 \alias{MeanRecurringRevenueInitial}
 \title{\code{MeanRecurringRevenueByYearCohort}}
 \usage{
-MeanRecurringRevenueInitial(data, ...)
+MeanRecurringRevenueInitial(data, by, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+
+\item{by}{The time period to show value by}
 
 \item{...}{Don't use. There to prevent errors when unnecessary parameters are passed}
 }

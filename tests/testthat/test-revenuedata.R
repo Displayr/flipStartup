@@ -32,35 +32,35 @@ for (by in c("week", "month", "quarter", "year"))
           {
             # Beginning and end
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
             
             # Subset
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$InvoiceLineID, subscription.length = by, subset = d$validInvoice == 1)), NA)
             expect_equal(length(which(as.character(d$InvoiceLineID[which(d$validInvoice == 0)]) %in% rd$id)), 0)
 
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
 
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
 
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
 
             # Adding profiling variables of the wrong dimension
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, subscription.length = by, subset = d$validInvoice == 1, profiling = d)))
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
 
             # Adding profiling variables of the correct dimension
             unique.names <- sort(unique(d$name))
             zprofiling <- d[match(unique.names, as.character(d$name)), ]
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, subscription.length = by, subset = d$validInvoice == 1, profiling = zprofiling)))
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
 
             # Adding profiling variables with id shown in row names
             rownames(zprofiling) <- unique.names
             capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, id = d$name, end = ISOdate(2016,11,1), subscription.length = by, subset = d$validInvoice == 1, profiling = zprofiling))
-            expect_error(capture.output(RevenueGrowthAccounting(rd)), NA)
+            expect_error(capture.output(GrowthAccounting(rd)), NA)
 })
 
 

@@ -11,9 +11,9 @@ for (by in c("week", "month", "quarter", "year"))
           {
               
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, start = start, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(rg <- RevenueGrowthAccounting(rd, remove.last = FALSE), NA)
+            expect_error(rg <- GrowthAccounting(rd, remove.last = FALSE), NA)
             expect_error(print(plot(rg)), NA)
-            expect_error(rg <- RevenueGrowthAccounting(rd, remove.last = TRUE), NA)
+            expect_error(rg <- GrowthAccounting(rd, remove.last = TRUE), NA)
             expect_error(print(plot(rg)), NA)
             expect_error(print(QuickRatioPlot(rg)), NA)
 

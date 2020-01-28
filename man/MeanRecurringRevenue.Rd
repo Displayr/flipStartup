@@ -4,7 +4,7 @@
 \alias{MeanRecurringRevenue}
 \title{\code{MeanRecurringRevenueByCohort}}
 \usage{
-MeanRecurringRevenue(data, days.to.count, by)
+MeanRecurringRevenue(data, days.to.count, by, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
@@ -12,7 +12,7 @@ MeanRecurringRevenue(data, days.to.count, by)
 \item{days.to.count}{The number of days after the initial commencing to include in the Recurring Revenue
 calculation.}
 
-\item{period.by}{The time period to show value by}
+\item{by}{The time period to show value by}
 }
 \value{
 A matrix

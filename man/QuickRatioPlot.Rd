@@ -7,7 +7,7 @@
 QuickRatioPlot(x, supress.first = 1)
 }
 \arguments{
-\item{x}{A RevenueGrowthAccounting object.}
+\item{x}{A GrowthAccounting object.}
 
 \item{supress.first}{The periods to suppress from the beginning of the data}
 }

@@ -10,7 +10,7 @@ today <- ISOdate(2016,6,30)
 test_that("Growth accounting",
 {
     rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = ISOdate(2016,06,14), id = d$name, subset = d$validInvoice == 1)
-    rg <- RevenueGrowthAccounting(rd, remove.last = FALSE)
+    rg <- GrowthAccounting(rd, remove.last = FALSE)
     expect_equal(sum(rd$value), sum(rg$data$value))
     expect_equal(length(table(table(rg$data$id))), 1) # all companies should have entries for each year
 })

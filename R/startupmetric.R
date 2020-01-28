@@ -23,7 +23,7 @@ StartupMetric <- function(FUN = "Acquisition",
     for (i in 1:n.filters)
     {
         capture.output(rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id))
-        metric <- do.call(FUN, list(rd, volume = volume))
+        metric <- do.call(FUN, list(rd, ...))
         if (!is.null(metric))
         {
             out[[i]] <- metric

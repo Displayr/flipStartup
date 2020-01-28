@@ -7,7 +7,7 @@
 Waterfall(x, periods = NULL)
 }
 \arguments{
-\item{x}{A RevenueGrowthAccounting object.}
+\item{x}{A GrowthAccounting object.}
 
 \item{periods}{A vector of \code{character} indicating the period(s) to plot
 (relative to the previous period). If NULL, the total, aggregated across all periods, is shown.}

@@ -4,7 +4,7 @@
 \alias{RecurringRevenue}
 \title{\code{RecurringRevenue}}
 \usage{
-RecurringRevenue(data, end = Sys.time(), by = "day")
+RecurringRevenue(data, end = Sys.time(), by = "day", ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}

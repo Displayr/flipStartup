@@ -2,7 +2,7 @@
 #'
 #' Creates a waterfall table showing the source(s) of change in sales for one period,
 #' relative to the previous period.
-#' @param x A RevenueGrowthAccounting object.
+#' @param x A GrowthAccounting object.
 #' @param periods A vector of \code{character} indicating the period(s) to plot
 #' (relative to the previous period). If NULL, the total, aggregated across all periods, is shown.
 #' @importFrom flipFormat FormatAsPercent

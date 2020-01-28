@@ -13,7 +13,7 @@
 #' @return A vector showing the recurring revenue by time points.
 #'
 #' @export
-RecurringRevenue <- function(data, end = Sys.time(), by = "day")#attr(data, "subscription.length"))
+RecurringRevenue <- function(data, end = Sys.time(), by = "day", ...)#attr(data, "subscription.length"))
 {
     x <- Subscribers(data, by = by, end = end, volume = TRUE, recurring = TRUE)
     class(x) <- c("RecurringRevenue", class(x))
