@@ -70,10 +70,11 @@ A \code{\link{data.frame}}  where the rows represent
        \code{from.period} {The \code{period} of the subscription commencement as a character.}
        \code{from.renewal} {The beginning of the renewal period (i.e., the ealiest from data
        of invoices that are in the same period.}
-       \code{from.renewal.period} {The \code{period} of the \code{from.renewal}}.
-       \code{from.renewal.period} {The beginning of the renewal period. For example, 
-       if a person The \code{period} of the subscription commencement as a character.}
-       \code{period.counter} {The number of the period, where 0 indicates the initial period.}
+       \code{from.renewal.period} {The \code{period} for \code{from.renewal}.}
+       \code{to.renewal} {The end  of the renewal period (i.e., the latest end date of invoices 
+       that are in the same period.}
+       \code{to.renewal.period} {The end of the renewal period.}
+       \code{period.counter} {The \code{period} for \code{to.renewal}.}
        \code{to} {The end-date of a subscription.}
        \code{to.period} {The \code{period} of the subscription end as a character.}
        \code{subscriber.from} {The date of a customer's first subscription's commencement.}

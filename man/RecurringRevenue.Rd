@@ -4,7 +4,7 @@
 \alias{RecurringRevenue}
 \title{\code{RecurringRevenue}}
 \usage{
-RecurringRevenue(data, end = Sys.time(), volume = FALSE, by = "day")
+RecurringRevenue(data, end = Sys.time(), by = "day")
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
@@ -13,9 +13,7 @@ RecurringRevenue(data, end = Sys.time(), volume = FALSE, by = "day")
 Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 can cause unexpected results.}
 
-\item{volume}{Weights the results by volume. Does nothing in this case as volume is already defined this way.}
-
-\item{by}{The time unit. E.g., "month".}
+\item{by}{The time unit to plot. E.g., "month".}
 }
 \value{
 A vector showing the recurring revenue by time points.

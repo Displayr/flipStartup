@@ -22,19 +22,25 @@ Churn <- function(data, volume = FALSE, error.if.no.data = FALSE)
             stop("No subscriptions have had an opportunity to churn.")
         return(NULL)
     }
-    # Retaining only the initial invoice in a period
-    dat <- data[data$churn,, drop = FALSE]
-    
     counts <- churnCountsByTime(data, volume)
-    
-    #base <- table(data$to.period[data$observation.within.period == 1])
+#    print(rbind(counts, colSums(counts)))
     out <-  prop.table(counts, 2)[2, ] 
-    #result <-list(id = id, base = base, counts = t(counts), rates = rates, by = by, volume = volume)
     class(out) <- c("Churn", class(out))
-    id <- idByPeriod(dat, time = "to.period")    
+    dat <- data[data$churn,, drop = FALSE]
+    id <- idByPeriod(dat, time = "to.renewal.period")    
     attr(out, "detail") <- sapply(id, paste, collapse = ",")
     attr(out, "volume") <- volume
+    attr(out, "subscription.length") <- by
     out
+}
+
+#' @export
+print.Churn <- function(x, ...)
+{
+    attr(x, "detail") <- NULL
+    attr(x, "volume") <- NULL
+    class(x) <- class(x)[-1]
+    print(x)
 }
 
 #' @export
@@ -46,8 +52,11 @@ plot.Churn <- function(x, ...)
 
 churnCountsByTime <- function(data, volume)
 {
-    counts <- if (volume) Table(value ~ churn + to.period, data = data, FUN = sum)
-    else Table( ~ churn + to.period, data = data[data$observation.within.period == 1,])
+#    data <- data[data$observation.within.period == 1,]
+#    z = sort(data$id[data$to.renewal.period == 2010])
+#    print(as.matrix(z))
+    counts <- if (volume) Table(value ~ churn + to.renewal.period, data = data, FUN = sum)
+    else Table(id ~ churn + to.renewal.period, data = data, FUN = function(x) length(unique(x)))
     if (nrow(counts) == 1)
     {
         counts <-if (rownames(counts) == "TRUE")

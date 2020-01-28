@@ -43,10 +43,11 @@
 #'        \code{from.period} {The \code{period} of the subscription commencement as a character.}
 #'        \code{from.renewal} {The beginning of the renewal period (i.e., the ealiest from data
 #'        of invoices that are in the same period.}
-#'        \code{from.renewal.period} {The \code{period} of the \code{from.renewal}}.
-#'        \code{from.renewal.period} {The beginning of the renewal period. For example, 
-#'        if a person The \code{period} of the subscription commencement as a character.}
-#'        \code{period.counter} {The number of the period, where 0 indicates the initial period.}
+#'        \code{from.renewal.period} {The \code{period} for \code{from.renewal}.}
+#'        \code{to.renewal} {The end  of the renewal period (i.e., the latest end date of invoices 
+#'        that are in the same period.}
+#'        \code{to.renewal.period} {The end of the renewal period.}
+#'        \code{period.counter} {The \code{period} for \code{to.renewal}.}
 #'        \code{to} {The end-date of a subscription.}
 #'        \code{to.period} {The \code{period} of the subscription end as a character.}
 #'        \code{subscriber.from} {The date of a customer's first subscription's commencement.}
@@ -181,18 +182,20 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
   not.churned <- !id.data$churned
   data <- merge(data, id.data, by = "id", all.x = TRUE, sort = TRUE)
   data$from.period <- Period(data$from, subscription.length)
-  #from.renewal <- aggregate(from ~ id + 
-  #data$from.renewal.period <- Period(data$from, subscription.length)
   data$to.period <- Period(data$to, subscription.length)
   data$id.to.period <- paste(data$id, data$to.period)
-  
+  # Dealing with situations where invoices start or end within a billing cycle  
   fr <- aggregate(from ~ id.to.period, data = data, FUN = min)
-  renewal.from <- mapvalues(data$id.to.period, fr[, 1], as.character(fr[,2]))
-  data$renewal.from <- AsDate(renewal.from)
-  data$renewal.from.period <- Period(data$renewal.from, subscription.length)
+  from.renewal <- mapvalues(data$id.to.period, fr[, 1], as.character(fr[,2]))
+  data$from.renewal <- AsDate(from.renewal)
+  data$from.renewal.period <- Period(data$from.renewal, subscription.length)
+  t <- aggregate(to ~ id.to.period, data = data, FUN = max)
+  to.renewal <- mapvalues(data$id.to.period, t[, 1], as.character(t[,2]))
+  data$to.renewal <- AsDate(to.renewal)
+  data$to.renewal.period <- Period(data$to.renewal, subscription.length)
   data$id.to.period <- NULL
   
-  data$churn <- data$churned & data$from.period == data$last.from.period
+  data$churn <- data$churned & data$from.renewal.period == data$last.from.period
   data$period.counter <- interval(data$subscriber.from, data$from) %/% units
   # Sorting.
   data <- data[order(data$id, data$from),]

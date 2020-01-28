@@ -7,7 +7,6 @@
 StartupMetric(
   FUN = "Acquisition",
   output = c("Plot", "Table", "List")[1],
-  volume = FALSE,
   value,
   from,
   to,
@@ -17,15 +16,14 @@ StartupMetric(
   subscription.length = "year",
   subset = rep(TRUE, length(id)),
   profiling = NULL,
-  trim.id = 50
+  trim.id = 50,
+  ...
 )
 }
 \arguments{
 \item{FUN}{A function that calculates a metric}
 
 \item{output}{Whether to output as a Plot, Table, or List.}
-
-\item{volume}{If TRUE, computes a volumetric analysis (i.e, based on value rather than number of events or customers).}
 
 \item{value}{A vector of containing the revenue per transaction.}
 

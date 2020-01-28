@@ -6,7 +6,7 @@
 #' @param volume Weights the results by volume. Does nothing in this case.
 #' @return A \code{\link{matrix}} 
 #' @export
-ChurnByCohort <- function(data, remove.last = TRUE, volume = FALSE)
+ChurnByCohort <- function(data, remove.last = FALSE, volume = FALSE)
 {
     retention <- Retention(data)
     x <- 1 - retention[[ if (volume) "retention.rate.volume" else "retention.rate"]]
@@ -30,8 +30,8 @@ print.ChurnByCohort <- function(x, ...)
 }
 
 
-#' @importFrom plotly plot_ly layout
-#' @importFrom flipFormat  FormatAsPercent
+#' @importFrom plotly plot_ly layout `%>%`
+#' @importFrom flipFormat FormatAsPercent
 #' @export
 plot.ChurnByCohort <- function(x, ...)
 {

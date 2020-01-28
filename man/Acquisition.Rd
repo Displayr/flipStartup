@@ -9,7 +9,7 @@ Acquisition(
   subset,
   remove.last = FALSE,
   volume = FALSE,
-  number.periods = 1
+  number.periods = 0
 )
 }
 \arguments{

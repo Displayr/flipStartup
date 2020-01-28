@@ -4,18 +4,16 @@
 #' @inherit RevenueData
 #' @param FUN A function that calculates a metric
 #' @param output Whether to output as a Plot, Table, or List. 
-#' @param volume If TRUE, computes a volumetric analysis (i.e, based on value rather than number of events or customers).
 #' @param profiling Separate analyses are conducted among each unique combination of these variables.
 #' @importFrom plotly add_annotations subplot
 #' @return A plotly plot#?
 #' @export
 StartupMetric <- function(FUN = "Acquisition",
                           output = c("Plot", "Table", "List")[1],
-                          volume = FALSE,
                           # parameters from RevenueData
                           value, from, to, start = min(from), end = max(from), id,
                           subscription.length = "year", subset = rep(TRUE, length(id)),
-                          profiling = NULL, trim.id = 50)
+                          profiling = NULL, trim.id = 50, ...)
 {
     filters <- createFilters(profiling, subset = subset, id)
     n.filters <- length(filters)
@@ -24,7 +22,7 @@ StartupMetric <- function(FUN = "Acquisition",
     y.min <- 0
     for (i in 1:n.filters)
     {
-        rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id)
+        capture.output(rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id))
         metric <- do.call(FUN, list(rd, volume = volume))
         if (!is.null(metric))
         {

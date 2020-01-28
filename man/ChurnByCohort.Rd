@@ -4,7 +4,7 @@
 \alias{ChurnByCohort}
 \title{\code{ChurnByCohort}}
 \usage{
-ChurnByCohort(data, remove.last = TRUE, volume = FALSE)
+ChurnByCohort(data, remove.last = FALSE, volume = FALSE)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}

@@ -8,17 +8,21 @@
 #' \item{revenue}{The revenue by \code{period}}.
 #' \item{growth}{The revenue growth, as a proportion, by \code{period}}.
 #'
+#' @importFrom flipTime AsDate
 #' @export
 Growth <- function(data, volume = FALSE, remove.last = TRUE)
 {
-    if (remove.last)
-        data <- removeLast(data)
-    revenue <- quantityByTime(data, volume, "from.period")
+    start <- attr(data, "start")
+    revenue <- quantityByTime(data, volume, "from.renewal.period")
     k <- length(revenue)
     growth <- revenue[-1] / revenue[-k] - 1
-    out <- list(revenue = revenue, growth = growth, volume = volume)
-    class(out) <- c("Growth", class(out))
-    out
+    if (remove.last)
+        growth <- growth[-length(growth)]
+    class(growth) <- c("Growth", class(out))
+    growth <- growth[AsDate(names(growth)) >= start]
+    attr(growth, "volume") <- volume
+    class(growth) <- c("Growth", class(growth))
+    growth
 }
 
 
@@ -34,13 +38,13 @@ aggregateAsVector <- function(x)
 #' @export
 YLim.Growth <- function(x, ...)
 {
-    range(x$growth)
+    range(x)
 }
 
 #' @export
 plot.Growth <- function(x, ...)
 {
-    y.title <- if(x$volume) "Revenue Growth (%)" else "Customer Growth (%)"
-    columnChart(x$growth, y.title = y.title, ...)
+    y.title <- if(attr(x, "volume")) "Revenue Growth (%)" else "Customer Growth (%)"
+    columnChart(x,  y.tick.format= "%", y.title = y.title, ...)
 }
 

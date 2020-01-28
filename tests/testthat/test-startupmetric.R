@@ -46,7 +46,7 @@ test_that("Create subsets",
 for (fun in c("Acquisition", "Churn", "RecurringRevenue"))
     for (out in c("Table", "Plot", "Detail"))
         for (vol in c(TRUE, FALSE))
-        test_that(paste("Create subsets", fun, out, vol), 
+        test_that(paste("metrics", fun, out, vol), 
           {
               capture.output({
                   # Aggregate 
@@ -63,3 +63,14 @@ for (fun in c("Acquisition", "Churn", "RecurringRevenue"))
                   expect_error(print(s), NA)
               })
           })
+
+
+test_that("Churn consistency", {
+    
+    by = "year"
+    z1 = StartupMetric("Churn", output = "Table", volume = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
+    rdd <- RevenueData(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
+    r <- Retention(rdd)
+    z2 = 1 - r$retention.rate.by.period
+    expect_equal(z1[, 1], z2[rownames(z1)])
+})

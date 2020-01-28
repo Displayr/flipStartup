@@ -102,7 +102,7 @@ removeIncompleteSubscriptions <- function(data)
 {
     subscription.length <- attr(data, "subscription.length")
     end <- attr(data, "end")
-    data <- subset(data, data$to <= end)
+    data <- subset(data, data$to.renewal <= end)
     attr(data, "subscription.length") <- subscription.length
     attr(data, "end") <- end
     data
