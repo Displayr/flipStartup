@@ -140,7 +140,7 @@ PriceSensitivityMeter <- function(x,
         rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
                                    "Indifference price point", "Point of marginal expensiveness")
         intersect.ax <- c(-10, 0, 0, 10) * intersection.arrow.length
-        intersect.ay <- c(2, -5, 5, 2) * intersection.arrow.length
+        intersect.ay <- c(2, -5, -5, 2) * intersection.arrow.length
         ind.na <- which(is.na(intersect.pts[,1]) | is.na(intersect.pts[,2]))
         if (length(ind.na) > 0)
         {
