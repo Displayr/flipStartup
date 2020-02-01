@@ -14,7 +14,7 @@
 #' @export
 Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE)
 {
-    updatePeriods(data, by)
+    data <- updateDataForPeriodAndChurn(data, by)
     if (nrow(data) == 0)
     {
         if (error.if.no.data)
@@ -85,7 +85,7 @@ churnCountsByTime <- function(data, volume)
         else
             rbind(counts, "TRUE" = 0)
     }
-#    print(counts)
+    #print(counts)
     counts
 }
 
