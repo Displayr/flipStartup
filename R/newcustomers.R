@@ -43,7 +43,7 @@ quantityByTime <- function(data, volume, time, by)
     t <- if (volume)
         Table(value ~ subscriber.from.period, data = data, FUN = sum)
     else
-        Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
+        Table(id ~ subscriber.from.period, data = data, FUN = nUnique)
     FillInDateVector(t, by)
 }
 

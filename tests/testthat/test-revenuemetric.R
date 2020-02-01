@@ -6,6 +6,9 @@ library(lubridate)
 end <-  ISOdate(2016,2,15)
 start <-  ISOdate(2012,7,1)
 
+# Cleaning out some poor data
+d <- d[d$ValidFrom < d$ValidTo, ]
+
 # merging categories
 d$country <- as.character(d$country)
 t <- table(d$country)
@@ -22,7 +25,7 @@ test_that("Create subsets",
               s <- flipStartup:::createFilters(d[, "country", drop = FALSE], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 5)
               expect_equal(names(s)[1], "Australia\nn: 385")
-              expect_equal(sum(s[[1]]), 2390) # Observations, companies can have multiple observations
+              expect_equal(sum(s[[1]]), 2386) # Observations, companies can have multiple observations
 
               # Country - with a filter
               f <- d$salesman == "4"
@@ -45,11 +48,26 @@ test_that("Create subsets",
 by= "quarter"
 for (by in c("month", "quarter", "year"))
   test_that(paste("Churn consistency", by), {
-      z1 = RevenueMetric("CustomerChurn", output = "Table", volume = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
-      capture.output(rdd <- RevenueData(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "year"))
-      r <- Retention(rdd, by = by)
-      z2 = 1 - r$retention.rate.by.period
-      expect_equal(z1[, 1], z2[rownames(z1)])
+    # Near-depricated
+    capture.output(rdd <- RevenueData(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "year"))
+    r <- Retention(rdd, by = by)
+    # These tests are checking that numer methods of computing churn give the same
+    # answer as depricated methods
+    cc = RevenueMetric("CustomerChurn", output = "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
+    expect_equal(removeAttributesAndClass(cc),
+                 1 - r$retention.rate.by.period[names(cc)])
+    
+    rrc = RevenueMetric("RecurringRevenueChurn", output = "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
+    expect_equal(removeAttributesAndClass(rrc),
+                 1 - r$retention.rate.volume.by.period[names(rrc)])
+    
+    ccc <- RevenueMetric("CustomerChurnByCohort", "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
+    expect_equal(removeAttributesAndClass(ccc),
+                 1 - r$retention.rate[rownames(ccc), colnames(ccc)])
+    
+    rrcc <- RevenueMetric("RecurringRevenueChurnByCohort", "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
+    expect_equal(removeAttributesAndClass(rrcc),
+                 1 - r$retention.rate.volume[rownames(rrcc), colnames(rrcc)])
   })
 
 
@@ -63,12 +81,13 @@ out = "Table"
 by = "month"
 p.country <- d[, "country", drop = FALSE]
 p.country.salesman <- d[, c("country", "salesman")]
-for (fun in c("RecurringRevenueChurnByCohort", "CustomerChurnByCohort"))
+for (fun in c("CustomerChurn", "RecurringRevenueChurn"))
+  #"RecurringRevenueChurnByCohort", "CustomerChurnByCohort"))
 #MeanRecurringRevenue365Days","MeanRecurringRevenue2Years"))#,
 # "MeanRecurringRevenueInitial", "MeanRecurringRevenue30Days", "MeanRecurringRevenue90Days",
 #               "MeanRecurringRevenue180Days", "MeanRecurringRevenue180Days", "MeanRecurringRevenue365Days",
 #               "MeanRecurringRevenue2Years"))
-#              "NewCustomers", "CustomerChurn", "RecurringRevenueChurn", "RecurringRevenue"))
+#             "Customers", "NewCustomers",  "RecurringRevenue"))
     for (out in c("Table", "Plot", "Detail"))
         for (by in c("month", "quarter", "year"))
             test_that(paste("metrics", fun, out, by),

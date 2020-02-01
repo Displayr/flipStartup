@@ -14,8 +14,7 @@
 #' @export
 Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE)
 {
-    data <- removeIncompleteSubscriptions(data)
-    data$to.renewal.period <- Period(data$to.renewal, by)#AsDate(data$to.period, on.parse.failure = "silent")
+    updatePeriods(data, by)
     if (nrow(data) == 0)
     {
         if (error.if.no.data)
@@ -23,13 +22,10 @@ Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE
         return(NULL)
     }
     counts <- churnCountsByTime(data, volume)
-#print(counts[, "2010-01"])    
     out <-  prop.table(counts, 2)[2, ]
     if (length(out) == 1) # Dealing with scalars losing names
         names(out) <- colnames(counts)
-    class(out) <- c("Churn", class(out))
     dat <- data[data$churn,, drop = FALSE]
-#    id <- idByPeriod(dat, time = "to.renewal.period")    
     detail <- idByPeriod(dat, time = "to.renewal.period")#sapply(id, paste, collapse = ",")
     out <- addAttributesAndClass(out, "Churn", by, detail)
     attr(out, "volume") <- volume
@@ -76,11 +72,12 @@ plot.Churn <- function(x, ...)
 
 churnCountsByTime <- function(data, volume)
 {
-#    data <- data[data$observation.within.period == 1,]
-    # z = sort(unique(data$id[data$to.renewal.period == "2010-01"]))
-    # print(as.matrix(z))
-    counts <- if (volume) Table(value ~ churn + to.renewal.period, data = data, FUN = sum)
-    else Table(id ~ churn + to.renewal.period, data = data, FUN = function(x) length(unique(x)))
+    counts <- if (volume) {
+        v <- Table(recurring.value ~ churn + to.renewal.period, data = data, FUN = sum)
+        v[round(v, 7) == 0] <- 0 # Dealing with numeric precision issue that can lead to negative churn
+        v
+    }
+    else Table(id ~ churn + to.renewal.period, data = data, FUN = nUnique)
     if (nrow(counts) == 1)
     {
         counts <-if (rownames(counts) == "TRUE")
@@ -88,6 +85,7 @@ churnCountsByTime <- function(data, volume)
         else
             rbind(counts, "TRUE" = 0)
     }
+#    print(counts)
     counts
 }
 

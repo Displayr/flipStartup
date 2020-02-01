@@ -47,7 +47,7 @@ RevenueMetric <- function(FUN = "Acquisition",
 asMatrix <- function(x)
 {
     if (length(x) == 1)
-        return(as.matrix(x[[1]]))
+        return(x[[1]])
     by <- attr(x[[1]], "by")
     is.m <- is.matrix(x[[1]])
     rng <- if (is.m) sapply(x, function(x) colnames(x)[c(1, ncol(x))])
@@ -168,8 +168,6 @@ Detail.default <- function(x, ...)
 #'     sapply(x$id, paste, collapse = ", ")
 #' }
 
-
-
 #' @export
 YLim <- function(x)
 {
@@ -268,10 +266,15 @@ print.RevenueMetric <- function(x, ...)
 
 printWithoutAttributes <- function(x)
 {
-    for (a in c("detail", "volume", "by", "subscription.length", "n.subscriptions"))
+    print(removeAttributesAndClass(x))
+}
+
+removeAttributesAndClass <- function(x)
+{
+    for (a in c("detail", "volume", "by", "subscription.length", "n.subscribers"))
         attr(x, a) <- NULL
     class(x) <- class(x)[-1:-2]
-    print(x)
+    x
 }
 
 addAttributesAndClass <- function(x, class.name, by, detail)

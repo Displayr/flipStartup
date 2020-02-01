@@ -13,7 +13,7 @@ FillInMatrix <- function(x, row.names, col.names, value = 0)
     new.dimnames <- list(row.names, col.names)
     names(new.dimnames) <- names(dimnames(x))
     new.x <- matrix(value, length(row.names), length(col.names), dimnames = new.dimnames)
-    new.x[match(rownames(x), row.names), match(colnames(x), col.names)] <- x
+    new.x[rownames(x), colnames(x)] <- x
     new.x
 }
 
@@ -33,6 +33,10 @@ FillInDateRowsInMatrix <- function(x, by, value = 0)
 }
 
 
+nUnique <- function(x)
+{
+    length(unique(x))
+}
 #' \code{FillInVector}
 #'
 #' @description Fills in missing rows and/or columns in a matrix.

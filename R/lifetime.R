@@ -19,13 +19,13 @@
 Lifetime <- function(data, end = attr(data, "end"))
 {
     subscription.length <- attr(data, "subscription.length")
-    ns <- Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
+    ns <- Table(id ~ subscriber.from.period, data = data, FUN = nUnique)
     end.numeric <- as.numeric(as.Date(end))
     data$to.as.numeric <- as.numeric(as.Date(data$to))
     data <- subset(data, data$from >= attr(data, "start"))
     incomplete <- Table(to.as.numeric ~ subscriber.from.period + period.counter, data, FUN = max) < end.numeric
     total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
-    counts <- Table(id ~ subscriber.from.period + period.counter, data, FUN = function(x) length(unique(x)))
+    counts <- Table(id ~ subscriber.from.period + period.counter, data, FUN = function(x) nUnique)
     # Filling in missing row and column totals
     row.names <- CompleteListPeriodNames(rownames(total), subscription.length)
     col.names <- 0:max(length(row.names) - 1, as.numeric(colnames(total)))

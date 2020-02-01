@@ -15,7 +15,7 @@ MeanRecurringRevenue <- function(data, days.to.count, by, ...)
     end <- attr(data, "end") - days.to.count
     data <- data[data$from <= data$subscriber.from + days.to.count, ]
     data$subscriber.from.period <- Period(data$subscriber.from, by)
-    counts <- Table(id ~ subscriber.from.period, data = data, FUN = function(x) {length(unique(x))})
+    counts <- Table(id ~ subscriber.from.period, data = data, FUN = nUnique)
     value <- Table(recurring.value ~ subscriber.from.period, data = data, FUN = sum)
     out <- value / counts
     dates <- AsDate(names(out))

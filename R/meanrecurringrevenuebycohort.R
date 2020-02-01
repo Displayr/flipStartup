@@ -14,7 +14,7 @@ MeanRecurringRevenueByCohort <- function(data, cohort.by = "year")
     period.by <- attr(data, "subscription.length")
     data$period <- Period(data$from, period.by)
     start <- attr(data, "start")
-    counts <- Table(id ~ cohort + period.counter, data = data, FUN = function(x) {length(unique(x))})
+    counts <- Table(id ~ cohort + period.counter, data = data, FUN = nUnique)
     value <- Table(recurring.value ~ cohort + period.counter, data = data, FUN = sum)
     out <- value / counts
     attr(out, "cohort.by") = cohort.by

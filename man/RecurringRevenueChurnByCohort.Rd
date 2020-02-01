@@ -19,5 +19,5 @@ RecurringRevenueChurnByCohort(data, remove.last = FALSE, by, ...)
 A \code{\link{matrix}}
 }
 \description{
-Computes the recurring revenue-weighted customer churn by time period and time-based cohort
+Computes the recurring revenue churn by time period and time-based cohort
 }

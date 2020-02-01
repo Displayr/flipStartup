@@ -44,7 +44,7 @@ Retention <- function(data, by, ...)
     n.periods <- length(periods)
     retention.rate.volume <-
         matrix(NA, n.periods, n.periods, dimnames = list(subscriber.from.period = periods, period = periods))
-    names(dimnames(retention.rate.volume)) <- c("Commenced", by)
+    names(dimnames(retention.rate.volume)) <- c("Commenced", properCase(by)) 
     n.subscriptions <- n.retained <- retention.rate <- retention.rate.volume
     total <- 0
     total.lost <- 0
@@ -67,7 +67,7 @@ Retention <- function(data, by, ...)
             period <- periods[c]
             
             base <- starters & data$to.renewal.period == period
-            revenue <- data$value[base]
+            revenue <- data$recurring.value[base]
             churn <- data$churn[base]
             ids <- data$id[base]
             if (length(churn) > 0 & sum(churn) > 0)
@@ -95,8 +95,8 @@ Retention <- function(data, by, ...)
                 retention.rate.volume[cohort, c] <- (revenue.base - revenue.lost) / revenue.base
                 total <- total + revenue.base
                 total.lost <- total.lost + revenue.lost
-                loss.by.period[c] <- revenue.lost + loss.by.period[cohort]
-                total.by.period[c] <- revenue.base + total.by.period[cohort]
+                loss.by.period[c] <- revenue.lost + loss.by.period[c]
+                total.by.period[c] <- revenue.base + total.by.period[c]
             }
         }
     }
