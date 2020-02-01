@@ -1,4 +1,4 @@
-context("Startup Metric")
+context("Revenue Metric")
 data(q.invoice.lines)
 d <- q.invoice.lines
 library(lubridate)
@@ -42,39 +42,44 @@ test_that("Create subsets",
               expect_equal(names(s)[1], "Australia + MISSING DATA\nn: 191")
           })
 
+by= "quarter"
+for (by in c("month", "quarter", "year"))
+  test_that(paste("Churn consistency", by), {
+      z1 = RevenueMetric("CustomerChurn", output = "Table", volume = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
+      capture.output(rdd <- RevenueData(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "year"))
+      r <- Retention(rdd, by = by)
+      z2 = 1 - r$retention.rate.by.period
+      expect_equal(z1[, 1], z2[rownames(z1)])
+  })
+
+
 set.seed(1223)
+d <- d[d$validInvoice == 1, ]
 d <- d[sample(1:nrow(d), 100), ]
 
 # This is just checking for errors. Blog projects will be used for checking outputs.
-fun = "NewCustomers"
+fun = "RecurringRevenue"
 out = "Table"
+by = "month"
 p.country <- d[, "country", drop = FALSE]
 p.country.salesman <- d[, c("country", "salesman")]
-for (fun in c("NewCustomers", "CustomerChurn", "RevenueChurn", "RecurringRevenue"))
+for (fun in c("NewCustomers", "CustomerChurn", "RecurringRevenueChurn", "RecurringRevenue"))
     for (out in c("Table", "Plot", "Detail"))
-        test_that(paste("metrics", fun, out), 
-      {
-          capture.output({
+        for (by in c("month", "quarter", "year"))
+            test_that(paste("metrics", fun, out, by), 
+                      {
+                          capture.output({
               # Aggregate 
-              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = "quarter", subset = d$validInvoice == 1)
+              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
               expect_error(print(s), NA)
               # one profiling
-              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = "quarter", profiling = p.country, subset = d$validInvoice == 1)
+              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country)
               expect_error(print(s), NA)
               
               # two profiling
-              s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = "quarter", profiling = p.country.salesman, subset = d$validInvoice == 1)
+              s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country.salesman, )
               expect_error(print(s), NA)
           })
       })
 
 
-test_that("Churn consistency", {
-    
-    by = "year"
-    z1 = RevenueMetric("Churn", output = "Table", volume = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
-    rdd <- RevenueData(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
-    r <- Retention(rdd)
-    z2 = 1 - r$retention.rate.by.period
-    expect_equal(z1[, 1], z2[rownames(z1)])
-})

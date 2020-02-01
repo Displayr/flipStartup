@@ -54,7 +54,7 @@ asMatrix <- function(x)
     mx <- max(AsDate(rng[2,]))
     dates <- Period(seq.Date(mn, mx, by = by), by)
     k <- length(x)
-    m <- matrix(NA, length(dates), k, dimnames = list(dates, names(x)))
+    m <- matrix(0, length(dates), k, dimnames = list(dates, names(x)))
     for (i in 1:k)
         m[names(x[[i]]), i] <- x[[i]]
     m

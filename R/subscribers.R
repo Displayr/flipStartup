@@ -12,16 +12,16 @@
 #' @return A vector showing number of subscribers over time.
 #'
 #' @importFrom lubridate '%within%' floor_date ceiling_date
-#' @importFrom flipTime Periods
+#' @importFrom flipTime Periods Period
 #' @export
 Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE, recurring = FALSE)
 {
-    end = ceiling_date(end, unit = by)
+    end <- ceiling_date(end, unit = by)
     start <- floor_date(min(data$from), unit = by)
     n <- interval(start, end) %/% Periods(1, by) + 1
     result <- rep(NA, n) + 1
     starts <- start + Periods(0:(n-1), by)
-    names(result) <- starts
+    names(result) <- Period(starts, by)
     count <- 0
     value = if (recurring) data$recurring.value else data$value
     for (i in 1:n)
@@ -30,6 +30,6 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE, r
         filt <- start >= data$from & start < data$to
         result[i] <- if(volume) sum(value[filt]) else length(unique(data$id[filt]))
     }
-    attr(result, "subscription.length") = by
+    #attr(result, "by") = by
     result
 }

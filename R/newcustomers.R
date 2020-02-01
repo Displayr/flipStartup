@@ -15,11 +15,9 @@
 NewCustomers <- function(data, by = "quarter", ...)
 {
     data$subscriber.from.period <- Period(data$subscriber.from, by)
-    x <- quantityByTime(data, FALSE, "subscriber.from.period")
-    attr(x, "detail") <- idByPeriod(data, "subscriber.from.period")#data[, "subscriber.from", "id"]#sapply(id, paste, collapse = ", ")
-    attr(x, "by") <- by
-    class(x) <- c("NewCustomers", class(x))
-    x
+    x <- quantityByTime(data, FALSE, "subscriber.from.period", by)
+    detail <- idByPeriod(data, "subscriber.from.period")#data[, "subscriber.from", "id"]#sapply(id, paste, collapse = ", ")
+    addAttributesAndClass(x, "NewCustomers", by, detail)
 }
 
 print.NewCustomers <- function(x, ...)
@@ -40,12 +38,13 @@ idByPeriod <- function(data, time)
     id
 }   
 
-quantityByTime <- function(data, volume, time)
+quantityByTime <- function(data, volume, time, by)
 {
-    if (volume)
+    t <- if (volume)
         Table(value ~ subscriber.from.period, data = data, FUN = sum)
     else
         Table(id ~ subscriber.from.period, data = data, FUN = function(x) length(unique(x)))
+    FillInDateVector(t, by)
 }
 
 #' @export

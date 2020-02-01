@@ -16,11 +16,18 @@
 RecurringRevenue <- function(data, end = Sys.time(), by = "day", ...)#attr(data, "subscription.length"))
 {
     x <- Subscribers(data, by = by, end = end, volume = TRUE, recurring = TRUE)
-    class(x) <- c("RecurringRevenue", class(x))
-    attr(x, "detail") <- data[, c("id", "value", "from", "to")]
-    x
+    detail <- data[, c("id", "value", "from", "to")]
+    addAttributesAndClass(x, "RecurringRevenue", by, detail)
 }
 
+
+addAttributesAndClass <- function(x, class.name, by, detail)
+{
+    attr(x, "by") <- by
+    attr(x, "detail") <- detail
+    class(x) <- c(class.name, class(x))
+    x    
+}    
 
 #' @export
 plot.RecurringRevenue <- function(x, ...)

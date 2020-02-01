@@ -10,12 +10,12 @@
 #' is included in the churn. Churn is show for all periods that have 
 #' data in \code{data$to.period}, even if they occur in the future.
 #' @return A named vector showing churn.
-#' @importFrom flipTime AsDate
+#' @importFrom flipTime AsDate Period
 #' @export
 Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE)
 {
-    to.period <- AsDate(data$to.period, on.parse.failure = "silent")
     data <- removeIncompleteSubscriptions(data)
+    data$to.renewal.period <- Period(data$to.renewal, by)#AsDate(data$to.period, on.parse.failure = "silent")
     if (nrow(data) == 0)
     {
         if (error.if.no.data)
@@ -23,14 +23,16 @@ Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE
         return(NULL)
     }
     counts <- churnCountsByTime(data, volume)
-#    print(rbind(counts, colSums(counts)))
-    out <-  prop.table(counts, 2)[2, ] 
+#print(counts[, "2010-01"])    
+    out <-  prop.table(counts, 2)[2, ]
+    if (length(out) == 1) # Dealing with scalars losing names
+        names(out) <- colnames(counts)
     class(out) <- c("Churn", class(out))
     dat <- data[data$churn,, drop = FALSE]
-    id <- idByPeriod(dat, time = "to.renewal.period")    
-    attr(out, "detail") <- sapply(id, paste, collapse = ",")
+#    id <- idByPeriod(dat, time = "to.renewal.period")    
+    detail <- idByPeriod(dat, time = "to.renewal.period")#sapply(id, paste, collapse = ",")
+    out <- addAttributesAndClass(out, "Churn", by, detail)
     attr(out, "volume") <- volume
-    attr(out, "by") <- by
     out
 }
 
@@ -78,8 +80,8 @@ plot.Churn <- function(x, ...)
 churnCountsByTime <- function(data, volume)
 {
 #    data <- data[data$observation.within.period == 1,]
-#    z = sort(data$id[data$to.renewal.period == 2010])
-#    print(as.matrix(z))
+    # z = sort(unique(data$id[data$to.renewal.period == "2010-01"]))
+    # print(as.matrix(z))
     counts <- if (volume) Table(value ~ churn + to.renewal.period, data = data, FUN = sum)
     else Table(id ~ churn + to.renewal.period, data = data, FUN = function(x) length(unique(x)))
     if (nrow(counts) == 1)
@@ -89,6 +91,6 @@ churnCountsByTime <- function(data, volume)
         else
             rbind(counts, "TRUE" = 0)
     }
-    counts    
+    counts
 }
 

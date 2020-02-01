@@ -24,7 +24,6 @@
 Retention <- function(data, by, ...)
 {
     final.period <- Period(attr(data, "end"), by = by)
-    #subscription.length <- 
     data <- removeIncompleteSubscriptions(data)
     data.id <- data[data$observation == 1, ]
     #data.id$final.end <- as_date(data.id$subscriber.to)
@@ -64,8 +63,6 @@ Retention <- function(data, by, ...)
         for (c in cohort:n.periods) # Looping through periods in cohort
         {
             period <- periods[c]
-            if (start.period == "2016-10" & period == "2017-10")
-                period = period
             
             base <- starters & data$to.renewal.period == period
             revenue <- data$value[base]
@@ -79,10 +76,14 @@ Retention <- function(data, by, ...)
             if (n.subscribers > 0)
             {
                 n.churned <- length(unique(ids[churn]))
+                # if (period == "2010-01")
+                # {
+                #         z = sort(unique(ids))
+                #         print(as.matrix(z))
+                #     
+                # }
                 # if (period == 2010)#& cohort == n.periods - 1)
                 # {
-                #     z = sort(unique(ids))
-                #     print(as.matrix(z))
                 #     #     #stop(data$id[base])
                 #     #     
                 # }

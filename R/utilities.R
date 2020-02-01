@@ -17,6 +17,22 @@ FillInMatrix <- function(x, row.names, col.names, value = 0)
     new.x
 }
 
+#' \code{FillInDateRowsInMatrix}
+#'
+#' @description Fills in missing date rows in a matrix.
+#' @param x The matrix.
+#' @param by The aggregation of the dates (e.g., "month", "year")
+#' @param value The value to fill in for cells that are not in the origial matrix.
+#' @export
+
+#' @importFrom flipTime AsDate Period CompleteListPeriodNames
+FillInDateRowsInMatrix <- function(x, by, value = 0)
+{
+    dt <- CompleteListPeriodNames(rownames(x), by)
+    FillInMatrix(x, dt, colnames(x))
+}
+
+
 #' \code{FillInVector}
 #'
 #' @description Fills in missing rows and/or columns in a matrix.
@@ -33,6 +49,21 @@ FillInVector <- function(x, element.names, value = 0)
     new.x
 }
 
+
+#' \code{FillInDateVector}
+#'
+#' @description Fills in missing date rows in a matrix.
+#' @param x The vector
+#' @param by The aggregation of the dates (e.g., "month", "year")
+#' @param value The value to fill in for cells that are not in the origial matrix.
+#' @export
+
+#' @importFrom flipTime AsDate Period
+FillInDateVector <- function(x, by, value = 0)
+{
+    dt <- CompleteListPeriodNames(names(x), by)
+    FillInVector(x, dt)
+}
 
 #' \code{Triangle}
 #'
