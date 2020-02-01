@@ -4,7 +4,7 @@
 \alias{InitialChurn}
 \title{\code{InitialChurn}}
 \usage{
-InitialChurn(data, remove.last = TRUE, volume = FALSE)
+InitialChurn(data, remove.last = TRUE, volume = FALSE, by, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
@@ -12,6 +12,10 @@ InitialChurn(data, remove.last = TRUE, volume = FALSE)
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 
 \item{volume}{Weights the results by volume. Does nothing in this case.}
+
+\item{by}{The time unit to plot. E.g., "month".}
+
+\item{...}{Other arguments.}
 }
 \value{
 A \code{\link{matrix}}

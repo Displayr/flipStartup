@@ -2,6 +2,8 @@
 #'
 #' @description Computes retention, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
+#' @param by The time unit to plot. E.g., "month".
+#' @param ... Other arguments.
 #' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 #' is asumed to have been retained during the period where the account was suspended. Where
 #' a subscriber for some reason had a subscription length that was different to the specified.
@@ -19,24 +21,29 @@
 #' @importFrom flipTime AsDate CompleteListPeriodNames Period Periods
 #' @importFrom lubridate as_date
 #' @export
-Retention <- function(data)
+Retention <- function(data, by, ...)
 {
-    subscription.length <- attr(data, "subscription.length")
+    final.period <- Period(attr(data, "end"), by = by)
+    #subscription.length <- 
     data <- removeIncompleteSubscriptions(data)
     data.id <- data[data$observation == 1, ]
-    data.id$final.end <- as_date(data.id$subscriber.to)
-    last.period <- as_date(max(AsDate(data.id$subscriber.from.period,
-                                      on.parse.failure = "silent")))
-    data.id$final.end[data.id$final.end > last.period] <- last.period
-    data.id$final.end <- Period(data.id$final.end, subscription.length)
-    max.from <- max(AsDate(data$from.period, on.parse.failure = "silent"))
-    final.period <- Period(max.from + Periods(1, subscription.length), by = subscription.length)
-    period.names <- unique(c(unique(data$from.period), final.period))
-    periods <- CompleteListPeriodNames(period.names, subscription.length)
+    #data.id$final.end <- as_date(data.id$subscriber.to)
+    #last.period <- as_date(max(AsDate(data.id$subscriber.from.period,
+    #                                  on.parse.failure = "silent")))
+    #data.id$final.end[data.id$final.end > last.period] <- last.period
+    data.id$final.end <- Period(data.id$final.end, by)
+    data$from.renewal.period <- Period(data$from.renewal, by)
+    data$to.renewal.period <- Period(data$to.renewal, by)
+    data$subscriber.from.period <- Period(data$subscriber.from, by)
+    
+    #max.from <- max(AsDate(data$from.renewal.period, on.parse.failure = "silent"))
+#    final.period <- Period(max.from + Periods(1, by), by = by)
+    period.names <- unique(c(unique(data$from.renewal.period), final.period))
+    periods <- CompleteListPeriodNames(period.names, by)
     n.periods <- length(periods)
     retention.rate.volume <-
         matrix(NA, n.periods, n.periods, dimnames = list(subscriber.from.period = periods, period = periods))
-    names(dimnames(retention.rate.volume)) <- c("Commenced", subscription.length)
+    names(dimnames(retention.rate.volume)) <- c("Commenced", by)
     n.subscriptions <- n.retained <- retention.rate <- retention.rate.volume
     total <- 0
     total.lost <- 0
@@ -48,7 +55,8 @@ Retention <- function(data)
                          ID = "",
                          stringsAsFactors = FALSE)
         # Computing the volumetric retention rate
-    # Should replace with xtab calls (e.g., xtabs(~subscriber.from.period + to.renewal.period, data = rdd, observation.within.period == 1)
+    # Should replace with better formulas, such as: Table(id~subscriber.from.period + to.renewal.period, data = data, FUN = function(x) length(unique(x)))
+    
     for (cohort in 1:(n.periods - 1)) # Looping through cohorts
     {
         start.period <- periods[cohort]
@@ -56,6 +64,9 @@ Retention <- function(data)
         for (c in cohort:n.periods) # Looping through periods in cohort
         {
             period <- periods[c]
+            if (start.period == "2016-10" & period == "2017-10")
+                period = period
+            
             base <- starters & data$to.renewal.period == period
             revenue <- data$value[base]
             churn <- data$churn[base]

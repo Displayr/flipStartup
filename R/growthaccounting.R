@@ -8,6 +8,7 @@
 #' @param tol The tolerance used in calculations of differences. This defaults to 1 (e.g., $1).
 #' Values or differences less than this amount are treated as being equivalent. E.g., if revenue for
 #' an entity this period is less than \code{tol} higher than in the previous period, it is treated as being constant.
+#' @param ...  Other arguments; not typically required.
 #' @details Small differences in the percentages shown here versus those computed by other means may occur, due
 #' to: (1) how churn is defined (e.g., the point at time when a customer churns, vs, takes a hieateous); (2) the precision
 #' used to determine whether a subscriber is considered to have contracted/expanded or not.
@@ -16,11 +17,11 @@
 #' @importFrom flipTime AsDate
 #' @importFrom methods is
 #' @export
-GrowthAccounting <- function(data, volume = FALSE, remove.last = TRUE, tol = 1)
+GrowthAccounting <- function(data, volume = FALSE, remove.last = TRUE, tol = 1, ...)
 {
     if (volume)
         stop("'volume' not currently supported")
-    period.date <- AsDate(data$from.period, on.parse.failure = "silent")
+    period.date <- AsDate(data$from.revenue.period, on.parse.failure = "silent")
     if (remove.last)
         data <- removeLast(data)
     id <- data$id
@@ -70,7 +71,7 @@ GrowthAccounting <- function(data, volume = FALSE, remove.last = TRUE, tol = 1)
     results}
 
 #' @export
-print. <- function(x, ...)
+print.GrowthAccounting <- function(x, ...)
 {
     cat('Growth Accounting calculations\n\n')
     cat(paste0('\nNumber of entities: ', x$n.id, '\n'))

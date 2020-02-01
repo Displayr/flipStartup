@@ -4,7 +4,7 @@
 \alias{ChurnByCohort}
 \title{\code{ChurnByCohort}}
 \usage{
-ChurnByCohort(data, remove.last = FALSE, volume = FALSE)
+ChurnByCohort(data, remove.last = FALSE, volume = FALSE, by, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
@@ -12,6 +12,10 @@ ChurnByCohort(data, remove.last = FALSE, volume = FALSE)
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 
 \item{volume}{Weights the results by volume. Does nothing in this case.}
+
+\item{by}{The time unit to plot. E.g., "month".}
+
+\item{...}{Other arguments.}
 }
 \value{
 A \code{\link{matrix}}

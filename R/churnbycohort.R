@@ -4,11 +4,13 @@
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param remove.last Remove the final period (as usually is incomplete).
 #' @param volume Weights the results by volume. Does nothing in this case.
+#' @param by The time unit to plot. E.g., "month".
+#' @param ... Other arguments.
 #' @return A \code{\link{matrix}} 
 #' @export
-ChurnByCohort <- function(data, remove.last = FALSE, volume = FALSE)
+ChurnByCohort <- function(data, remove.last = FALSE, volume = FALSE, by, ...)
 {
-    retention <- Retention(data)
+    retention <- Retention(data, by)
     x <- 1 - retention[[ if (volume) "retention.rate.volume" else "retention.rate"]]
     if (remove.last)
         x <- x[-nrow(x), -ncol(x)]
@@ -22,11 +24,7 @@ ChurnByCohort <- function(data, remove.last = FALSE, volume = FALSE)
 #' @export
 print.ChurnByCohort <- function(x, ...)
 {
-    attr(x, "subscription.length") <- NULL
-    attr(x, "n.subscriptions") <- NULL
-    attr(x, "detail") <- NULL
-    class(x) <- class(x)[-1]
-    print(x)
+    printWithoutAttributes(x)
 }
 
 

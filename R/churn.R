@@ -3,6 +3,7 @@
 #' @description Computes retention, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param volume Weights the results by volume.
+#' @param by The time unit to plot. E.g., "month".
 #' @param error.if.no.data If TRUE and the data contains no valid cases, an error is thrown.
 #' @details Where subscribers suspends their purchasing for a period, 
 #' but purchases again later, the subscriber
@@ -11,9 +12,8 @@
 #' @return A named vector showing churn.
 #' @importFrom flipTime AsDate
 #' @export
-Churn <- function(data, volume = FALSE, error.if.no.data = FALSE)
+Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE)
 {
-    by <- attr(data, "subscription.length")
     to.period <- AsDate(data$to.period, on.parse.failure = "silent")
     data <- removeIncompleteSubscriptions(data)
     if (nrow(data) == 0)
@@ -30,9 +30,34 @@ Churn <- function(data, volume = FALSE, error.if.no.data = FALSE)
     id <- idByPeriod(dat, time = "to.renewal.period")    
     attr(out, "detail") <- sapply(id, paste, collapse = ",")
     attr(out, "volume") <- volume
-    attr(out, "subscription.length") <- by
+    attr(out, "by") <- by
     out
 }
+
+#' \code{CustomerChurn}
+#' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
+#' @param ... Other parameters
+#' @return A named vector showing churn.
+#' @importFrom flipTime AsDate
+#' @export
+CustomerChurn <- function(data, by = "quarter", ...)
+{
+    Churn(data, volume = FALSE, by = by, error.if.no.data = FALSE)
+}
+
+
+
+#' \code{RecurringRevenueChurn}
+#' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
+#' @param ... Other parameters
+#' @return A named vector showing churn.
+#' @importFrom flipTime AsDate
+#' @export
+RecurringRevenueChurn <- function(data, by = "quarter", ...)
+{
+    Churn(data, volume = TRUE, by = by, error.if.no.data = FALSE)
+}
+
 
 #' @export
 print.Churn <- function(x, ...)
@@ -47,7 +72,7 @@ print.Churn <- function(x, ...)
 plot.Churn <- function(x, ...)
 {
     y.title <- if (attr(x, "volume")) "Churn rate ($)" else "Churn rate (customers)"
-    columnChart(x, y.title = y.title, y.tick.format = "%")
+    columnChart(x, y.title = y.title, y.tick.format = "%", ...)
 }
 
 churnCountsByTime <- function(data, volume)

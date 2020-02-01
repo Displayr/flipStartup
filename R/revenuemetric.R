@@ -1,4 +1,4 @@
-#' \code{StartupMetric}
+#' \code{RevenueMetric}
 #'
 #' @description Creates a small multiple plot by sub-groups
 #' @inherit RevenueData
@@ -8,7 +8,7 @@
 #' @importFrom plotly add_annotations subplot
 #' @return A plotly plot#?
 #' @export
-StartupMetric <- function(FUN = "Acquisition",
+RevenueMetric <- function(FUN = "Acquisition",
                           output = c("Plot", "Table", "List")[1],
                           # parameters from RevenueData
                           value, from, to, start = min(from), end = max(from), id,
@@ -23,13 +23,16 @@ StartupMetric <- function(FUN = "Acquisition",
     for (i in 1:n.filters)
     {
         capture.output(rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id))
-        metric <- do.call(FUN, list(rd, ...))
-        if (!is.null(metric))
+        if (!is.null(rd))
         {
-            out[[i]] <- metric
-            r <- YLim(metric)
-            y.min <- min(y.min, r[1])
-            y.max <- max(y.max, r[2])
+            metric <- do.call(FUN, list(rd, ...))
+            if (!is.null(metric))
+            {
+                out[[i]] <- metric
+                r <- YLim(metric)
+                y.min <- min(y.min, r[1])
+                y.max <- max(y.max, r[2])
+            }
         }
     }
     names(out) <- names(filters)
@@ -45,7 +48,7 @@ asMatrix <- function(x)
 {
     if (length(x) == 1)
         return(as.matrix(x[[1]]))
-    by <- attr(x[[1]], "subscription.length")
+    by <- attr(x[[1]], "by")
     rng <- sapply(x, function(x) names(x)[c(1, length(x))])
     mn <- min(AsDate(rng[1,]))
     mx <- max(AsDate(rng[2,]))
@@ -165,10 +168,12 @@ columnChart <- function(x,  ...)
     smooth <- if (length(x) < 4) "None" else "Friedman's super smoother"
     Column(x,  x.tick.angle = 0,
                 fit.type = smooth,
+           colors = "#3e7dcc",
            fit.ignore.last = TRUE,
-                fit.line.type = "solid", 
-           fit.line.width = 2, 
-                fit.line.colors = "#ED7D31",
+#                fit.line.type = "solid", 
+           fit.line.width = 4, 
+           fit.line.type = "dot",
+                fit.line.colors = "#f5c524",
            ...)$htmlwidget
 }
 
@@ -176,9 +181,10 @@ columnChart <- function(x,  ...)
 areaChart <- function(x,  ...)
 {
     Area(x,  x.tick.angle = 0,
+         colors = "#3e7dcc",
          fit.ignore.last = TRUE,
          fit.line.type = "solid", fit.line.width = 2, 
-         fit.line.colors = "#ED7D31", ...)$htmlwidget
+         fit.line.colors = "#f5c524", ...)$htmlwidget
 }
 
 
@@ -231,4 +237,12 @@ colorRamp <- function(local.y.max, global.y.max){
     if (is.null(global.y.max))
         return(global.color.ramp)
     colour_ramp(c("white", global.color.ramp(local.y.max / global.y.max)))
+}
+
+printWithoutAttributes <- function(x)
+{
+    for (a in c("detail", "volume", "by", "subscription.length", "n.subscriptions"))
+        attr(x, a) <- NULL
+    class(x) <- class(x)[-1]
+    print(x)
 }

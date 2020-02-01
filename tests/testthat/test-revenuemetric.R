@@ -42,33 +42,37 @@ test_that("Create subsets",
               expect_equal(names(s)[1], "Australia + MISSING DATA\nn: 191")
           })
 
+set.seed(1223)
+d <- d[sample(1:nrow(d), 100), ]
+
 # This is just checking for errors. Blog projects will be used for checking outputs.
-for (fun in c("Acquisition", "Churn", "RecurringRevenue"))
+fun = "NewCustomers"
+out = "Table"
+p.country <- d[, "country", drop = FALSE]
+p.country.salesman <- d[, c("country", "salesman")]
+for (fun in c("NewCustomers", "CustomerChurn", "RevenueChurn", "RecurringRevenue"))
     for (out in c("Table", "Plot", "Detail"))
-        for (vol in c(TRUE, FALSE))
-        test_that(paste("metrics", fun, out, vol), 
-          {
-              capture.output({
-                  # Aggregate 
-                  s = StartupMetric(FUN = fun, output = out, volume = vol, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", subset = d$validInvoice == 1)
-                  expect_error(print(s), NA)
-                  # one profiling
-                  p <- d[, "country", drop = FALSE]
-                  s = StartupMetric(FUN = fun, output = out, volume = vol, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
-                  expect_error(print(s), NA)
-                  
-                  # two profiling
-                  p <- d[, c("country", "salesman")]
-                  s = StartupMetric(fun, output = out, d$AUD, volume = vol, d$ValidFrom,d$ValidTo, id = d$name, subscription.length = "quarter", profiling = p, subset = d$validInvoice == 1)
-                  expect_error(print(s), NA)
-              })
+        test_that(paste("metrics", fun, out), 
+      {
+          capture.output({
+              # Aggregate 
+              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = "quarter", subset = d$validInvoice == 1)
+              expect_error(print(s), NA)
+              # one profiling
+              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = "quarter", profiling = p.country, subset = d$validInvoice == 1)
+              expect_error(print(s), NA)
+              
+              # two profiling
+              s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = "quarter", profiling = p.country.salesman, subset = d$validInvoice == 1)
+              expect_error(print(s), NA)
           })
+      })
 
 
 test_that("Churn consistency", {
     
     by = "year"
-    z1 = StartupMetric("Churn", output = "Table", volume = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
+    z1 = RevenueMetric("Churn", output = "Table", volume = FALSE, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
     rdd <- RevenueData(d$AUD,d$ValidFrom,d$ValidTo, id = d$name, subscription.length = by)
     r <- Retention(rdd)
     z2 = 1 - r$retention.rate.by.period

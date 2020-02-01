@@ -4,7 +4,7 @@
 \alias{GrowthAccounting}
 \title{\code{GrowthAccounting}}
 \usage{
-GrowthAccounting(data, volume = FALSE, remove.last = TRUE, tol = 1)
+GrowthAccounting(data, volume = FALSE, remove.last = TRUE, tol = 1, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has variables: \code{id}, \code{period},
@@ -17,6 +17,8 @@ and \code{value} (e.g., a \code{RevenueData} object).}
 \item{tol}{The tolerance used in calculations of differences. This defaults to 1 (e.g., $1).
 Values or differences less than this amount are treated as being equivalent. E.g., if revenue for
 an entity this period is less than \code{tol} higher than in the previous period, it is treated as being constant.}
+
+\item{...}{Other arguments; not typically required.}
 }
 \description{
 Computes statistics for use in growth accounting of a startup.

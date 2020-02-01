@@ -4,12 +4,14 @@
 \alias{Churn}
 \title{\code{Churn}}
 \usage{
-Churn(data, volume = FALSE, error.if.no.data = FALSE)
+Churn(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
 \item{volume}{Weights the results by volume.}
+
+\item{by}{The time unit to plot. E.g., "month".}
 
 \item{error.if.no.data}{If TRUE and the data contains no valid cases, an error is thrown.}
 }

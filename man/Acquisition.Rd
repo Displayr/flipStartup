@@ -4,18 +4,10 @@
 \alias{Acquisition}
 \title{\code{Acquisition}}
 \usage{
-Acquisition(
-  data,
-  subset,
-  remove.last = FALSE,
-  volume = FALSE,
-  number.periods = 0
-)
+Acquisition(data, remove.last = TRUE, volume = FALSE, number.periods = 1)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
-
-\item{subset}{An optional vector specifying a subset of observations to be used in the fitting process.#' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber}
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 
@@ -23,8 +15,7 @@ Acquisition(
 
 \item{number.periods}{The number of periods of data that are treated as being 'acquisitions'. By default, this is 1, 
 which means that only sales in the initial period are counted as acquisitions. If set to 12, for example, it would
-means that the first 12 periods are treated as acquisitions (e.g., the first year, if the data has been setup as monthly).
-is assumed to have been retained during the period where the account was suspended.}
+means that the first 12 periods are treated as acquisitions (e.g., the first year, if the data has been setup as monthly).}
 }
 \value{
 A \code{\link{list}} containing the following elements:
@@ -35,4 +26,8 @@ A \code{\link{list}} containing the following elements:
 }
 \description{
 Computes acquisition, by cohort.
+}
+\details{
+Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
+is asusmed to have been retained during the period where the account was suspended.
 }
