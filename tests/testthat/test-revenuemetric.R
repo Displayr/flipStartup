@@ -15,7 +15,7 @@ d$salesman <- as.character(d$salesman)
 t <- table(d$salesman)
 d$salesman[d$salesman %in% names(t[t < 100])] <- "Other"
 
-            
+
 test_that("Create subsets",
           {
               # Country
@@ -23,19 +23,19 @@ test_that("Create subsets",
               expect_equal(length(names(s)), 5)
               expect_equal(names(s)[1], "Australia\nn: 385")
               expect_equal(sum(s[[1]]), 2390) # Observations, companies can have multiple observations
-              
+
               # Country - with a filter
               f <- d$salesman == "4"
               s <- flipStartup:::createFilters(d[, "country", drop = FALSE], subset = f, id = d$name)
               expect_equal(length(names(s)), 5)
               expect_equal(names(s)[1], "Australia\nn: 49")
-              expect_equal(sum(s[[1]]), 504) 
+              expect_equal(sum(s[[1]]), 504)
 
               # Saleman
               s <- flipStartup:::createFilters(d[, "salesman", drop = FALSE], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 4)
               expect_equal(names(s)[1], "MISSING DATA\nn: 486")
-              
+
               # Country and salesman
               s <- flipStartup:::createFilters(d[, c("country", "salesman")], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 20)
@@ -63,19 +63,24 @@ out = "Table"
 by = "month"
 p.country <- d[, "country", drop = FALSE]
 p.country.salesman <- d[, c("country", "salesman")]
-for (fun in c("NewCustomers", "CustomerChurn", "RecurringRevenueChurn", "RecurringRevenue"))
+for (fun in c("RecurringRevenueChurnByCohort", "CustomerChurnByCohort"))
+#MeanRecurringRevenue365Days","MeanRecurringRevenue2Years"))#,
+# "MeanRecurringRevenueInitial", "MeanRecurringRevenue30Days", "MeanRecurringRevenue90Days",
+#               "MeanRecurringRevenue180Days", "MeanRecurringRevenue180Days", "MeanRecurringRevenue365Days",
+#               "MeanRecurringRevenue2Years"))
+#              "NewCustomers", "CustomerChurn", "RecurringRevenueChurn", "RecurringRevenue"))
     for (out in c("Table", "Plot", "Detail"))
         for (by in c("month", "quarter", "year"))
-            test_that(paste("metrics", fun, out, by), 
+            test_that(paste("metrics", fun, out, by),
                       {
                           capture.output({
-              # Aggregate 
+              # Aggregate
               s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
               expect_error(print(s), NA)
               # one profiling
               s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country)
               expect_error(print(s), NA)
-              
+
               # two profiling
               s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country.salesman, )
               expect_error(print(s), NA)

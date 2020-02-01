@@ -36,7 +36,7 @@ RevenueMetric <- function(FUN = "Acquisition",
         }
     }
     names(out) <- names(filters)
-    out <- out[!sapply(out, is.null)] # Removing any empty strings
+    out <- out[sapply(out, function(x) NROW(x) > 0 )] # Removing any empty strings
     switch(output,
            Plot = createPlots(out, start, end, y.min, y.max),
            Table = asMatrix(out),
@@ -49,17 +49,39 @@ asMatrix <- function(x)
     if (length(x) == 1)
         return(as.matrix(x[[1]]))
     by <- attr(x[[1]], "by")
-    rng <- sapply(x, function(x) names(x)[c(1, length(x))])
+    is.m <- is.matrix(x[[1]])
+    rng <- if (is.m) sapply(x, function(x) colnames(x)[c(1, ncol(x))])
+         else sapply(x, function(x) names(x)[c(1, length(x))])
     mn <- min(AsDate(rng[1,]))
     mx <- max(AsDate(rng[2,]))
     dates <- Period(seq.Date(mn, mx, by = by), by)
+    if (is.m) stackMatrices(x, dates) else spliceVectors(x, dates)
+}
+
+spliceVectors <- function(x, dates)
+{
     k <- length(x)
     m <- matrix(0, length(dates), k, dimnames = list(dates, names(x)))
     for (i in 1:k)
         m[names(x[[i]]), i] <- x[[i]]
     m
 }
-    
+
+stackMatrices <- function(x, dates)
+{
+    nr <- sum(sapply(x, nrow))
+    m <- matrix(NA, nr, length(dates), dimnames = list(1:nr, dates))
+    counter <- 0
+    for (i in 1:length(x))
+    {
+        t <- x[[i]]
+        rows <- counter + 1:nrow(t)
+        m[rows, colnames(t)] <- t
+        nm <- strsplit(names(x)[i], split = "\n", fixed = TRUE)[[1]][1]
+        rownames(m)[rows] <- paste(nm,rownames(t))
+    }
+    m    
+}
 
 createPlots <- function(x, start, end, y.min, y.max)
 {
@@ -239,10 +261,23 @@ colorRamp <- function(local.y.max, global.y.max){
     colour_ramp(c("white", global.color.ramp(local.y.max / global.y.max)))
 }
 
+print.RevenueMetric <- function(x, ...)
+{
+    printWithoutAttributes(x)
+}    
+
 printWithoutAttributes <- function(x)
 {
     for (a in c("detail", "volume", "by", "subscription.length", "n.subscriptions"))
         attr(x, a) <- NULL
-    class(x) <- class(x)[-1]
+    class(x) <- class(x)[-1:-2]
     print(x)
 }
+
+addAttributesAndClass <- function(x, class.name, by, detail)
+{
+    attr(x, "by") <- by
+    attr(x, "detail") <- detail
+    class(x) <- c(class.name, "RevenueMetric", class(x))
+    x    
+}    

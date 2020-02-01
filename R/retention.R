@@ -25,6 +25,8 @@ Retention <- function(data, by, ...)
 {
     final.period <- Period(attr(data, "end"), by = by)
     data <- removeIncompleteSubscriptions(data)
+    if (nrow(data) == 0)
+        return(NULL)
     data.id <- data[data$observation == 1, ]
     #data.id$final.end <- as_date(data.id$subscriber.to)
     #last.period <- as_date(max(AsDate(data.id$subscriber.from.period,

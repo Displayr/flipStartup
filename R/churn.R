@@ -61,19 +61,16 @@ RecurringRevenueChurn <- function(data, by = "quarter", ...)
 }
 
 
-#' @export
-print.Churn <- function(x, ...)
-{
-    attr(x, "detail") <- NULL
-    attr(x, "volume") <- NULL
-    class(x) <- class(x)[-1]
-    print(x)
-}
+#' #' @export
+#' print.Churn <- function(x, ...)
+#' {
+#'     printWithoutAttributes(x)
+#' }
 
 #' @export
 plot.Churn <- function(x, ...)
 {
-    y.title <- if (attr(x, "volume")) "Churn rate ($)" else "Churn rate (customers)"
+    y.title <- if (attr(x, "volume")) "Recurring Revenue Churn Rate" else "Customer Churn Rate"
     columnChart(x, y.title = y.title, y.tick.format = "%", ...)
 }
 

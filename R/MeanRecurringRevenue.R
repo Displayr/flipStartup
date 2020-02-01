@@ -20,9 +20,9 @@ MeanRecurringRevenue <- function(data, days.to.count, by, ...)
     out <- value / counts
     dates <- AsDate(names(out))
     out <- out[dates >= start & dates <= end]
+    detail <- data[, c("subscriber.from", "from", "id", "recurring.value")]
+    out <- addAttributesAndClass(out, "MeanRecurringRevenue", by, detail)
     attr(out, "days.to.count") <- days.to.count
-    attr(out, "detail") <- data[, c("subscriber.from", "from", "id", "recurring.value")]
-    class(out) <- c("MeanRecurringRevenue", class(out))
     out
 }
 
@@ -88,7 +88,7 @@ MeanRecurringRevenue180Days <- function(data, by,  ...)
 #' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
 #' @return A matrix
 #' @export
-MeanRecurringRevenue180Days <- function(data, by,  ...)
+MeanRecurringRevenue365Days <- function(data, by,  ...)
 {
     MeanRecurringRevenue(data, by,  days.to.count = 365, ...)
 }        
@@ -106,15 +106,15 @@ MeanRecurringRevenue2Years <- function(data, by,  ...)
     MeanRecurringRevenue(data, by,  days.to.count = 730, ...)
 }        
 
-#' @export
-print.MeanRecurringRevenue <- function(x, ...)
-{
-    attr(x, "detail") <- NULL
-    attr(x, "volume") <- NULL
-    attr(out, "days.to.count") <- NULL
-    class(x) <- class(x)[-1]
-    print(x)
-}
+#' #' @export
+#' print.MeanRecurringRevenue <- function(x, ...)
+#' {
+#'     attr(x, "detail") <- NULL
+#'     attr(x, "volume") <- NULL
+#'     attr(out, "days.to.count") <- NULL
+#'     class(x) <- class(x)[-1]
+#'     print(x)
+#' }
 
 #' @export
 plot.MeanRecurringRevenue <- function(x, ...)
