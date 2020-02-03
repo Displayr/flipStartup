@@ -140,5 +140,6 @@ plot.MeanRecurringRevenue <- function(x, ...)
         time <- if (days <= 360) paste(days, "days") else  paste(round(days/365.25), "years")
         y.title <- paste0("Recurring revenue per new customer (first", time, ")")
     }
-    columnChart(x, y.title = y.title, y.tick.format = "$")
+    smooth <- if (length(x) < 4) "None" else "Friedman's super smoother"
+    columnChart(x, y.title = y.title, fit.type = smooth, y.tick.format = "$")
 }

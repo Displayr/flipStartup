@@ -44,8 +44,8 @@ idByPeriod <- function(data, time)
 quantityByTime <- function(data, volume, time, by)
 {
     form <- if (volume) paste0("value ~ ", time) else paste0("id ~ ", time)
-    func <- if (volume) sum else unique
-    t <- Table(as.formula(formula), data = data, FUN = func) 
+    func <- if (volume) sum else nUnique
+    t <- Table(as.formula(form), data = as.data.frame(data), FUN = func) 
     FillInDateVector(t, by)
 }
 
@@ -53,5 +53,6 @@ quantityByTime <- function(data, volume, time, by)
 #' @export
 plot.NewCustomers <- function(x, ...)
 {
-    columnChart(x, y.title = "New customers", ...)
+    smooth <- if (length(x) < 4) "None" else "Friedman's super smoother"
+    columnChart(x, fit.type = smooth, y.title = "New customers", ...)
 }
