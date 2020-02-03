@@ -4,12 +4,18 @@
 \alias{Growth}
 \title{Growth}
 \usage{
-Growth(data, volume = FALSE, remove.last = TRUE)
+Growth(x, start, end, by, remove.last = TRUE)
 }
 \arguments{
-\item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+\item{x}{A vector showing some metric with scale properties}
 
-\item{volume}{Weights the results by volume.}
+\item{start}{The data at which the analysis should start.}
+
+\item{end}{The data at which the analysis should end.}
+
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 }

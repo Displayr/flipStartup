@@ -7,13 +7,17 @@
 #' @param col.names The required colum names, which includes the current column names
 #' as a subset.
 #' @param value The value to fill in for cells that are not in the origial matrix.
+#' @details No warning is provided if x contains row or column names not in row.names
+#' and col.names; they are automaticaly removed.
 #' @export
 FillInMatrix <- function(x, row.names, col.names, value = 0)
 {
     new.dimnames <- list(row.names, col.names)
     names(new.dimnames) <- names(dimnames(x))
     new.x <- matrix(value, length(row.names), length(col.names), dimnames = new.dimnames)
-    new.x[rownames(x), colnames(x)] <- x
+    rn <- rownames(x)[rownames(x) %in% row.names]
+    cn <- colnames(x)[colnames(x) %in% col.names]
+    new.x[rn, cn] <- x[rn, cn]
     new.x
 }
 
@@ -58,7 +62,9 @@ FillInVector <- function(x, element.names, value = 0)
 #'
 #' @description Fills in missing date rows in a matrix.
 #' @param x The vector
-#' @param by The aggregation of the dates (e.g., "month", "year")
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param value The value to fill in for cells that are not in the origial matrix.
 #' @export
 
@@ -156,3 +162,41 @@ properCase <- function(x)
     paste0(toupper(substr(x, 1, 1)), tolower(substring(x, 2)))
 }
 
+#' @importFrom flipTime AsDate
+removeStartEndLastVector <- function(x, start, end, remove.last)
+{
+    x[periodsToKeep(names(x), start, end, remove.last)]
+}
+
+periodsToKeep <- function(nms, start, end, remove.last)
+{
+    dts <- AsDate(nms)
+    keep <- rep(TRUE, length(dts))
+    names(dts) <- nms
+    keep[dts < start] <- FALSE
+    if (missing(end))
+        keep[dts > end] <- FALSE
+    if (remove.last)
+    {
+        last <- nms[keep][sum(keep)]
+        keep[nms == last] <- FALSE
+    }
+    nms[keep]
+}
+
+removeStartEndLastSymmetricMatrix <- function(x, start, end, remove.last)
+{
+    keep <- periodsToKeep(names(x), start, end, remove.last)
+    x[keep, keep]
+}
+maxDate <- function(x)
+{
+    x <- x[!is.na(x)]
+    max(AsDate(x, on.parse.failure = "ignore"), na.rm = TRUE)
+}
+
+minDate <- function(x)
+{
+    x <- x[!is.na(x)]
+    min(AsDate(x, on.parse.failure = "ignore"), na.rm = TRUE)
+}

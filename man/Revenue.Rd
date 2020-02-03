@@ -13,7 +13,9 @@ Revenue(data, end = Sys.time(), by)
 Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 can cause unexpected results.}
 
-\item{by}{The time unit for reporting the data. E.g., "month".}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 }
 \value{
 A vector showing the revenue at specific points in time.

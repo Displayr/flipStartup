@@ -13,7 +13,9 @@ RecurringRevenue(data, end = Sys.time(), by = "day", ...)
 Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 can cause unexpected results.}
 
-\item{by}{The time unit to plot. E.g., "month".}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 }
 \value{
 A vector showing the recurring revenue by time points.

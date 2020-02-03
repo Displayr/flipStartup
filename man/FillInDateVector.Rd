@@ -9,7 +9,9 @@ FillInDateVector(x, by, value = 0)
 \arguments{
 \item{x}{The vector}
 
-\item{by}{The aggregation of the dates (e.g., "month", "year")}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 
 \item{value}{The value to fill in for cells that are not in the origial matrix.}
 }

@@ -5,7 +5,9 @@
 #' @param end The date on and after which which revenue is ignored.
 #' Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 #' can cause unexpected results.
-#' @param by The time unit to plot. E.g., "month".
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @details Computed based on being a subscribed on the last second of the time period. 
 #' Partial revenue is multipled out. For exmaple, if with yearly data, if a customer has an annual license for $1,000
 #' from 1 February to 1 February of the next year, and a second license which starts on 1 January of the last year

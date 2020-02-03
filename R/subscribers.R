@@ -5,7 +5,9 @@
 #' @param end The date on and after which which revenue is ignored.
 #' Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 #' can cause unexpected results.
-#' @param by The time unit. E.g., "month".
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param volume The number of subscribers in terms of their value.
 #' @param recurring If TRUE, and \code{volume} is also TRUE, computes the recurring revenue.
 #' @details Computed based on being a subscribed on the last second of the time period.

@@ -6,6 +6,24 @@
 \usage{
 InitialRecurringRevenueChurn(data, by, ...)
 }
+\arguments{
+\item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
+
+\item{...}{Other arguments.}
+}
 \description{
-InitialRecurringRevenueChurn
+Computes the recurrent revenue churn rate for people in their first completed
+renewal period.
+}
+\details{
+For example, if the subscriptions are annual, computes 
+proportion of people in 2012 that churned in 2013. Customers that had
+an incomplete year that falls within a calendar year will be excluded
+from this metric (e.g., a license from 1 January to 1 December 2012  will
+not appear in this calculation, but their renewal year may instead). 
+This calculation is taken from the one-off diagonal of \code{RecurringRevenueChurnByCohort}.
 }

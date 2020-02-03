@@ -2,7 +2,9 @@
 #'
 #' @description Computes retention, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time unit to plot. E.g., "month".
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param ... Other arguments.
 #' @details Where subscribers suspends their purchasing for a period, but purchases again later, the subscriber
 #' is asumed to have been retained during the period where the account was suspended. Where

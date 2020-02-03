@@ -11,8 +11,14 @@
 RevenueMetric <- function(FUN = "Acquisition",
                           output = c("Plot", "Table", "List")[1],
                           # parameters from RevenueData
-                          value, from, to, start = min(from), end = max(from), id,
-                          subscription.length = "year", subset = rep(TRUE, length(id)),
+                          value, 
+                          from, 
+                          to, 
+                          start = min(from),
+                          end = max(from), 
+                          id,
+                          subscription.length = "year", 
+                          subset = rep(TRUE, length(id)),
                           profiling = NULL, trim.id = 50, ...)
 {
     filters <- createFilters(profiling, subset = subset, id)
@@ -22,7 +28,8 @@ RevenueMetric <- function(FUN = "Acquisition",
     y.min <- 0
     for (i in 1:n.filters)
     {
-        capture.output(rd <- RevenueData(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id))
+        # The start parameter is used after 
+        capture.output(rd <- revenueDataForRevenueMetrics(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id))
         if (!is.null(rd))
         {
             metric <- do.call(FUN, list(rd, ...))
@@ -30,8 +37,11 @@ RevenueMetric <- function(FUN = "Acquisition",
             {
                 out[[i]] <- metric
                 r <- YLim(metric)
-                y.min <- min(y.min, r[1])
-                y.max <- max(y.max, r[2])
+                if (!is.na(r[1]))
+                {
+                    y.min <- min(y.min, r[1], na.rm = TRUE)
+                    y.max <- max(y.max, r[2], na.rm = TRUE)
+                }
             }
         }
     }
@@ -39,24 +49,34 @@ RevenueMetric <- function(FUN = "Acquisition",
     out <- out[sapply(out, function(x) NROW(x) > 0 )] # Removing any empty strings
     switch(output,
            Plot = createPlots(out, start, end, y.min, y.max),
-           Table = asMatrix(out),
-           Detail = lapply(out, function(x) attr(x, "detail")))
+           Table = createTable(out),
+           Detail = createDetails(out))
+}
+
+createDetails <- function(x)
+{
+    if (length(x) == 1)
+        return(x[[1]])
+    lapply(x, function(x) attr(x, "detail"))
 }
 
 #' @importFrom flipTime AsDate Period
-asMatrix <- function(x)
+createTable <- function(x)
 {
     if (length(x) == 1)
         return(x[[1]])
     by <- attr(x[[1]], "by")
+    if (sd(sapply(x, NCOL)) > 0) # Inconsistent output sizes
+        return(x)
     is.m <- is.matrix(x[[1]])
     rng <- if (is.m) sapply(x, function(x) colnames(x)[c(1, ncol(x))])
          else sapply(x, function(x) names(x)[c(1, length(x))])
-    mn <- min(AsDate(rng[1,]))
-    mx <- max(AsDate(rng[2,]))
+    mn <- minDate(rng[1,])
+    mx <- maxDate(rng[2,])
     dates <- Period(seq.Date(mn, mx, by = by), by)
     if (is.m) stackMatrices(x, dates) else spliceVectors(x, dates)
 }
+
 
 spliceVectors <- function(x, dates)
 {
@@ -100,28 +120,36 @@ createPlots <- function(x, start, end, y.min, y.max)
                   y.bounds.maximum = y.max,
                   opacity = 1.0)
 }
-
+canPlot <- function(x)
+{
+    if (is.null(x))
+        return(FALSE)
+    if (all(is.na(x)))
+        return(FALSE)
+    TRUE
+}
 
 plotSubGroups <- function(x, ...)
 {
-    n.plots <- length(x)
-    # if (n.plots == 1)
-    #     return(print(plot(x[[1]])))
+    x <- x[sapply(x, canPlot)]
+    if (length(x) == 0)
+        return(NULL)
+    if (length(x) == 1)
+        return(print(plot(x[[1]])))
     plots <- lapply(x, FUN = plot, ...)
-    pp <-     if (length(plots) == 1) plots[[1]] else 
+    n.plots <- length(plots)
+    pp <- if (n.plots == 1) plots[[1]] else 
     {
         nr <- floor(sqrt(n.plots - 1))
         nc <- ceiling(n.plots/nr)
-        
         pp <- subplot(plots, nrows = nr, shareY = nc > 1, shareX = nr > 1)#, shareX = TRUE, )
-    
         # Adding titles
         annotations <- list()
         titles.ypos <- rep((nr:1)/nr, each = nc)[1:n.plots]
         titles.xpos <- rep((1:nc - 0.5)/nc, nr)[1:n.plots]
         for (i in seq_along(plots))
         {
-            annotations[[i]]  <- list(text = names(x)[i],
+            annotations[[i]]  <- list(text = names(plots)[i],
                                          x = titles.xpos[i],
                                          y = titles.ypos[i],
                                          yref = "paper",
@@ -135,7 +163,6 @@ plotSubGroups <- function(x, ...)
     }
     print(pp)
 }
-
 
 #' @export
 Detail <- function(x)
@@ -177,24 +204,21 @@ YLim <- function(x)
 #' @export
 YLim.default <- function(x, ...)
 {
-    range(x)
+    if (all(is.na(x)))
+        return(NA)
+    range(x, na.rm = TRUE)
 }
-
-
 
 #' @importFrom flipStandardCharts Column
 columnChart <- function(x,  ...)
 {
-    smooth <- if (length(x) < 4) "None" else "Friedman's super smoother"
-    Column(x,  x.tick.angle = 0,
-                fit.type = smooth,
+    suppressWarnings(Column(x,  x.tick.angle = 0,
            colors = "#3e7dcc",
-           fit.ignore.last = TRUE,
 #                fit.line.type = "solid", 
            fit.line.width = 4, 
            fit.line.type = "dot",
                 fit.line.colors = "#f5c524",
-           ...)$htmlwidget
+           ...))$htmlwidget
 }
 
 #' @importFrom flipStandardCharts Column
@@ -207,12 +231,12 @@ areaChart <- function(x,  ...)
          fit.line.colors = "#f5c524", ...)$htmlwidget
 }
 
-
-
 createFilters <- function(profiling, subset, id)
 {
     if (is.null(subset))
         subset <- rep(TRUE, length(id))
+    if (sum(subset) == 0)
+        stop("All data has been filtered out.")
     if (is.null(profiling))
         return(list(subset))
     subsets <- list()
@@ -238,7 +262,7 @@ createFilters <- function(profiling, subset, id)
     }
     nms <- apply(combs,1, function(x) paste(as.character(x), collapse = " + "))
     nms <- trimws(nms)
-    nms <- paste0(nms, "\nn: ", sapply(subsets, function(x) length(unique(id[x]))))
+#nms <- paste0(nms, "\nn: ", sapply(subsets, function(x) length(unique(id[x]))))
     names(subsets) <- nms
     # Filtering out empty subsets
     subsets[sapply(subsets, function(x) length(x) > 0)]
@@ -249,7 +273,6 @@ requiresHeatmap <- function(x)
     required.for <- c("ChurnByCohort", "RevenuePerSubscriberByCohortByTime")
     any(required.for %in% class(x[[1]]))
 }
-
 
 #' @importFrom scales colour_ramp
 colorRamp <- function(local.y.max, global.y.max){
@@ -271,7 +294,12 @@ printWithoutAttributes <- function(x)
 
 removeAttributesAndClass <- function(x)
 {
-    for (a in c("detail", "volume", "by", "subscription.length", "n.subscribers"))
+    for (a in c("detail", 
+                "volume",
+                "by",
+                "subscription.length",
+                "n.subscribers",
+                "y.title"))
         attr(x, a) <- NULL
     class(x) <- class(x)[-1:-2]
     x

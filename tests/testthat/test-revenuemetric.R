@@ -76,12 +76,15 @@ d <- d[d$validInvoice == 1, ]
 d <- d[sample(1:nrow(d), 100), ]
 
 # This is just checking for errors. Blog projects will be used for checking outputs.
-fun = "RecurringRevenue"
-out = "Table"
-by = "month"
+fun = "InitialCustomerChurn"
+out = "Table"#"Table"
+by = "year"
 p.country <- d[, "country", drop = FALSE]
 p.country.salesman <- d[, c("country", "salesman")]
-for (fun in c("CustomerChurn", "RecurringRevenueChurn"))
+
+for (fun in c("InitialCustomerChurn"))
+              #"RecurringRevenueGrowth", "CustomerGrowth"))
+              #"CustomerChurn", "RecurringRevenueChurn"))
   #"RecurringRevenueChurnByCohort", "CustomerChurnByCohort"))
 #MeanRecurringRevenue365Days","MeanRecurringRevenue2Years"))#,
 # "MeanRecurringRevenueInitial", "MeanRecurringRevenue30Days", "MeanRecurringRevenue90Days",
@@ -90,20 +93,29 @@ for (fun in c("CustomerChurn", "RecurringRevenueChurn"))
 #             "Customers", "NewCustomers",  "RecurringRevenue"))
     for (out in c("Table", "Plot", "Detail"))
         for (by in c("month", "quarter", "year"))
-            test_that(paste("metrics", fun, out, by),
-                      {
-                          capture.output({
-              # Aggregate
+        {
+          descr <- paste("metrics", fun, out, by)
+            test_that(paste("aggregate ", descr),
+                      {capture.output({
               s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
-              expect_error(print(s), NA)
-              # one profiling
-              s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country)
-              expect_error(print(s), NA)
-
-              # two profiling
-              s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country.salesman, )
-              expect_error(print(s), NA)
-          })
-      })
+              if (is.null(s)) expect_true(TRUE) 
+              else expect_error(print(s), NA)
+                      })})
+            
+            test_that(paste("profiling 1 ", descr),
+                      {capture.output({
+                        s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country)
+                        if (is.null(s)) expect_true(TRUE) 
+                        else expect_error(print(s), NA)
+                      })})
+            
+            test_that(paste("profiling 2 ", descr),
+                      {capture.output({
+                      s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country.salesman, )
+                      if (is.null(s)) expect_true(TRUE) 
+                      else expect_error(print(s), NA)
+                      })})
+                      
+          }
 
 

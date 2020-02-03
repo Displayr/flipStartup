@@ -2,7 +2,9 @@
 #'
 #' @description Computes NewCustomers, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time unit to plot. E.g., "month".
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{id}{The \code{id} values of subscribers to churn.}
 #'   \item{base}{The number of subscribers to renew or churn in the time period.}
@@ -38,20 +40,15 @@ idByPeriod <- function(data, time)
     id
 }   
 
+#' @importFrom flipStatistics Table
 quantityByTime <- function(data, volume, time, by)
 {
-    t <- if (volume)
-        Table(value ~ subscriber.from.period, data = data, FUN = sum)
-    else
-        Table(id ~ subscriber.from.period, data = data, FUN = nUnique)
+    form <- if (volume) paste0("value ~ ", time) else paste0("id ~ ", time)
+    func <- if (volume) sum else unique
+    t <- Table(as.formula(formula), data = data, FUN = func) 
     FillInDateVector(t, by)
 }
 
-#' @export
-YLim.NewCustomers <- function(x, ...)
-{
-    range(x)
-}
 
 #' @export
 plot.NewCustomers <- function(x, ...)

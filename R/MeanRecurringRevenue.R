@@ -4,7 +4,9 @@
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param days.to.count The number of days after the initial commencing to include in the Recurring Revenue
 #' calculation.
-#' @param by The time period to show value by 
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @return A matrix
 #' @importFrom flipTime AsDate Period
 #' @importFrom flipStatistics Table
@@ -32,7 +34,9 @@ MeanRecurringRevenue <- function(data, days.to.count, by, ...)
 #'
 #' @description Computes annual recurring revenue committed on the first day that the licenses start.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time period to show value by 
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
 #' @return A matrix
 #' @export
@@ -45,7 +49,9 @@ MeanRecurringRevenueInitial <- function(data, by,  ...)
 #'
 #' @description Computes annual recurring revenue by day 30  (from the date of the first license start)
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time period to show value by 
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
 #' @return A matrix
 #' @export
@@ -58,7 +64,9 @@ MeanRecurringRevenue30Days <- function(data, by,  ...)
 #'
 #' @description Computes annual recurring revenue by day 90  (from the date of the first license start)
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time period to show value by 
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
 #' @return A matrix
 #' @export
@@ -71,7 +79,11 @@ MeanRecurringRevenue90Days <- function(data, by,  ...)
 #'
 #' @description Computes annual recurring revenue by day 180  (from the date of the first license start)
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time period to show value by 
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
 #' @return A matrix
 #' @export
@@ -84,7 +96,9 @@ MeanRecurringRevenue180Days <- function(data, by,  ...)
 #'
 #' @description Computes annual recurring revenue by day 365 (from the date of the first license start)
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time period to show value by 
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
 #' @return A matrix
 #' @export

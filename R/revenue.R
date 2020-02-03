@@ -5,7 +5,9 @@
 #' @param end The time past which revenue is ignored (where its \code{from} data is greater than this value.
 #' Note that the default value, \code{Sys.time()} may not be in the same time zone as your other data, and this
 #' can cause unexpected results.
-#' @param by The time unit for reporting the data. E.g., "month".
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @details Computed based on being a subscribed on the last second of the time period.
 #' @return A vector showing the revenue at specific points in time.
 #'

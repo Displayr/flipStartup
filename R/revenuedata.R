@@ -72,9 +72,16 @@
 #' @importFrom stats ave
 #' @importFrom plyr mapvalues
 #' @export
-RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
-                        subscription.length = "year", subset = rep(TRUE, length(id)),
-                        profiling = NULL, trim.id = 50) #, tolerance = .01)
+RevenueData <- function(value, 
+                        from, 
+                        to, 
+                        start = min(from),
+                        end = max(from), 
+                        id,
+                        subscription.length = "year",
+                        subset = rep(TRUE, length(id)),
+                        profiling = NULL, 
+                        trim.id = 50) #, tolerance = .01)
 {
   # Checking the input variables.
   n = length(value)
@@ -243,7 +250,35 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
   data
 }
 
-
+#' @inherit RevenueData
+revenueDataForRevenueMetrics <- function(value, 
+                          from, 
+                          to, 
+                          start,
+                          end, 
+                          id,
+                          subscription.length,
+                          subset,
+                          profiling, 
+                          trim.id)
+{
+    data <- RevenueData(value, 
+                                    from, 
+                                    to, 
+                                    start = min(from),
+                                    end, 
+                                    id,
+                                    subscription.length,
+                                    subset,
+                                    profiling,
+                                    trim.id)
+    if (is.null(data))
+        return(data)
+    attr(data, "start") <- start
+    data
+}
+  
+  
 checkVariableForLengthAndMissingData <- function(x, n)
 {
   if (any(is.na(x)))

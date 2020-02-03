@@ -3,7 +3,9 @@
 #' @description Computes retention, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param volume Weights the results by volume.
-#' @param by The time unit to plot. E.g., "month".
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
 #' @param error.if.no.data If TRUE and the data contains no valid cases, an error is thrown.
 #' @details Where subscribers suspends their purchasing for a period, 
 #' but purchases again later, the subscriber
@@ -66,8 +68,13 @@ RecurringRevenueChurn <- function(data, by = "quarter", ...)
 #' @export
 plot.Churn <- function(x, ...)
 {
+    smooth <- if (length(x) < 4) "None" else "Friedman's super smoother"
     y.title <- if (attr(x, "volume")) "Recurring Revenue Churn Rate" else "Customer Churn Rate"
-    columnChart(x, y.title = y.title, y.tick.format = "%", ...)
+    columnChart(x, 
+                fit.type = smooth,
+                fit.ignore.last = TRUE,
+                y.title = y.title, 
+                y.tick.format = "%", ...)
 }
 
 churnCountsByTime <- function(data, volume)

@@ -9,7 +9,9 @@ NewCustomers(data, by = "quarter", ...)
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
-\item{by}{The time unit to plot. E.g., "month".}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 }
 \value{
 A \code{\link{list}} containing the following elements:

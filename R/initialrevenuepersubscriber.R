@@ -6,7 +6,7 @@
 #' @param volume Weights the results by volume. Does nothing in this case.
 #' @return A \code{\link{matrix}} 
 #' @export
-InitialRevenuePerSubscriber <- function(data, remove.last = FALSE, volume = FALSE)
+InitialRevenuePerSubscriber <- function(data, remove.last = FALSE, volume = FALSE, ...)
 {
     x <- RevenuePerSubscriberByCohortByTime(data, remove.last)[, 1]
     class(x) <- c("InitialRevenuePerSubscriber", class(x))

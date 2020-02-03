@@ -20,3 +20,7 @@ as a subset.}
 \description{
 Fills in missing rows and/or columns in a matrix.
 }
+\details{
+No warning is provided if x contains row or column names not in row.names
+and col.names; they are automaticaly removed.
+}

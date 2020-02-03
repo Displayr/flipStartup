@@ -11,7 +11,9 @@ CustomerChurnByCohort(data, remove.last = FALSE, by, ...)
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 
-\item{by}{The time unit to plot. E.g., "month".}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 
 \item{...}{Other arguments.}
 }

@@ -4,16 +4,18 @@
 \alias{InitialChurn}
 \title{\code{InitialChurn}}
 \usage{
-InitialChurn(data, remove.last = TRUE, volume = FALSE, by, ...)
+InitialChurn(churn.cohort, remove.last = TRUE, volume = FALSE, by, ...)
 }
 \arguments{
-\item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
+\item{churn.cohort}{A \code{mattrix} showing churn by cohort.}
 
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 
 \item{volume}{Weights the results by volume. Does nothing in this case.}
 
-\item{by}{The time unit to plot. E.g., "month".}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 
 \item{...}{Other arguments.}
 }
