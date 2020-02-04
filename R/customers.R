@@ -15,9 +15,7 @@ Customers <- function(data, volume = FALSE, by = "quarter", error.if.no.data = F
     dts <- seq.Date(from, end, by = by)
     m <- matrix(dts, nrow(data), length(dts), byrow = TRUE)
     m <- sweep(m, 1, as.numeric(as.Date(data$from)), ">=") & sweep(m, 1, as.numeric(as.Date(data$to)), "<")  
-#    print(sum(m))
     out <- apply(m, 2, function(x) nUnique(data$id[x]))
-    #out <- colSums(m)
     names(out) <- Period(dts, by)
     detail <- data[data$observation == 0, 
                    c("id", "subscriber.from.period", "subscriber.to.period")]

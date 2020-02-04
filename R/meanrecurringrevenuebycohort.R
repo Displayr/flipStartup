@@ -17,10 +17,10 @@ MeanRecurringRevenueByCohort <- function(data, cohort.by = "year")
     counts <- Table(id ~ cohort + period.counter, data = data, FUN = nUnique)
     value <- Table(recurring.value ~ cohort + period.counter, data = data, FUN = sum)
     out <- value / counts
+    detail <- data[, c("cohort", "period", "id", "recurring.value")]
+    addAttributesAndClass(g, "MeanRecurringRevenueByCohort", by, detail)
     attr(out, "cohort.by") = cohort.by
     attr(out, "subscription.length") = period.by
-    attr(out, "detail") <- data[, c("cohort", "period", "id", "recurring.value")]
-    class(out) <- c("MeanRecurringRevenueByCohort", class(out))
     out
 }
 

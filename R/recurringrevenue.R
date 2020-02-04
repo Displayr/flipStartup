@@ -18,6 +18,8 @@
 RecurringRevenue <- function(data, end = Sys.time(), by = "day", ...)#attr(data, "subscription.length"))
 {
     x <- Subscribers(data, by = by, end = end, volume = TRUE, recurring = TRUE)
+    keep <- periodsToKeep(names(x), attr(data, "start"), attr(data, "end"), FALSE)
+    x <- x[keep]
     detail <- data[, c("id", "value", "from", "to")]
     addAttributesAndClass(x, "RecurringRevenue", by, detail)
 }
