@@ -200,3 +200,23 @@ minDate <- function(x)
     x <- x[!is.na(x)]
     min(AsDate(x, on.parse.failure = "ignore"), na.rm = TRUE)
 }
+
+
+#' @importFrom flipStatistics Table
+#' @importFrom stats as.formula
+quantityByTime <- function(data, volume, time, by)
+{
+    form <- if (volume) paste0("value ~ ", time) else paste0("id ~ ", time)
+    func <- if (volume) sum else nUnique
+    t <- Table(as.formula(form), data = as.data.frame(data), FUN = func) 
+    FillInDateVector(t, by)
+}
+
+
+aggregateAsVector <- function(x)
+{
+    #print(x)
+    result <- x[, 2]
+    names(result) <- x[, 1]
+    result
+}

@@ -2,14 +2,14 @@
 #'
 #' @description Computes recurring revenue, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param cohort.by The time period used in defining the cohorts: "year", "quarter", "month", "week", day".
-#' @param period.by The time period to show value by 
+#' @param by The time period used in defining the cohorts: "year", "quarter", "month", "week", day".
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @importFrom flipTime AsDate Period
 #' @importFrom flipStatistics Table
 #' @importFrom lubridate floor_date years
 #' @export
-AnnualNetRecurringRevenueRetention <- function(data, by = "year")
+AnnualNetRecurringRevenueRetention <- function(data, by = "year", ...)
 {
     
     start <- floor_date(attr(data, "start"), by)
@@ -29,6 +29,8 @@ AnnualNetRecurringRevenueRetention <- function(data, by = "year")
         invoice.year.ago <- from <= dt.year.ago & to >= dt.year.ago
         ids.year.ago <- unique(id[invoice.year.ago])
         invoice.this.year <- from <= dt & to >= dt & id %in% ids.year.ago
+        print(c(sum(rr[invoice.this.year]),sum(rr[invoice.year.ago])))
+        print(dt)
         revenue.retention[i] <- sum(rr[invoice.this.year]) / sum(rr[invoice.year.ago]) - 1
     }
     detail <- data[, c("from", "to", "id", "recurring.value")]

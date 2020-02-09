@@ -13,7 +13,7 @@ MeanRecurringRevenue90Days(data, by, ...)
 \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 and \code{"day"}.}
 
-\item{...}{Don't use. There to prevent errors when unnecessary parameters are passed}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A matrix

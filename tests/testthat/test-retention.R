@@ -9,9 +9,7 @@ for (by in c("week", "month", "quarter", "year"))
     test_that(paste("Creating RevenueData", by),
           {
             expect_error(capture.output(rd <- RevenueData(d$AUD, d$ValidFrom, d$ValidTo, end = end, id = d$name, subscription.length = by, subset = d$validInvoice == 1)), NA)
-            expect_error(capture.output(r <- Retention(rd)), NA)
-            expect_error(capture.output(print(r)), NA)
-            expect_error(capture.output(r <- Retention(rd)), NA)
+            expect_error(capture.output(r <- Retention(rd, by)), NA)
             expect_error(capture.output(print(r)), NA)
 })
 

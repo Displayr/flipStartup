@@ -13,7 +13,7 @@ InitialRecurringRevenueChurn(data, by, ...)
 \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 and \code{"day"}.}
 
-\item{...}{Other arguments.}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \description{
 Computes the recurrent revenue churn rate for people in their first completed

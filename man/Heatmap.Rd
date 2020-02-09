@@ -17,6 +17,8 @@ heatmap(x, row.title, column.title, series.hover, base, ...)
 used in the hover tooltips}
 
 \item{base}{The sample size; used in the hover tooltips}
+
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A plotly heatmap

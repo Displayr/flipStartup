@@ -4,6 +4,7 @@
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param remove.last Remove the final period (as usually is incomplete).
 #' @param volume Weights the results by volume. Does nothing in this case.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A \code{\link{matrix}} 
 #' @export
 InitialRevenuePerSubscriber <- function(data, remove.last = FALSE, volume = FALSE, ...)

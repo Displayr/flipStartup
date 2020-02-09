@@ -59,6 +59,8 @@ observations to be used in the calculations}
 \item{trim.id}{The maximum length of the strings to be used showing
 ID names (used to avoid situations where string names are so
 long as to make reading of tables impossible.}
+
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A plotly plot#?

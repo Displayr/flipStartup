@@ -4,14 +4,14 @@
 \alias{AnnualNetRecurringRevenueRetention}
 \title{\code{AnnualNetRecurringRevenueRetention}}
 \usage{
-AnnualNetRecurringRevenueRetention(data, by = "year")
+AnnualNetRecurringRevenueRetention(data, by = "year", ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
-\item{cohort.by}{The time period used in defining the cohorts: "year", "quarter", "month", "week", day".}
+\item{by}{The time period used in defining the cohorts: "year", "quarter", "month", "week", day".}
 
-\item{period.by}{The time period to show value by}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A matrix

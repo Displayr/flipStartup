@@ -9,7 +9,11 @@ CustomerChurn(data, by = "quarter", ...)
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
-\item{...}{Other parameters}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
+
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A named vector showing churn.

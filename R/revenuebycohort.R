@@ -23,7 +23,7 @@ RevenueByCohort <- function(data, volume = TRUE, remove.last = TRUE)
 
 
 #' @export
-plot.RevenueByCohort <- function(x, ....)
+plot.RevenueByCohort <- function(x, ...)
 {
     k <- nrow(x)
     Area(t(x), type = "Stacked Area",

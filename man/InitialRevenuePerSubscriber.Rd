@@ -12,6 +12,8 @@ InitialRevenuePerSubscriber(data, remove.last = FALSE, volume = FALSE, ...)
 \item{remove.last}{Remove the final period (as usually is incomplete).}
 
 \item{volume}{Weights the results by volume. Does nothing in this case.}
+
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A \code{\link{matrix}}

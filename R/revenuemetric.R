@@ -5,6 +5,7 @@
 #' @param FUN A function that calculates a metric
 #' @param output Whether to output as a Plot, Table, or List. 
 #' @param profiling Separate analyses are conducted among each unique combination of these variables.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @importFrom plotly add_annotations subplot
 #' @return A plotly plot#?
 #' @export
@@ -29,14 +30,14 @@ RevenueMetric <- function(FUN = "Acquisition",
     for (i in 1:n.filters)
     {
         # The start parameter is used after 
-        capture.output(rd <- revenueDataForRevenueMetrics(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id))
+        rd <- revenueDataForRevenueMetrics(value, from, to, start, end ,id, subscription.length, subset = filters[[i]], profiling = NULL, trim.id)
         if (!is.null(rd))
         {
             metric <- do.call(FUN, list(rd, ...))
             if (!is.null(metric))
             {
                 out[[i]] <- metric
-                r <- YLim(metric)
+                r <- yLim(metric)
                 if (!is.na(r[1]))
                 {
                     y.min <- min(y.min, r[1], na.rm = TRUE)
@@ -61,6 +62,7 @@ createDetails <- function(x)
 }
 
 #' @importFrom flipTime AsDate Period
+#' @importFrom stats sd
 createTable <- function(x)
 {
     if (length(x) == 1)
@@ -129,6 +131,7 @@ canPlot <- function(x)
     TRUE
 }
 
+#' @importFrom graphics plot
 plotSubGroups <- function(x, ...)
 {
     x <- x[sapply(x, canPlot)]
@@ -164,6 +167,10 @@ plotSubGroups <- function(x, ...)
     print(pp)
 }
 
+#' Detail
+#' 
+#' @param x A RevenueMetric object  
+#' @description Creates a detailed description of the input data used to create the object.
 #' @export
 Detail <- function(x)
 {
@@ -175,34 +182,13 @@ Detail.default <- function(x, ...)
 {
     attr(x, "detail")
 }
-#' 
-#' #' @export
-#' Data <- function(x)
-#' {
-#'     UseMethod("Data", x)
-#' }
-#' 
-#' #' @export
-#' Data.default <- function(x, ...)
-#' {
-#'     attr(x, "detail")
-#' }
 
-#' #' @export
-#' Detail.default <- function(x, ...)
-#' {
-#'     attr(x, "detail")
-#'     sapply(x$id, paste, collapse = ", ")
-#' }
-
-#' @export
-YLim <- function(x)
+yLim <- function(x)
 {
-    UseMethod("YLim", x)
+    UseMethod("yLim", x)
 }
 
-#' @export
-YLim.default <- function(x, ...)
+yLim.default <- function(x, ...)
 {
     if (all(is.na(x)))
         return(NA)
@@ -235,7 +221,9 @@ createFilters <- function(profiling, subset, id)
 {
     if (is.null(subset))
         subset <- rep(TRUE, length(id))
-    if (sum(subset) == 0)
+    else if (any(is.na(subset)))
+        subset[is.na(subset)] <- FALSE
+    if (sum(subset, na.rm = TRUE) == 0)
         stop("All data has been filtered out.")
     if (is.null(profiling))
         return(list(subset))
@@ -247,8 +235,8 @@ createFilters <- function(profiling, subset, id)
         p[is.na(p)] <- "MISSING DATA"
         profiling[[i]] <- p
     }
-    if (is.null(subset))
-        subset <- TRUE
+    #if (is.null(subset))
+    #    subset <- TRUE
     n.profiling <- nrow(profiling)
     levs <- lapply(profiling, unique)
     combs <- expand.grid(levs)

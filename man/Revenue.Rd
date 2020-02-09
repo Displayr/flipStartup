@@ -4,7 +4,7 @@
 \alias{Revenue}
 \title{\code{Revenue}}
 \usage{
-Revenue(data, end = Sys.time(), by)
+Revenue(data, end = Sys.time(), by, ...)
 }
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
@@ -16,6 +16,8 @@ can cause unexpected results.}
 \item{by}{The time period to aggregate the dates by: 
 \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 and \code{"day"}.}
+
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A vector showing the revenue at specific points in time.

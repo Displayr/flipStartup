@@ -7,6 +7,7 @@
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @importFrom flipTime AsDate Period
 #' @importFrom flipStatistics Table
@@ -37,7 +38,7 @@ MeanRecurringRevenue <- function(data, days.to.count, by, ...)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @export
 MeanRecurringRevenueInitial <- function(data, by,  ...)
@@ -52,7 +53,7 @@ MeanRecurringRevenueInitial <- function(data, by,  ...)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @export
 MeanRecurringRevenue30Days <- function(data, by,  ...)
@@ -67,7 +68,7 @@ MeanRecurringRevenue30Days <- function(data, by,  ...)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @export
 MeanRecurringRevenue90Days <- function(data, by,  ...)
@@ -82,9 +83,7 @@ MeanRecurringRevenue90Days <- function(data, by,  ...)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
-#' and \code{"day"}.
-#' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @export
 MeanRecurringRevenue180Days <- function(data, by,  ...)
@@ -99,7 +98,7 @@ MeanRecurringRevenue180Days <- function(data, by,  ...)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @export
 MeanRecurringRevenue365Days <- function(data, by,  ...)
@@ -111,8 +110,10 @@ MeanRecurringRevenue365Days <- function(data, by,  ...)
 #'
 #' @description Computes annual recurring revenue by day 730 (from the date of the first license start)
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param by The time period to show value by 
-#' @param ... Don't use. There to prevent errors when unnecessary parameters are passed
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A matrix
 #' @export
 MeanRecurringRevenue2Years <- function(data, by,  ...)
@@ -120,15 +121,6 @@ MeanRecurringRevenue2Years <- function(data, by,  ...)
     MeanRecurringRevenue(data, by,  days.to.count = 730, ...)
 }        
 
-#' #' @export
-#' print.MeanRecurringRevenue <- function(x, ...)
-#' {
-#'     attr(x, "detail") <- NULL
-#'     attr(x, "volume") <- NULL
-#'     attr(out, "days.to.count") <- NULL
-#'     class(x) <- class(x)[-1]
-#'     print(x)
-#' }
 
 #' @export
 plot.MeanRecurringRevenue <- function(x, ...)

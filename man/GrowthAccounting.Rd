@@ -18,7 +18,7 @@ and \code{value} (e.g., a \code{RevenueData} object).}
 Values or differences less than this amount are treated as being equivalent. E.g., if revenue for
 an entity this period is less than \code{tol} higher than in the previous period, it is treated as being constant.}
 
-\item{...}{Other arguments; not typically required.}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \description{
 Computes statistics for use in growth accounting of a startup.

@@ -5,7 +5,7 @@ library(lubridate)
 #Sys.setenv(TZ='GMT')
 end <-  ISOdate(2016,2,15)
 start <-  ISOdate(2012,7,1)
-
+by = "quarter"
 # Checking data frame versus vector inputs
 for (by in c("week", "month", "quarter", "year"))
     test_that(paste(by, ": vector versus data frame"),
@@ -13,16 +13,23 @@ for (by in c("week", "month", "quarter", "year"))
               rd <- RevenueData(d$AUD,
                                 d$ValidFrom,
                                 d$ValidTo, 
-                                id = d$name, 
+                                id = d$name, #start = start, 
+                                end = end,
                                 subscription.length = by,
                                 subset = d$validInvoice == 1)
-              df <- RevenueDataPreparation(d$AUD, 
+              # start is treated differently
+              rd1 <- revenueDataForRevenueMetrics(d$AUD, 
                                            d$ValidFrom, 
                                            d$ValidTo, 
                                            id = d$name,
+                                           start = start,
+                                           end = end,
                                            subscription.length = by,
-                                           subset= d$validInvoice == 1)
-              rd1 <- RevenueData(df)
+                                           subset= d$validInvoice == 1,
+                                           profiling = NULL)
+              expect_false(attr(rd, "start") == attr(rd1, "start"))
+              attr(rd, "start") <- NULL
+              attr(rd1, "start") <- NULL
               expect_equal(rd, rd1)
           })          
 

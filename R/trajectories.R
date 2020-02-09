@@ -55,7 +55,7 @@ Trajectories <- function(value, from, to, id)
 #' @param x A \code{Trajectories} object.
 #' @param row.names \code{NULL} or a character vector giving the row names for the data frame. Missing values are not allowed.
 #' @param optional Currently not used.
-#' @param ... Currently not used.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' A \code{Trajectories} object.
 #' @return A \code{\link{data.frame}},
 #' @importFrom lubridate interval years

@@ -14,7 +14,8 @@ RevenueData(
   subscription.length = "year",
   subset = rep(TRUE, length(id)),
   profiling = NULL,
-  trim.id = 50
+  trim.id = 50,
+  detail = FALSE
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ identifiers in a variable called \code{id}, or, the
 \item{trim.id}{The maximum length of the strings to be used showing
 ID names (used to avoid situations where string names are so
 long as to make reading of tables impossible.}
+
+\item{detail}{If \code{TRUE}, diagnostics are printed. Defaults to \code{FALSE}.}
 }
 \value{
 A \code{\link{data.frame}}  where the rows represent

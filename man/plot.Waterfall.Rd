@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{An object of class \code{Waterfall}.}
 
-\item{...}{Additional parameters.}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \description{
 Creates a waterfall chart showing the source(s) of change in sales for one period, relative to the previous period.

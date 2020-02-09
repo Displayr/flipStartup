@@ -24,13 +24,13 @@ test_that("Revenue", {
 
     r <- Revenue(rd, by = "month")
     expect_equal(sum(r), 4400)
-    expect_equal(unname(r["2017-01-01"]), 200)
+    expect_equal(unname(r["2017-01"]), 200)
 
     
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "month"))
     r <- Revenue(rd, by = "month")
     expect_equal(sum(r), 4400)
-    expect_equal(unname(r["2017-01-01"]), 200)
+    expect_equal(unname(r["2017-01"]), 200)
 
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "year"))
     r <- Revenue(rd, by = "week")
@@ -48,12 +48,12 @@ test_that("Revenue", {
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "year"))
     r <- Revenue(rd, by = "month")
     expect_equal(sum(r), 4400)
-    expect_equal(unname(r["2017-01-01"]), 200)
+    expect_equal(unname(r["2017-01"]), 200)
 
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "month"))
     r <- Revenue(rd, by = "month")
     expect_equal(sum(r), 4400)
-    expect_equal(unname(r["2017-01-01"]), 200)
+    expect_equal(unname(r["2017-01"]), 200)
 
     capture.output(rd <- RevenueData(dollars, from, to, id = name, subscription.length = "year"))
     r <- Revenue(rd, by = "week")

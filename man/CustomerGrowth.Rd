@@ -13,7 +13,7 @@ CustomerGrowth(data, by, ...)
 \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 and \code{"day"}.}
 
-\item{...}{Other parameters.}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A named vector showing churn.

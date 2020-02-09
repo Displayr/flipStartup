@@ -25,7 +25,7 @@ Lifetime <- function(data, end = attr(data, "end"))
     data <- subset(data, data$from >= attr(data, "start"))
     incomplete <- Table(to.as.numeric ~ subscriber.from.period + period.counter, data, FUN = max) < end.numeric
     total <- Table(value ~ subscriber.from.period + period.counter, data, sum)
-    counts <- Table(id ~ subscriber.from.period + period.counter, data, FUN = function(x) nUnique)
+    counts <- Table(id ~ subscriber.from.period + period.counter, data, nUnique)
     # Filling in missing row and column totals
     row.names <- CompleteListPeriodNames(rownames(total), subscription.length)
     col.names <- 0:max(length(row.names) - 1, as.numeric(colnames(total)))
@@ -40,7 +40,7 @@ Lifetime <- function(data, end = attr(data, "end"))
     names(di) <- rownames(value)
     index <- Index(value, STATS = value[, 1], remove = "lower right", remove.diag = FALSE)
     cumulative <- t(apply(value, 1, cumsum))
-    churn <- 1 - Retention(data)$retention.rate.volume.by.period
+    churn <- 1 - Retention(data, subscription.length)$retention.rate.volume.by.period
     churn <- churn[match(names(di), names(churn))]
     future.revenue <- di / churn
     future.revenue[!is.finite(future.revenue)] <- NA

@@ -10,8 +10,6 @@ MeanRecurringRevenueByCohort(data, cohort.by = "year")
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
 \item{cohort.by}{The time period used in defining the cohorts: "year", "quarter", "month", "week", day".}
-
-\item{period.by}{The time period to show value by}
 }
 \value{
 A matrix

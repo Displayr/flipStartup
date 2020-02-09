@@ -31,7 +31,7 @@ Growth <- function(x, start, end, by, remove.last = TRUE)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Other parameters.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @details Where subscribers suspends their purchasing for a period, 
 #' but purchases again later, the subscriber
 #' is included in the churn. Churn is show for all periods that have 
@@ -41,7 +41,7 @@ Growth <- function(x, start, end, by, remove.last = TRUE)
 #' @export
 RecurringRevenueGrowth <- function(data, by, ...)
 {
-    x <- RecurringRevenue(data, attr(data, "end"), by)
+    x <- RecurringRevenue(data, by)
     g <- Growth(x, attr(data, "start"), attr(data, "start"), by, remove.last = TRUE)
     attr(g, "y.title") <- "Growth in Recurring Revenue"
     g
@@ -54,7 +54,7 @@ RecurringRevenueGrowth <- function(data, by, ...)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Other parameters.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @details Where subscribers suspends their purchasing for a period, 
 #' but purchases again later, the subscriber
 #' is included in the churn. Churn is show for all periods that have 
@@ -64,20 +64,11 @@ RecurringRevenueGrowth <- function(data, by, ...)
 #' @export
 CustomerGrowth <- function(data, by, ...)
 {
-    x <- Customers(data, attr(data, "end"), by)
+    x <- Customers(data,  by)
     g <- Growth(x, attr(data, "start"), attr(data, "start"), by, remove.last = TRUE)
     attr(g, "y.title") <- "Growth in Customers"
     g
 }
-
-# aggregateAsVector <- function(x)
-# {
-#     #print(x)
-#     result <- x[, 2]
-#     names(result) <- x[, 1]
-#     result
-# }
-# 
 
 print.Growth <- function(x, ...)
 {

@@ -6,7 +6,7 @@
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Other arguments.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A \code{\link{matrix}} 
 #' @importFrom flipTime Period
 #' @export
@@ -40,7 +40,7 @@ calculateNChurn <- function(data, n.subscribers)
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
-#' @param ... Other arguments.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A \code{\link{matrix}} 
 #' @importFrom flipTime Period
 #' @export
@@ -111,7 +111,7 @@ churnByCohortDetail <- function(data, by)
 {
     if(sum(data$churn) == 0)
         return(NULL)
-    detail <- aggregate(recurring.value ~ subscriber.from.period + period.counter + id, data, sum, subset = churn)
+    detail <- aggregate(recurring.value ~ subscriber.from.period + period.counter + id, data, sum, subset = data$churn)
     colnames(detail) <- c("Recurring Revenue", "Commenced", properCase(by))
     detail
 }

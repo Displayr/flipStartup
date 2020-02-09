@@ -5,13 +5,16 @@
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A named vector showing the number of customers.
 #' @importFrom flipTime AsDate Period
+#' @importFrom lubridate floor_date
 #' @export
-Customers <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE)
+Customers <- function(data, by = "quarter", ...)
 {
-    from <- AsDate(Period(attr(data, "start"), by))
-    end <- AsDate(Period(attr(data, "end"), by))
+    
+    from <- floor_date(AsDate(attr(data, "start")), unit = by)
+    end <- floor_date(AsDate(attr(data, "end")), unit = by)
     dts <- seq.Date(from, end, by = by)
     m <- matrix(dts, nrow(data), length(dts), byrow = TRUE)
     m <- sweep(m, 1, as.numeric(as.Date(data$from)), ">=") & sweep(m, 1, as.numeric(as.Date(data$to)), "<")  

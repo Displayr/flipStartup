@@ -1,5 +1,5 @@
-context("Trajectories")
-data(q.invoice.lines)
+# context("Trajectories")
+# data(q.invoice.lines)
 
 # 
 # 

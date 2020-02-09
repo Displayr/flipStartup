@@ -15,7 +15,7 @@ CustomerChurnByCohort(data, remove.last = FALSE, by, ...)
 \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 and \code{"day"}.}
 
-\item{...}{Other arguments.}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A \code{\link{matrix}}

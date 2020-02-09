@@ -5,6 +5,7 @@
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A \code{\link{list}} containing the following elements:
 #'   \item{id}{The \code{id} values of subscribers to churn.}
 #'   \item{base}{The number of subscribers to renew or churn in the time period.}
@@ -39,15 +40,6 @@ idByPeriod <- function(data, time)
     names(id) <- idag[, 1]
     id
 }   
-
-#' @importFrom flipStatistics Table
-quantityByTime <- function(data, volume, time, by)
-{
-    form <- if (volume) paste0("value ~ ", time) else paste0("id ~ ", time)
-    func <- if (volume) sum else nUnique
-    t <- Table(as.formula(form), data = as.data.frame(data), FUN = func) 
-    FillInDateVector(t, by)
-}
 
 
 #' @export

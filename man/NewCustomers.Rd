@@ -12,6 +12,8 @@ NewCustomers(data, by = "quarter", ...)
 \item{by}{The time period to aggregate the dates by: 
 \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 and \code{"day"}.}
+
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A \code{\link{list}} containing the following elements:

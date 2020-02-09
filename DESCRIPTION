@@ -19,6 +19,7 @@ Imports:
     lubridate,
     methods,
     plotly,
+    plyr,
     reshape2,
     scales,
     stats

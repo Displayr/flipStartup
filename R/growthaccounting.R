@@ -8,7 +8,7 @@
 #' @param tol The tolerance used in calculations of differences. This defaults to 1 (e.g., $1).
 #' Values or differences less than this amount are treated as being equivalent. E.g., if revenue for
 #' an entity this period is less than \code{tol} higher than in the previous period, it is treated as being constant.
-#' @param ...  Other arguments; not typically required.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @details Small differences in the percentages shown here versus those computed by other means may occur, due
 #' to: (1) how churn is defined (e.g., the point at time when a customer churns, vs, takes a hieateous); (2) the precision
 #' used to determine whether a subscriber is considered to have contracted/expanded or not.
@@ -68,7 +68,9 @@ GrowthAccounting <- function(data, volume = FALSE, remove.last = TRUE, tol = 1, 
                   Revenue = aggregateAsVector(aggregate(value ~ period, data = data, FUN = sum)),
                   Growth = aggregateAsVector(aggregate(diff ~ status, data = data, FUN = sum)))
     class(results) <- append(class(results), "GrowthAccounting")
-    results}
+    results
+}
+
 
 #' @export
 print.GrowthAccounting <- function(x, ...)

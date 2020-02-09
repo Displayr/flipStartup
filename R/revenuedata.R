@@ -31,6 +31,7 @@
 #' @param trim.id The maximum length of the strings to be used showing
 #'     ID names (used to avoid situations where string names are so
 #'     long as to make reading of tables impossible.
+#' @param detail If \code{TRUE}, diagnostics are printed. Defaults to \code{FALSE}.
 #' @return A \code{\link{data.frame}}  where the rows represent
 #'     unique combinations of periods and subscribers. Where a
 #'     subscriber has multiple transactions in a period, they are
@@ -81,7 +82,8 @@ RevenueData <- function(value,
                         subscription.length = "year",
                         subset = rep(TRUE, length(id)),
                         profiling = NULL, 
-                        trim.id = 50) #, tolerance = .01)
+                        trim.id = 50,
+                        detail = FALSE) #, tolerance = .01)
 {
   # Checking the input variables.
   n = length(value)
@@ -101,11 +103,13 @@ RevenueData <- function(value,
   
   # Filtering data.
   n.initial <- nrow(data)
-  cat(paste0(n.initial, " transactions.\n"))
+  if (detail)
+    cat(paste0(n.initial, " transactions.\n"))
   n.subset <- sum(subset)
   if (n.subset < n.initial)
   {
-    cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
+    if (detail)
+        cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
     data <- subset(data, subset = subset)
   }
   # Sorting by company name and start-date
@@ -115,25 +119,29 @@ RevenueData <- function(value,
   n.zero <- sum(zero)
   if (n.zero > 0)
   {
-    cat(paste0(n.zero, " transactions removed due to having 0 value.\n"))
+    if (detail)
+      cat(paste0(n.zero, " transactions removed due to having 0 value.\n"))
     data <- subset(data, !zero)
   }
   negative <- data$value < 0
   n.negative <- sum(negative)
   if (n.negative > 0)
   {
-    cat(paste0(n.negative, " transactions removed due to having a negative value.\n"))
+    if (detail)
+      cat(paste0(n.negative, " transactions removed due to having a negative value.\n"))
     data <- subset(data, !negative)
   }
   n <- nrow(data)
-  cat(paste0(n, " transactions remaining.\n"))
+  if (detail)
+    cat(paste0(n, " transactions remaining.\n"))
   if (n == 0)
     return(NULL)
   # Aggregating transactions that occur in the same time period.
   data$to.period <- Period(data$to, subscription.length)
   data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
   n <- nrow(data)
-  cat(paste0(n, " aggregated transactions (i.e., summed together when sharing a from and end date) remaining.\n"))
+  if (detail)
+    cat(paste0(n, " aggregated transactions (i.e., summed together when sharing a from and end date) remaining.\n"))
   # Subscriber-level calculations.
   id.data <- aggregate(from ~ id, data, min)
   names(id.data)[2] <- "subscriber.from"
@@ -162,24 +170,28 @@ RevenueData <- function(value,
     if (pos <- "value" %in% names(profiling))
     {
       names(profiling)[pos] <- "value.profiling"
-      cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
+      if (detail)
+        cat("'value' in 'profiling' has been renamed as 'value.profiling'.")
     }
     if (pos <- "from" %in% names(profiling))
     {
       names(profiling)[pos] <- "from.profiling"
-      cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
+      if (detail)
+        cat("'from' in 'profiling' has been renamed as 'from.profiling'.")
     }
     if (pos <- "to" %in% names(profiling))
     {
       names(profiling)[pos] <- "to.profiling"
-      cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
+      if (detail)
+        cat("'to' in 'profiling' has been renamed as 'to.profiling'.")
     }
     id.data <- cbind(id.data, profiling[lookup, ])
   }
   # Creating time-based metrics.
   id.data$last.from <- aggregate(from ~ id, data, max)[, 2]
   id.data$last.from.period <- Period(floor_date(aggregate(from ~ id, data, max)[, 2], subscription.length), subscription.length)
-  cat(paste0(nrow(id.data), " subscribers.\n"))
+  if (detail)
+    cat(paste0(nrow(id.data), " subscribers.\n"))
   id.data$subscription.to <- aggregate(to ~ id, data, max)$to
   tenure.interval <- interval(id.data$subscriber.from, id.data$subscriber.to)
   id.data$tenure <- tenure.interval %/% units
@@ -234,8 +246,11 @@ RevenueData <- function(value,
     from <- ISOdate(year(from0), month(from0), day(from0))
     to <- ISOdate(year(to0), month(to0), day(to0))
     data <- data[to %within% window | from %within% window | from < start & to > end, ]
-    cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
-    cat(paste0(length(unique(data$id)), " subscribers left after taking 'start' and/or 'end' into account.\n"))
+    if (detail)
+    {
+      cat(paste0(nrow(data), " aggregated transactions left after taking 'start' and/or 'end' into account.\n"))
+      cat(paste0(length(unique(data$id)), " subscribers left after taking 'start' and/or 'end' into account.\n"))
+    }
   }
   attr(data, "subscription.length") <- subscription.length
   attr(data, "end") <- end
@@ -250,6 +265,9 @@ RevenueData <- function(value,
   data
 }
 
+
+#' @details The Start parameter is not passed through to RevenueData, as instead it
+#' is used to modify the results of analyses that use RevenueData.
 #' @inherit RevenueData
 revenueDataForRevenueMetrics <- function(value, 
                           from, 
@@ -263,15 +281,15 @@ revenueDataForRevenueMetrics <- function(value,
                           trim.id)
 {
     data <- RevenueData(value, 
-                                    from, 
-                                    to, 
-                                    start = min(from),
-                                    end, 
-                                    id,
-                                    subscription.length,
-                                    subset,
-                                    profiling,
-                                    trim.id)
+                        from, 
+                        to, 
+                        start = min(from),
+                        end, 
+                        id,
+                        subscription.length,
+                        subset,
+                        profiling,
+                        trim.id)
     if (is.null(data))
         return(data)
     attr(data, "start") <- start

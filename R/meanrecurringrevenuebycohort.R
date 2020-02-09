@@ -3,7 +3,6 @@
 #' @description Computes recurring revenue, by cohort.
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
 #' @param cohort.by The time period used in defining the cohorts: "year", "quarter", "month", "week", day".
-#' @param period.by The time period to show value by 
 #' @return A matrix
 #' @importFrom flipTime AsDate Period
 #' @importFrom flipStatistics Table
@@ -18,7 +17,7 @@ MeanRecurringRevenueByCohort <- function(data, cohort.by = "year")
     value <- Table(recurring.value ~ cohort + period.counter, data = data, FUN = sum)
     out <- value / counts
     detail <- data[, c("cohort", "period", "id", "recurring.value")]
-    addAttributesAndClass(g, "MeanRecurringRevenueByCohort", by, detail)
+    addAttributesAndClass(out, "MeanRecurringRevenueByCohort", by, detail)
     attr(out, "cohort.by") = cohort.by
     attr(out, "subscription.length") = period.by
     out
@@ -100,6 +99,7 @@ plot.MeanRecurringRevenueByCohort <- function(x, ...)
 #' @param series.hover The description of the value that appears in each cell;
 #' used in the hover tooltips 
 #' @param base The sample size; used in the hover tooltips 
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A plotly heatmap
 heatmap <- function(x, row.title, column.title, series.hover, base, ...)
 {

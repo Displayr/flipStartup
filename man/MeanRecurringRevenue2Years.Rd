@@ -9,9 +9,11 @@ MeanRecurringRevenue2Years(data, by, ...)
 \arguments{
 \item{data}{A \code{data.frame} that has the same variables as a \code{RevenueData} object.}
 
-\item{by}{The time period to show value by}
+\item{by}{The time period to aggregate the dates by: 
+\code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+and \code{"day"}.}
 
-\item{...}{Don't use. There to prevent errors when unnecessary parameters are passed}
+\item{...}{Additional arguments to be passed to lower level functions.}
 }
 \value{
 A matrix

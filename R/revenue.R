@@ -8,12 +8,20 @@
 #' @param by The time period to aggregate the dates by: 
 #' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
 #' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @details Computed based on being a subscribed on the last second of the time period.
 #' @return A vector showing the revenue at specific points in time.
 #'
 #' @export
-Revenue <- function(data, end = Sys.time(), by)
+Revenue <- function(data, end = Sys.time(), by, ...)
 {
-    Subscribers(data, by = by, end = end, volume = TRUE, recurring = FALSE)
+    out <- Subscribers(data, by = by, end = end, volume = TRUE, recurring = FALSE)
+    detail <- data[c("id", "value", "from", "to")]
+    addAttributesAndClass(out, "Revenue", by, detail)
 }
 
+#' @export
+plot.Revenue <- function(x, ...)
+{
+    areaChart(x, y.title = "Revenue", ...)
+}

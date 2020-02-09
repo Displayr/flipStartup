@@ -36,7 +36,10 @@ Churn <- function(data, volume = FALSE, by = "quarter", error.if.no.data = FALSE
 
 #' \code{CustomerChurn}
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param ... Other parameters
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A named vector showing churn.
 #' @importFrom flipTime AsDate
 #' @export
@@ -49,7 +52,10 @@ CustomerChurn <- function(data, by = "quarter", ...)
 
 #' \code{RecurringRevenueChurn}
 #' @param data A \code{data.frame} that has the same variables as a \code{RevenueData} object.
-#' @param ... Other parameters
+#' @param by The time period to aggregate the dates by: 
+#' \code{"year"}, \code{"quarter"}, \code{"month"}, \code{"week"}, 
+#' and \code{"day"}.
+#' @param ... Additional arguments to be passed to lower level functions.
 #' @return A named vector showing churn.
 #' @importFrom flipTime AsDate
 #' @export
@@ -58,12 +64,6 @@ RecurringRevenueChurn <- function(data, by = "quarter", ...)
     Churn(data, volume = TRUE, by = by, error.if.no.data = FALSE)
 }
 
-
-#' #' @export
-#' print.Churn <- function(x, ...)
-#' {
-#'     printWithoutAttributes(x)
-#' }
 
 #' @export
 plot.Churn <- function(x, ...)

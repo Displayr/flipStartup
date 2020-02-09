@@ -13,7 +13,7 @@
 
 \item{optional}{Currently not used.}
 
-\item{...}{Currently not used.
+\item{...}{Additional arguments to be passed to lower level functions.
 A \code{Trajectories} object.}
 }
 \value{

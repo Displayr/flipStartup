@@ -24,25 +24,25 @@ test_that("Create subsets",
               # Country
               s <- flipStartup:::createFilters(d[, "country", drop = FALSE], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 5)
-              expect_equal(names(s)[1], "Australia\nn: 385")
+              expect_equal(names(s)[1], "Australia")
               expect_equal(sum(s[[1]]), 2386) # Observations, companies can have multiple observations
 
               # Country - with a filter
               f <- d$salesman == "4"
               s <- flipStartup:::createFilters(d[, "country", drop = FALSE], subset = f, id = d$name)
               expect_equal(length(names(s)), 5)
-              expect_equal(names(s)[1], "Australia\nn: 49")
+              expect_equal(names(s)[1], "Australia")
               expect_equal(sum(s[[1]]), 504)
 
               # Saleman
               s <- flipStartup:::createFilters(d[, "salesman", drop = FALSE], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 4)
-              expect_equal(names(s)[1], "MISSING DATA\nn: 486")
+              expect_equal(names(s)[1], "MISSING DATA")
 
               # Country and salesman
               s <- flipStartup:::createFilters(d[, c("country", "salesman")], subset = NULL, id = d$name)
               expect_equal(length(names(s)), 20)
-              expect_equal(names(s)[1], "Australia + MISSING DATA\nn: 191")
+              expect_equal(names(s)[1], "Australia + MISSING DATA")
           })
 
 by= "quarter"
@@ -56,15 +56,15 @@ for (by in c("month", "quarter", "year"))
     cc = RevenueMetric("CustomerChurn", output = "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
     expect_equal(removeAttributesAndClass(cc),
                  1 - r$retention.rate.by.period[names(cc)])
-    
+
     rrc = RevenueMetric("RecurringRevenueChurn", output = "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
     expect_equal(removeAttributesAndClass(rrc),
                  1 - r$retention.rate.volume.by.period[names(rrc)])
-    
+
     ccc <- RevenueMetric("CustomerChurnByCohort", "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
     expect_equal(removeAttributesAndClass(ccc),
                  1 - r$retention.rate[rownames(ccc), colnames(ccc)])
-    
+
     rrcc <- RevenueMetric("RecurringRevenueChurnByCohort", "Table", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
     expect_equal(removeAttributesAndClass(rrcc),
                  1 - r$retention.rate.volume[rownames(rrcc), colnames(rrcc)])
@@ -82,40 +82,62 @@ by = "year"
 p.country <- d[, "country", drop = FALSE]
 p.country.salesman <- d[, c("country", "salesman")]
 
-for (fun in c("InitialCustomerChurn"))
-              #"RecurringRevenueGrowth", "CustomerGrowth"))
-              #"CustomerChurn", "RecurringRevenueChurn"))
-  #"RecurringRevenueChurnByCohort", "CustomerChurnByCohort"))
-#MeanRecurringRevenue365Days","MeanRecurringRevenue2Years"))#,
-# "MeanRecurringRevenueInitial", "MeanRecurringRevenue30Days", "MeanRecurringRevenue90Days",
-#               "MeanRecurringRevenue180Days", "MeanRecurringRevenue180Days", "MeanRecurringRevenue365Days",
-#               "MeanRecurringRevenue2Years"))
-#             "Customers", "NewCustomers",  "RecurringRevenue"))
+funcs <- c("InitialCustomerChurn",  # Churn
+           "CustomerChurn",
+           "RecurringRevenueChurn",
+           "RecurringRevenueChurnByCohort",
+           "CustomerChurnByCohort",
+           "Customers", # Customers
+           "NewCustomers",
+           "CustomerGrowth",
+           "Revenue",                  # Revenue
+           "RecurringRevenue",
+           "RecurringRevenueGrowth",
+           "MeanRecurringRevenueInitial", # Value
+           "MeanRecurringRevenue30Days",
+           "MeanRecurringRevenue90Days",
+           "MeanRecurringRevenue180Days",
+           "MeanRecurringRevenue365Days",
+           "MeanRecurringRevenue2Years",
+           "MeanRecurringRevenue180Days",
+           "MeanRecurringRevenue2Years")
+
+#Quick run through checking that the basic function works
+fun = "CustomerGrowth"
+for (fun in funcs)
+      test_that(paste("metrics", fun),
+                {
+                  s = RevenueMetric(FUN = fun, output = "Plot", d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
+                  expect_error(print(s), NA)
+                }
+      )
+
+# Looping though arguments
+fun = "InitialCustomerChurn"
+out = "Detail"
+by = "year"
+for (fun in "InitialCustomerChurn")#funcs)
     for (out in c("Table", "Plot", "Detail"))
         for (by in c("month", "quarter", "year"))
         {
-          descr <- paste("metrics", fun, out, by)
-            test_that(paste("aggregate ", descr),
-                      {capture.output({
+            descr <- paste("metrics", fun, out, by)
+            test_that(paste("aggregate ", descr),{
               s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by)
               if (is.null(s)) expect_true(TRUE) 
-              else expect_error(print(s), NA)
-                      })})
+              else capture.output(expect_error(print(s), NA))
+            })
             
-            test_that(paste("profiling 1 ", descr),
-                      {capture.output({
+            test_that(paste("profiling 1 ", descr),{
                         s = RevenueMetric(FUN = fun, output = out, d$AUD,d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country)
                         if (is.null(s)) expect_true(TRUE) 
-                        else expect_error(print(s), NA)
-                      })})
+                        else capture.output(expect_error(print(s), NA))
+            })
             
-            test_that(paste("profiling 2 ", descr),
-                      {capture.output({
+            test_that(paste("profiling 2 ", descr),{
                       s = RevenueMetric(fun, output = out, d$AUD, d$ValidFrom,d$ValidTo, id = d$name, by = by, profiling = p.country.salesman, )
                       if (is.null(s)) expect_true(TRUE) 
-                      else expect_error(print(s), NA)
-                      })})
-                      
-          }
-
+                      else capture.output(expect_error(print(s), NA))
+          })
+        }
+            
 
