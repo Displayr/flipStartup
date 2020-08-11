@@ -25,6 +25,7 @@ r_packages:
   - covr
 
 r_github_packages:
+  - cran/cpp11@0.1.0
   - Displayr/flipDevTools
 
 script:
