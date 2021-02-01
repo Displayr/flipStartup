@@ -4,7 +4,9 @@
 \name{q.invoice.lines}
 \alias{q.invoice.lines}
 \title{Variables from Q's invoicelines table.}
-\format{data.frame}
+\format{
+data.frame
+}
 \description{
 Information about Q's subscriber history.
 }

@@ -13,6 +13,7 @@
 #'
 #' @importFrom lubridate '%within%' floor_date ceiling_date
 #' @importFrom flipTime Periods
+#' @importFrom verbs Sum
 #' @export
 Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE, recurring = FALSE)
 {
@@ -28,7 +29,7 @@ Subscribers <- function(data, end = Sys.time(),  by = "month", volume = FALSE, r
     {
         start <- starts[i]
         filt <- start >= data$from & start < data$to
-        result[i] <- if(volume) sum(value[filt]) else length(unique(data$id[filt]))
+        result[i] <- if(volume) Sum(value[filt], remove.missing = FALSE) else length(unique(data$id[filt]))
     }
     result
 }

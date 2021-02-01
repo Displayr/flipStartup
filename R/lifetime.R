@@ -15,6 +15,7 @@
 #'
 #' @importFrom flipStatistics Table
 #' @importFrom flipTime CompleteListPeriodNames 
+#' @importFrom verbs Sum
 #' @export
 Lifetime <- function(data, end = attr(data, "end"))
 {
@@ -49,7 +50,7 @@ Lifetime <- function(data, end = attr(data, "end"))
     future.revenue <- di / churn
     future.revenue[!is.finite(future.revenue)] <- NA
     lifetime.revenue <- Diagonal(cumulative, off = TRUE) + future.revenue
-    lifetime.revenue.per.customer <- sum(lifetime.revenue * prop.table(ns), na.rm = TRUE)
+    lifetime.revenue.per.customer <- Sum(lifetime.revenue * prop.table(ns))
     result <- list(total = total,
                    subscribers = counts,
                    revenue.per.subscriber = total / counts, 

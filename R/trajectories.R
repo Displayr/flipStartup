@@ -11,6 +11,7 @@
 #' @return A \code{\link{list}}, in which each element is the cumultative value within the subscription period, and the name of the element is the date.
 #' The subscription period is determined based on the \code{from} and \code{to} dates.
 #' @importFrom lubridate interval
+#' @importFrom verbs Sum
 #' 
 #' @export
 Trajectories <- function(value, from, to, id)
@@ -38,7 +39,7 @@ Trajectories <- function(value, from, to, id)
         for (i.d in 1:n.i)
         {
             d <- i.from.unique[i.d]
-            res[i.d] <- res[i.d] + sum(i.value[d %within% i.interval])
+            res[i.d] <- res[i.d] + Sum(i.value[d %within% i.interval], remove.missing = FALSE)
             
         }
         names(res) <- i.from.unique

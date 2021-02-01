@@ -21,11 +21,13 @@ Imports:
     plotly,
     reshape2,
     scales,
-    stats
+    stats,
+    verbs
 Remotes:
     Displayr/flipFormat,
     Displayr/flipStatistics,
     Displayr/flipStandardCharts,
     Displayr/flipTime,
-RoxygenNote: 7.0.2
+    Displayr/verbs
+RoxygenNote: 7.1.1
 Encoding: UTF-8
