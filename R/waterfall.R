@@ -6,7 +6,7 @@
 #' @param periods A vector of \code{character} indicating the period(s) to plot
 #' (relative to the previous period). If NULL, the total, aggregated across all periods, is shown.
 #' @importFrom flipFormat FormatAsPercent
-#' @importFrom verbs Sum
+#' @importFrom verbs Sum SumColumns
 #' @export
 Waterfall <- function(x, periods = NULL)
 {
@@ -14,7 +14,7 @@ Waterfall <- function(x, periods = NULL)
     if (is.null(periods))
         periods <- all.periods[-1]
     # Summing up the sales by category
-    y <- colSums(x$Table[periods, ])
+    y <- SumColumns(x$Table[periods, ], remove.missing = FALSE)
     y <- y[c(1:3, 5:4)] # Reordering categories
     # Computing the base.
     lookup <- match(periods, all.periods) - 1
