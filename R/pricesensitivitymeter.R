@@ -179,13 +179,14 @@ PriceSensitivityMeter <- function(x,
 
 # Calculates proportion less than or equal to
 # note that pts is sorted and contains all the values in vals
+#' @importFrom verbs Sum
 propLessorEqual <- function(vals, pts, wgts)
 {
     if (length(wgts) == 0)
         wgts <- rep(1, length(vals))
     ord <- order(vals, na.last = NA)
     n <- length(ord)
-    denom <- sum(wgts[ord])
+    denom <- Sum(wgts[ord], remove.missing = FALSE)
     res <- rep(0, length(pts))
     
     j <- 1
@@ -203,6 +204,7 @@ propLessorEqual <- function(vals, pts, wgts)
 
 # Calculates proportion more than or equal to
 # note that pts is sorted and contains all the values in vals
+#' @importFrom verbs Sum
 propGreatorEqual <- function(vals, pts, wgts)
 {
     if (length(wgts) == 0)
@@ -210,7 +212,7 @@ propGreatorEqual <- function(vals, pts, wgts)
     ord <- order(vals, decreasing = TRUE, na.last = NA)
     n <- length(ord)
     pts <- rev(pts)
-    denom <- sum(wgts[ord])
+    denom <- Sum(wgts[ord], remove.missing = FALSE)
     res <- rep(0, length(pts))
 
     j <- 1
