@@ -6,6 +6,7 @@
 #' @param periods A vector of \code{character} indicating the period(s) to plot
 #' (relative to the previous period). If NULL, the total, aggregated across all periods, is shown.
 #' @importFrom flipFormat FormatAsPercent
+#' @importFrom verbs Sum SumColumns
 #' @export
 Waterfall <- function(x, periods = NULL)
 {
@@ -13,7 +14,7 @@ Waterfall <- function(x, periods = NULL)
     if (is.null(periods))
         periods <- all.periods[-1]
     # Summing up the sales by category
-    y <- colSums(x$Table[periods, ])
+    y <- SumColumns(x$Table[periods, ], remove.missing = FALSE)
     y <- y[c(1:3, 5:4)] # Reordering categories
     # Computing the base.
     lookup <- match(periods, all.periods) - 1
@@ -21,7 +22,7 @@ Waterfall <- function(x, periods = NULL)
         stop("Invalid 'periods': 'periods' must match the labels in the data of 'x' and
              must not include the first period.'")
     base.periods <- all.periods[lookup ]
-    base <- sum(x$Revenue[base.periods])
+    base <- Sum(x$Revenue[base.periods], remove.missing = FALSE)
     # Growth as a percentage of the base
     y <- y / base
     # Result
@@ -39,6 +40,7 @@ Waterfall <- function(x, periods = NULL)
 #' @param ... Additional parameters.
 #' @importFrom plotly plot_ly add_trace layout config add_annotations add_text
 #' @importFrom flipFormat FormatAsPercent
+#' @importFrom verbs Sum
 #' @export
 plot.Waterfall <- function(x, ...)
 {
@@ -49,7 +51,7 @@ plot.Waterfall <- function(x, ...)
     y.text <- as.character(ifelse(y > 0, paste0("+", y.text), y.text))
     # Creating series for the plot
     y <- y * 100
-    bs <- c(y[1], sum(y[1:2]), sum(y[1:2]), sum(y[1:3]), sum(y[1:4]))
+    bs <- c(y[1], Sum(y[1:2]), Sum(y[1:2]), Sum(y[1:3]), Sum(y[1:4]))
     y.cum <- cumsum(y)
     y.cum.text <- unname(FormatAsPercent(y.cum / 100, 3))
     # Adding text to show values

@@ -69,6 +69,7 @@
 #' day days interval floor_date as.duration
 #' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
 #' @importFrom stats ave
+#' @importFrom verbs Sum
 #' @export
 RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         subscription.length = "year", subset = rep(TRUE, length(id)),
@@ -93,7 +94,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     # Filtering data.
     n.initial <- nrow(data)
     cat(paste0(n.initial, " transactions.\n"))
-    n.subset <- sum(subset)
+    n.subset <- Sum(subset, remove.missing = FALSE)
     if (n.subset < n.initial)
     {
         cat(paste0(n.initial - n.subset, " transactions filtered out.\n"))
@@ -103,14 +104,14 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     data <- data[with(data, order(id, from)), ]
     # Removing observations that start after the end.
     zero <- data$value == 0
-    n.zero <- sum(zero)
+    n.zero <- Sum(zero, remove.missing = FALSE)
     if (n.zero > 0)
     {
         cat(paste0(n.zero, " transactions removed due to having 0 value.\n"))
         data <- subset(data, !zero)
     }
     negative <- data$value < 0
-    n.negative <- sum(negative)
+    n.negative <- Sum(negative, remove.missing = FALSE)
     if (n.negative > 0)
     {
         cat(paste0(n.negative, " transactions removed due to having a negative value.\n"))
@@ -186,7 +187,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
 #     }
     # Aggregating transactions that occur in the same time period.
     data$to.period <- Period(data$to, subscription.length)
-    data <- aggregate(value ~ id + from + to, data = data, FUN = sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
+    data <- aggregate(value ~ id + from + to, data = data, FUN = Sum)#data <- aggregate(value ~ id + from + to, data = data, FUN = sum)
     n <- nrow(data)
     cat(paste0(n, " aggregated transactions (i.e., summed together when sharing a from and end date) remaining.\n"))
     # Subscriber-level calculations.
@@ -205,11 +206,11 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
         profiling.id <- as.character(profiling.id)
 
         lookup <- match(as.character(id.data$id), profiling.id)
-        if (sum(!is.na(lookup)) == 0)
+        if (Sum(!is.na(lookup), remove.missing = FALSE) == 0)
         {
             stop("The 'profiling' data is needs to either contain an 'id' variable, or have rownames that contain the 'id' values.")
         }
-        else if (sum(is.na(lookup)) > 0)
+        else if (Sum(is.na(lookup), remove.missing = FALSE) > 0)
         {
             missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
             stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))

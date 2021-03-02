@@ -18,6 +18,7 @@
 #'   \item{churn.volume}{Churn, weighted by subscriber value in the preceeding period.}
 #' @importFrom flipTime AsDate CompleteListPeriodNames Period Periods
 #' @importFrom lubridate as_date
+#' @importFrom verbs Sum
 #' @export
 Retention <- function(data)
 {
@@ -55,8 +56,8 @@ Retention <- function(data)
             revenue <- data$value[base]
             churn <- data$churn[base]
             ids <- data$id[base]
-            revenue.base <- sum(revenue, na.rm = TRUE)
-            revenue.lost <- sum(revenue[churn], na.rm = TRUE)
+            revenue.base <- Sum(revenue)
+            revenue.lost <- Sum(revenue[churn])
             n.subscriptions[r, c] <- n.subscribers <- length(unique(ids))
             n.retained[r, c] <- retained <-  n.subscribers - length(unique(ids[churn]))
             retention.rate[r, c] <- retained / n.subscribers
@@ -67,8 +68,8 @@ Retention <- function(data)
             total.by.period[r] <- revenue.base + total.by.period[r]
         }
     }
-    average.retention.rate <- sum(retention.rate * n.subscriptions, na.rm = TRUE) / sum(n.subscriptions, na.rm = TRUE)
-    retention.rate.by.period <- apply(retention.rate * n.subscriptions, 2, sum, na.rm = TRUE) / apply(n.subscriptions, 2, sum, na.rm = TRUE)
+    average.retention.rate <- Sum(retention.rate * n.subscriptions) / Sum(n.subscriptions)
+    retention.rate.by.period <- apply(retention.rate * n.subscriptions, 2, Sum) / apply(n.subscriptions, 2, Sum)
     retention.rate.volume.by.period <- 1 - loss.by.period / total.by.period
     churn <- 1 - average.retention.rate
     average.retention.rate.volume = (total - total.lost) / total

@@ -13,6 +13,7 @@
 #' @references Bass, Frank (1969). "A new product growth for model consumer durables".
 #' Management Science 15 (5): 215-227.
 #' @importFrom stats lm
+#' @importFrom verbs Sum
 #' @export
 Bass <- function(data, remove.last = TRUE)
 {
@@ -52,7 +53,7 @@ Bass <- function(data, remove.last = TRUE)
         y
     }
     predicted <- .predict(p, q, m)
-    print(sum(!is.na(predicted)))
+    print(Sum(!is.na(predicted)))
     print(summary(predicted))
     predicted <- predicted[!is.na(predicted) & predicted < Inf ]
     max <- (log(q) - log(p)) / (p + q)
