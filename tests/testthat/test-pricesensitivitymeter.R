@@ -16,13 +16,13 @@ dat <- as.matrix(data.frame(`Too cheap` = c(1, 0.5, 0.75, 0.5, 0.25, 0.5, 0.5, 1
 
 test_that("PSM",
 {
-    expect_error(PriceSensitivityMeter(dat), NA)
+    expect_warning(PriceSensitivityMeter(dat))
     dat[5,1] <- NA
     dat[6,4] <- NA
-    expect_error(PriceSensitivityMeter(dat), NA)
+    expect_warning(PriceSensitivityMeter(dat))
     
     dat.missing <- cbind(dat[,1:3], 'Very expensive' = rep(NA, NROW(dat)))
-    expect_error(PriceSensitivityMeter(dat.missing), NA)
+    expect_warning(PriceSensitivityMeter(dat.missing), "not valid")
 })
 
 fake <- data.frame(A = 1:10, B = (1:10) + 1, C = (1:10) + 2, D = (1:10) + 3)

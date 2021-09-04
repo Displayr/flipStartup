@@ -4,6 +4,10 @@
 #' @param x Input table containing survey responses in 4 columns
 #'   At what price would you consider this product/brand to be 
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
+#' @param output Type of data to show in the chart. One of "Attitude of respondents",
+#'   "Likelihood to buy" and "Revenue".
+#' @param likelihood.scale Used in NSM calculation to convert likelihood scale to probabiliy.
+#'   Default scale assumes a 7 point scale.
 #' @param weights A numeric vector with length equal to the number of rows in \code{x}. 
 #'   They are applied whem computing the proportions of respondents for each question
 #' @param resolution Numeric; controls the intervals (in terms of price) between which 
@@ -30,12 +34,15 @@
 #' points ("pt"), which will be consistent with font sizes in text boxes.
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
-#' @importFrom plotly layout config
+#' @importFrom plotly layout config add_trace
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
 #' @export
 
 PriceSensitivityMeter <- function(x,
                                   weights = NULL,
+                                  likelihood.scale = c(0.0, 0.1, 0.3, 0.5, 0.7), #c(0.0, 0.0, 0.0, 0.1, 0.3, 0.5, 0.75),
+                                  output = c("Attitude of respondents", "Likelihood to buy", "Revenue", 
+                                    "Likelihood to buy and Revenue")[1], 
                                   resolution = NULL,
                                   colors = c("#FF0000", "#FF0000", "#008000", "#008000"), 
                                   line.type = c("dot", "solid", "solid", "dot"),
@@ -56,8 +63,8 @@ PriceSensitivityMeter <- function(x,
                                   x.title = "Price",
                                   x.tick.prefix = currency,
                                   x.hovertext.format = ".2f",
-                                  y.title = "Proportion of respondents",
-                                  y.tick.format = "%",
+                                  y.title = "",
+                                  y.tick.format = "",
                                   intersection.show = TRUE,
                                   intersection.arrow.color = global.font.color,
                                   intersection.arrow.size = 0,
@@ -80,12 +87,23 @@ PriceSensitivityMeter <- function(x,
         warning("Negative prices have been ignored")
         x[ind] <- NA
     }
-
     if (ncol(x) < 4)
         stop("Price sensitivity meter needs input data containing 4 columns: ",
              "'Very cheap', 'Cheap', 'Expensive', 'Very expensive'")
+    if (length(weights) > 1 && length(weights) != nrow(x))
+        stop("Weights should be the same length as the number of respondents.")
     if (length(weights) > 1 && any(is.na(weights)))
         stop("Weights contain missing values")
+    ind.invalid <- which(x[,4] < x[,3] | x[,3] < x[,2] | x[,2] < x[,1])
+    if (length(ind.invalid) > 0)
+    {
+        warning(length(ind.invalid), " observations were not valid and ignored. ",
+            "Prices for each respondent should be supplied in increasing order.")
+        x <- x[-ind.invalid,]
+        if (!is.null(weights))
+            weights <- weights[-ind.invalid]
+    } 
+
     
     # For the standard charts, the font size conversion happens inside flipChart::CChart
     if (tolower(font.units) %in% c("pt", "point", "points"))
@@ -104,7 +122,7 @@ PriceSensitivityMeter <- function(x,
         intersection.label.font.size = round(fsc * intersection.label.font.size, 0)
     }
 
-    # Determine x-positions to calculate proportions
+    # Determine x-positions (price) to calculate proportions
     rg.raw <- range(x, na.rm = TRUE)
     if (is.null(resolution)) 
         xpts <- sort(unique(as.numeric(x))) 
@@ -119,8 +137,98 @@ PriceSensitivityMeter <- function(x,
     psm.dat[,2] <- propGreatorEqual(x[,2], xpts, weights)
     psm.dat[,3] <- propLessorEqual(x[,3], xpts, weights)
     psm.dat[,4] <- propLessorEqual(x[,4], xpts, weights)
-    
-    pp <- suppressWarnings(Line(psm.dat, colors = colors, line.type = line.type, line.thickness = line.thickness,
+ 
+
+    # NSM extension
+    # Even if not plotted, the extra data is included in ChartData
+    if (ncol(x) >= 6 && !all(is.na(x[,5:6])))
+    {
+        max.likelihood.score <- max(x[,5:6], na.rm = TRUE)
+        if (length(likelihood.scale) < max.likelihood.score)
+            stop("Likelihood scale contains ", length(likelihood.scale), 
+            " but likelihood scores in the input data range up to ", max.likelihood.score)
+        l.vals <- 1:floor(max.likelihood.score)
+        if (any(!x[,5:6] %in% l.vals & !is.na(x[,5:6])))
+            stop("Likelihood scores should consist of values in ", l.vals, ".")      
+
+        nsmat <- matrix(NA, nrow(x), length(xpts))
+        for (i in 1:nrow(x))
+            nsmat[i,] <- interpolate_prob(x[i,], xpts, likelihood.scale, 
+                            if (is.null(weights)) 1 else weights[i])
+        trial <- apply(nsmat, 2, mean, na.rm = TRUE)
+        revenue <- xpts * trial
+        psm.dat <- cbind(psm.dat, 'Likelihood to buy' = trial, 'Revenue' = revenue)
+    }
+
+    intersect.pts <- NULL
+    intersect.label.format <- "%.0f%%"
+    if (grepl("Likelihood", output, fixed = TRUE))
+    {
+        if (!any(nzchar(y.title)))
+            y.title <- "Likelihood to buy"
+        if (!any(nzchar(y.tick.format)))
+            y.tick.format <- "%"
+        plot.data <- psm.dat[,5,drop = FALSE]
+
+        if (intersection.show)
+        {
+            ind.max.trial <- which.max(trial)
+            intersect.pts <- matrix(c(xpts[ind.max.trial], trial[ind.max.trial]), 1, 2,
+                dimnames = list("Optimal price", c("X", "Y")))
+            intersect.ax <- 1 * intersection.arrow.length
+            intersect.ay <- -1 * intersection.arrow.length
+            intersect.label.format <- "%.0f%%"
+        }
+
+    } else if (output == "Revenue")
+    {
+        if (!any(nzchar(y.title)))
+            y.title <- "Revenue"
+        if (!any(nzchar(y.tick.format)))
+            y.tick.format <- "$.2f"
+        plot.data <- psm.dat[,6,drop = FALSE]
+        
+        if (intersection.show)
+        {
+            ind.max.revenue <- which.max(revenue)
+            intersect.pts <- matrix(c(xpts[ind.max.revenue], revenue[ind.max.revenue]), 1, 2,
+                dimnames = list("Optimal price", c("X", "Y")))
+            intersect.ax <- 1 * intersection.arrow.length
+            intersect.ay <- -1 * intersection.arrow.length
+            intersect.label.format <- "$%.2f"
+        }
+    } else
+    {
+        if (!any(nzchar(y.title)))
+            y.title <- "Proportion of respondents"
+        if (!any(nzchar(y.tick.format)))
+            y.tick.format <- "%"
+        plot.data <- psm.dat[,1:4,drop = FALSE]
+
+        if (intersection.show)
+        {
+            intersect.pts <- matrix(NA, 4, 2)
+            intersect.pts[1,] <- getIntersect(psm.dat[,3], psm.dat[,1], xpts)    
+            intersect.pts[2,] <- getIntersect(psm.dat[,4], psm.dat[,1], xpts)    
+            intersect.pts[3,] <- getIntersect(psm.dat[,3], psm.dat[,2], xpts)    
+            intersect.pts[4,] <- getIntersect(psm.dat[,4], psm.dat[,2], xpts)
+            rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
+                                       "Indifference price point", "Point of marginal expensiveness")
+            intersect.ax <- c(-10, 0, 0, 10) * intersection.arrow.length
+            intersect.ay <- c(2, -5, -5, 2) * intersection.arrow.length
+            ind.na <- which(is.na(intersect.pts[,1]) | is.na(intersect.pts[,2]))
+            if (length(ind.na) > 0)
+            {
+                intersect.pts <- intersect.pts[-ind.na,, drop = FALSE]
+                intersect.ax <- intersect.ax[-ind.na]
+                intersect.ay <- intersect.ay[-ind.na]
+                intersect.label.format <- "%.0f%%"
+            }
+        }
+    }
+   
+    pp <- suppressWarnings(Line(plot.data, colors = colors, 
+               line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
                x.title = x.title, x.tick.prefix = x.tick.prefix, x.hovertext.format = x.hovertext.format,
                y.title = y.title, y.tick.format = y.tick.format, ...,
@@ -129,50 +237,60 @@ PriceSensitivityMeter <- function(x,
                hovertext.font.size = hovertext.font.size, data.label.font.size  = data.label.font.size,
                y.title.font.size = y.title.font.size, y.tick.font.size = y.tick.font.size,
                x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size))
-    
-    if (intersection.show)
+
+    if (output == "Likelihood to buy and Revenue")
     {
-        intersect.pts <- matrix(NA, 4, 2)
-        intersect.pts[1,] <- getIntersect(psm.dat[,3], psm.dat[,1], xpts)    
-        intersect.pts[2,] <- getIntersect(psm.dat[,4], psm.dat[,1], xpts)    
-        intersect.pts[3,] <- getIntersect(psm.dat[,3], psm.dat[,2], xpts)    
-        intersect.pts[4,] <- getIntersect(psm.dat[,4], psm.dat[,2], xpts)
-        rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
-                                   "Indifference price point", "Point of marginal expensiveness")
-        intersect.ax <- c(-10, 0, 0, 10) * intersection.arrow.length
-        intersect.ay <- c(2, -5, -5, 2) * intersection.arrow.length
-        ind.na <- which(is.na(intersect.pts[,1]) | is.na(intersect.pts[,2]))
-        if (length(ind.na) > 0)
+        pp$htmlwidget <- add_trace(pp$htmlwidget, x = xpts, y = psm.dat[,6], yaxis = "y2",
+            type = "scatter", mode = "lines", cliponaxis = FALSE, name = "Revenue",
+            line = list(color = colors[2], width = line.thickness[2], dash = line.type[2]),
+            hoverlabel = list(font = list(color =  "black",
+            size = hovertext.font.size, family = global.font.family)))
+        pp$htmlwidget <- layout(pp$htmlwidget,
+            yaxis2 = list(side = "right", anchor = "y", range = c(0, 1.1 * max(revenue)),
+                title = list(text = "Revenue", font = list(family = global.font.family,
+                color = global.font.color, size = y.title.font.size)),
+                tickformat = "$.2f", tickfont = list(family = global.font.family,
+                color = global.font.family, size = y.tick.font.size),
+                gridcolor = "transparent"), margin = list(r = 80))
+
+        if (intersection.show)
         {
-            intersect.pts <- intersect.pts[-ind.na,, drop = FALSE]
-            intersect.ax <- intersect.ax[-ind.na]
-            intersect.ay <- intersect.ay[-ind.na]
+            ind.max.revenue <- which.max(revenue)
+            intersect.pts <- rbind(intersect.pts, c(xpts[ind.max.revenue], revenue[ind.max.revenue]))
+            rownames(intersect.pts) <- c("Price to maximise trial", "Price to maximise revenue")
+            intersect.ax <- c(-5, 5) * intersection.arrow.length
+            intersect.ay <- c(1,1) * intersection.arrow.length
+            intersect.label.format <- c("%.0f%%")
         }
 
-        if (NROW(intersect.pts) > 0)
-        {
-            annot <- list()
-            for (i in 1:NROW(intersect.pts))
-                annot[[i]] = list(xref = "x", yref = "y",
-                                x = intersect.pts[i,1], y = intersect.pts[i,2],
-                                arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
-                                arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
-                                axref = "pixel", ax = intersect.ax[i],
-                                ayref = "pixel", ay = intersect.ay[i], 
-                                font = list(family = intersection.label.font.family,
-                                color = intersection.label.font.color, size = intersection.label.font.size),
-                                text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
-                                intersection.label.decimals, "f", " (%.0f%%)"), 
-                                rownames(intersect.pts)[i], currency, intersect.pts[i,1], intersect.pts[i,2]*100),
-                                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
-            pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
-        }
-
-        # allow labels to be movable - but turn off editing to other parts of the text
-        pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE, 
-                                edits = list(annotationPosition = FALSE, annotationText = FALSE,
-                                             axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     }
+
+
+    if (NROW(intersect.pts) > 0)
+    {
+        annot <- list()
+        for (i in 1:NROW(intersect.pts))
+            annot[[i]] = list(xref = "x", 
+                            yref = if (output == "Likelihood to buy and Revenue" && i == 2) "y2" else "y",
+                            x = intersect.pts[i,1], y = intersect.pts[i,2],
+                            arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
+                            arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
+                            axref = "pixel", ax = intersect.ax[i],
+                            ayref = "pixel", ay = intersect.ay[i], 
+                            font = list(family = intersection.label.font.family,
+                            color = intersection.label.font.color, size = intersection.label.font.size),
+                            text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
+                            intersection.label.decimals, "f", " (", intersect.label.format, ")"), 
+                            rownames(intersect.pts)[i], currency, intersect.pts[i,1], 
+                            intersect.pts[i,2]* if (output == "Revenue") 1 else 100),
+                            wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
+        pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
+    }
+
+    # allow labels to be movable - but turn off editing to other parts of the text
+    pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE, 
+                            edits = list(annotationPosition = FALSE, annotationText = FALSE,
+                                         axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     attr(pp, "ChartData") <- psm.dat
     return(pp)
 }
@@ -244,4 +362,32 @@ getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
     x.mid <- x[ind0] + x.delta
     y.mid <- y1[ind0] + (y1[ind1] - y1[ind0])/(x[ind1] - x[ind0]) * x.delta
     return(c(x.mid, y.mid))
+}
+
+
+# For each respondent, interpolates the probability of buying
+# at each value along the x-axis
+interpolate_prob <- function(xx, prices, sc, ww)
+{
+    tmp.prob <- c(0, sc[xx[5]], sc[xx[6]], 0)
+    tmp.price <- xx[1:4]
+    if (any(is.na(xx)))
+        return(rep(NA, length(prices)))
+
+    # linear interpolation - applied piecewise
+    mm <- diff(tmp.prob)/diff(tmp.price)
+    .interpseg <- function(pp)
+    {
+        if (pp <= tmp.price[1])
+            return(0)
+        else if (pp <= tmp.price[2])
+            return((mm[1] * (pp - tmp.price[1]) + tmp.prob[1]) * ww)
+        else if (pp <= tmp.price[3])
+            return((mm[2] * (pp - tmp.price[2]) + tmp.prob[2]) * ww)
+        else if (pp <= tmp.price[4])
+            return((mm[3] * (pp - tmp.price[3]) + tmp.prob[3]) * ww)
+        else
+            return(0)
+    }
+    return(sapply(prices, .interpseg))
 }
