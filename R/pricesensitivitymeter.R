@@ -44,7 +44,7 @@
 PriceSensitivityMeter <- function(x,
                                   check.prices.ordered = FALSE,
                                   weights = NULL,
-                                  likelihood.scale = c(0.0, 0.1, 0.3, 0.5, 0.7), #c(0.0, 0.0, 0.0, 0.1, 0.3, 0.5, 0.75),
+                                  likelihood.scale = c(0.0, 0.1, 0.3, 0.5, 0.7),
                                   output = c("Attitude of respondents", "Likelihood to buy", "Revenue", 
                                     "Likelihood to buy and Revenue")[1], 
                                   resolution = NULL,
@@ -157,8 +157,7 @@ PriceSensitivityMeter <- function(x,
  
 
     # NSM extension
-    # Even if not plotted, the extra data is included in ChartData
-    if (ncol(x) >= 6 && !all(is.na(x[,5:6])))
+    if (output != "Attitude of respondents" && ncol(x) >= 6 && !all(is.na(x[,5:6])))
     {
         max.likelihood.score <- max(x[,5:6], na.rm = TRUE)
         if (!is.numeric(likelihood.scale))
@@ -288,9 +287,7 @@ PriceSensitivityMeter <- function(x,
             intersect.ay <- c(0,0) * intersection.arrow.length
             intersect.label.format <- c("%.0f%%")
         }
-
     }
-
 
     if (NROW(intersect.pts) > 0)
     {
