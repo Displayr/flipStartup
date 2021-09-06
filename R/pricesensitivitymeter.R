@@ -6,6 +6,8 @@
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
 #' @param output Type of data to show in the chart. One of "Attitude of respondents",
 #'   "Likelihood to buy" and "Revenue".
+#' @param check.prices.ordered Check that prices supplied in the first 4 columns of \code{x}
+#'  are supplied in increasing order. For backwards compatibility this is off by default.
 #' @param likelihood.scale Used in NSM calculation to convert likelihood scale to probabiliy.
 #'   Default scale assumes a 7 point scale.
 #' @param weights A numeric vector with length equal to the number of rows in \code{x}. 
@@ -39,6 +41,7 @@
 #' @export
 
 PriceSensitivityMeter <- function(x,
+                                  check.prices.ordered = FALSE,
                                   weights = NULL,
                                   likelihood.scale = c(0.0, 0.1, 0.3, 0.5, 0.7), #c(0.0, 0.0, 0.0, 0.1, 0.3, 0.5, 0.75),
                                   output = c("Attitude of respondents", "Likelihood to buy", "Revenue", 
@@ -95,7 +98,7 @@ PriceSensitivityMeter <- function(x,
     if (length(weights) > 1 && any(is.na(weights)))
         stop("Weights contain missing values")
     ind.invalid <- which(x[,4] < x[,3] | x[,3] < x[,2] | x[,2] < x[,1])
-    if (length(ind.invalid) > 0)
+    if (check.prices.ordered && length(ind.invalid) > 0)
     {
         warning(length(ind.invalid), " observations were not valid and ignored. ",
             "Prices for each respondent should be supplied in increasing order.")
