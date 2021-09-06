@@ -38,6 +38,7 @@
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config add_trace
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
+#' @importFrom flipU ConvertCommaSeparatedStringToVector
 #' @export
 
 PriceSensitivityMeter <- function(x,
@@ -63,6 +64,11 @@ PriceSensitivityMeter <- function(x,
                                   y.tick.font.size = 10,
                                   x.tick.font.size = 10,
                                   data.label.font.size = 10,
+                                  hovertext.font.family = global.font.family,
+                                  y.title.font.family = global.font.family,
+                                  y.title.font.color = global.font.color,
+                                  y.tick.font.family = global.font.family,
+                                  y.tick.font.color = global.font.color,
                                   x.title = "Price",
                                   x.tick.prefix = currency,
                                   x.hovertext.format = ".2f",
@@ -84,6 +90,9 @@ PriceSensitivityMeter <- function(x,
                                   ...)
 {
     x <- as.matrix(x)
+    if (output != "Attitude of respondents" && sum(apply(x, 2, function(xx) any(!is.na(xx)))) < 6)
+        stop("Data input must include price considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
+             "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
     ind <- which(x < 0)
     if (length(ind) > 0)
     {
@@ -100,13 +109,18 @@ PriceSensitivityMeter <- function(x,
     ind.invalid <- which(x[,4] < x[,3] | x[,3] < x[,2] | x[,2] < x[,1])
     if (check.prices.ordered && length(ind.invalid) > 0)
     {
+        if (length(ind.invalid) == NROW(x))
+            stop("No data remaining after invalid observations were ignored.")
         warning(length(ind.invalid), " observations were not valid and ignored. ",
             "Prices for each respondent should be supplied in increasing order.")
         x <- x[-ind.invalid,]
         if (!is.null(weights))
             weights <- weights[-ind.invalid]
     } 
-
+    if (output != "Attitude of respondents" && !any(apply(x, 1, function(xx) sum(!is.na(xx)) == 6)))
+        stop("Data input must include at least one valid observation containing prices ",
+             "considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
+             "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
     
     # For the standard charts, the font size conversion happens inside flipChart::CChart
     if (tolower(font.units) %in% c("pt", "point", "points"))
@@ -147,6 +161,12 @@ PriceSensitivityMeter <- function(x,
     if (ncol(x) >= 6 && !all(is.na(x[,5:6])))
     {
         max.likelihood.score <- max(x[,5:6], na.rm = TRUE)
+        if (!is.numeric(likelihood.scale))
+        {
+            likelihood.scale <- suppressWarnings(as.numeric(ConvertCommaSeparatedStringToVector(likelihood.scale)))
+            if (any(is.na(likelihood.scale)))
+                stop("Likelhood scale is not valid")
+        }
         if (length(likelihood.scale) < max.likelihood.score)
             stop("Likelihood scale contains ", length(likelihood.scale), 
             " but likelihood scores in the input data range up to ", max.likelihood.score)
@@ -178,8 +198,8 @@ PriceSensitivityMeter <- function(x,
             ind.max.trial <- which.max(trial)
             intersect.pts <- matrix(c(xpts[ind.max.trial], trial[ind.max.trial]), 1, 2,
                 dimnames = list("Optimal price", c("X", "Y")))
-            intersect.ax <- 1 * intersection.arrow.length
-            intersect.ay <- -1 * intersection.arrow.length
+            intersect.ax <- 10 * intersection.arrow.length
+            intersect.ay <- -2 * intersection.arrow.length
             intersect.label.format <- "%.0f%%"
         }
 
@@ -196,8 +216,8 @@ PriceSensitivityMeter <- function(x,
             ind.max.revenue <- which.max(revenue)
             intersect.pts <- matrix(c(xpts[ind.max.revenue], revenue[ind.max.revenue]), 1, 2,
                 dimnames = list("Optimal price", c("X", "Y")))
-            intersect.ax <- 1 * intersection.arrow.length
-            intersect.ay <- -1 * intersection.arrow.length
+            intersect.ax <- 10 * intersection.arrow.length
+            intersect.ay <- -2 * intersection.arrow.length
             intersect.label.format <- "$%.2f"
         }
     } else
@@ -230,7 +250,7 @@ PriceSensitivityMeter <- function(x,
         }
     }
    
-    pp <- suppressWarnings(Line(plot.data, colors = colors, 
+    pp <- suppressWarnings(Line(plot.data, colors = colors,
                line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
                x.title = x.title, x.tick.prefix = x.tick.prefix, x.hovertext.format = x.hovertext.format,
@@ -239,30 +259,33 @@ PriceSensitivityMeter <- function(x,
                footer.font.size = footer.font.size, legend.font.size = legend.font.size,
                hovertext.font.size = hovertext.font.size, data.label.font.size  = data.label.font.size,
                y.title.font.size = y.title.font.size, y.tick.font.size = y.tick.font.size,
-               x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size))
+               x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size,
+               hovertext.font.family = hovertext.font.family, y.title.font.family = y.title.font.family,
+               y.tick.font.family = y.tick.font.family, y.title.font.color = y.title.font.color,
+               y.tick.font.color = y.tick.font.color))
 
     if (output == "Likelihood to buy and Revenue")
     {
         pp$htmlwidget <- add_trace(pp$htmlwidget, x = xpts, y = psm.dat[,6], yaxis = "y2",
             type = "scatter", mode = "lines", cliponaxis = FALSE, name = "Revenue",
             line = list(color = colors[2], width = line.thickness[2], dash = line.type[2]),
-            hoverlabel = list(font = list(color =  "black",
-            size = hovertext.font.size, family = global.font.family)))
+            hoverlabel = list(font = list(color = flipStandardCharts:::autoFontColor(colors[2]),
+            size = hovertext.font.size, family = hovertext.font.family)))
         pp$htmlwidget <- layout(pp$htmlwidget,
             yaxis2 = list(side = "right", anchor = "y", range = c(0, 1.1 * max(revenue)),
-                title = list(text = "Revenue", font = list(family = global.font.family,
-                color = global.font.color, size = y.title.font.size)),
-                tickformat = "$.2f", tickfont = list(family = global.font.family,
-                color = global.font.family, size = y.tick.font.size),
-                gridcolor = "transparent"), margin = list(r = 80))
+                title = list(text = "Revenue", font = list(family = y.title.font.family,
+                color = y.title.font.color, size = y.title.font.size), standoff = 20),
+                tickformat = "$.2f", tickfont = list(family = y.tick.font.family,
+                color = y.tick.font.family, size = y.tick.font.size),
+                gridcolor = "transparent", layer = "below axis"), margin = list(r = 80))
 
         if (intersection.show)
         {
             ind.max.revenue <- which.max(revenue)
             intersect.pts <- rbind(intersect.pts, c(xpts[ind.max.revenue], revenue[ind.max.revenue]))
             rownames(intersect.pts) <- c("Price to maximise trial", "Price to maximise revenue")
-            intersect.ax <- c(-5, 5) * intersection.arrow.length
-            intersect.ay <- c(1,1) * intersection.arrow.length
+            intersect.ax <- c(-10, 10) * intersection.arrow.length
+            intersect.ay <- c(0,0) * intersection.arrow.length
             intersect.label.format <- c("%.0f%%")
         }
 
@@ -273,6 +296,15 @@ PriceSensitivityMeter <- function(x,
     {
         annot <- list()
         for (i in 1:NROW(intersect.pts))
+        {
+            tmp.font.color <- intersection.label.font.color
+            if (output == "Likelihood to buy and Revenue")
+                tmp.font.color <- colors[i]
+            if (output == "Revenue" || (output == "Likelihood to buy and Revenue" && i == 2))
+                tmp.ylab <- sprintf("$%.2f", intersect.pts[i,2])
+            else
+                tmp.ylab <- sprintf("%.0f%%", intersect.pts[i,2] * 100)
+            
             annot[[i]] = list(xref = "x", 
                             yref = if (output == "Likelihood to buy and Revenue" && i == 2) "y2" else "y",
                             x = intersect.pts[i,1], y = intersect.pts[i,2],
@@ -281,12 +313,12 @@ PriceSensitivityMeter <- function(x,
                             axref = "pixel", ax = intersect.ax[i],
                             ayref = "pixel", ay = intersect.ay[i], 
                             font = list(family = intersection.label.font.family,
-                            color = intersection.label.font.color, size = intersection.label.font.size),
+                            color = tmp.font.color, size = intersection.label.font.size),
                             text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
-                            intersection.label.decimals, "f", " (", intersect.label.format, ")"), 
-                            rownames(intersect.pts)[i], currency, intersect.pts[i,1], 
-                            intersect.pts[i,2]* if (output == "Revenue") 1 else 100),
+                            intersection.label.decimals, "f", " (%s)"), 
+                            rownames(intersect.pts)[i], currency, intersect.pts[i,1], tmp.ylab),
                             wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
+        }
         pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
     }
 

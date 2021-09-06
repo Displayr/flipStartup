@@ -6,7 +6,11 @@
 \usage{
 PriceSensitivityMeter(
   x,
+  check.prices.ordered = FALSE,
   weights = NULL,
+  likelihood.scale = c(0, 0.1, 0.3, 0.5, 0.7),
+  output = c("Attitude of respondents", "Likelihood to buy", "Revenue",
+    "Likelihood to buy and Revenue")[1],
   resolution = NULL,
   colors = c("#FF0000", "#FF0000", "#008000", "#008000"),
   line.type = c("dot", "solid", "solid", "dot"),
@@ -24,11 +28,16 @@ PriceSensitivityMeter(
   y.tick.font.size = 10,
   x.tick.font.size = 10,
   data.label.font.size = 10,
+  hovertext.font.family = global.font.family,
+  y.title.font.family = global.font.family,
+  y.title.font.color = global.font.color,
+  y.tick.font.family = global.font.family,
+  y.tick.font.color = global.font.color,
   x.title = "Price",
   x.tick.prefix = currency,
   x.hovertext.format = ".2f",
-  y.title = "Proportion of respondents",
-  y.tick.format = "\%",
+  y.title = "",
+  y.tick.format = "",
   intersection.show = TRUE,
   intersection.arrow.color = global.font.color,
   intersection.arrow.size = 0,
@@ -50,8 +59,17 @@ PriceSensitivityMeter(
 At what price would you consider this product/brand to be 
 1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.}
 
+\item{check.prices.ordered}{Check that prices supplied in the first 4 columns of \code{x}
+are supplied in increasing order. For backwards compatibility this is off by default.}
+
 \item{weights}{A numeric vector with length equal to the number of rows in \code{x}. 
 They are applied whem computing the proportions of respondents for each question}
+
+\item{likelihood.scale}{Used in NSM calculation to convert likelihood scale to probabiliy.
+Default scale assumes a 7 point scale.}
+
+\item{output}{Type of data to show in the chart. One of "Attitude of respondents",
+"Likelihood to buy" and "Revenue".}
 
 \item{resolution}{Numeric; controls the intervals (in terms of price) between which 
 "Proportion of respondents" is computed. For example, set to \code{0.1}, to
@@ -91,6 +109,18 @@ font attribute for the chart unless specified individually.}
 \item{x.tick.font.size}{Integer; x-axis tick label font size}
 
 \item{data.label.font.size}{Integer; Font size for data label.px.}
+
+\item{hovertext.font.family}{Font family of hover text.}
+
+\item{y.title.font.family}{Character; y-axis title font family}
+
+\item{y.title.font.color}{y-axis title font color as a named color in
+character format (e.g. "black") or a hex code.}
+
+\item{y.tick.font.family}{Character; y-axis tick label font family}
+
+\item{y.tick.font.color}{y-axis tick label font color as a named color
+in character format (e.g. "black") or an a hex code.}
 
 \item{x.title}{Character, x-axis title; defaults to chart input values;
 to turn off set to "FALSE".}
