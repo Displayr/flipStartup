@@ -118,8 +118,8 @@ PriceSensitivityMeter <- function(x,
             weights <- weights[-ind.invalid]
     } 
     if (output != "Attitude of respondents" && !any(apply(x, 1, function(xx) sum(!is.na(xx)) == 6)))
-        stop("Data input must include at least one valid observation containing prices ",
-             "considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
+        stop("Data must include at least one valid observation containing all 6 values: ",
+             "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
              "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
     
     # For the standard charts, the font size conversion happens inside flipChart::CChart
@@ -168,7 +168,7 @@ PriceSensitivityMeter <- function(x,
         }
         if (length(likelihood.scale) < max.likelihood.score)
             stop("Likelihood scale contains ", length(likelihood.scale), 
-            " but likelihood scores in the input data range up to ", max.likelihood.score)
+            "values but likelihood scores in the input data range up to ", max.likelihood.score)
         l.vals <- 1:floor(max.likelihood.score)
         if (any(!x[,5:6] %in% l.vals & !is.na(x[,5:6])))
             stop("Likelihood scores should consist of values in ", l.vals, ".")      
