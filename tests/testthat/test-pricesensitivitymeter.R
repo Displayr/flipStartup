@@ -16,7 +16,8 @@ dat <- as.matrix(data.frame(`Too cheap` = c(1, 0.5, 0.75, 0.5, 0.25, 0.5, 0.5, 1
 
 test_that("PSM",
 {
-    expect_error(PriceSensitivityMeter(dat), NA)
+    expect_warning(PriceSensitivityMeter(dat, check.prices.ordered = TRUE),
+                   "should be supplied in increasing order")
     dat[5,1] <- NA
     dat[6,4] <- NA
     expect_error(PriceSensitivityMeter(dat), NA)
