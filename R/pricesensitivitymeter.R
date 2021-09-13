@@ -116,7 +116,9 @@ PriceSensitivityMeter <- function(x,
         x <- x[-ind.invalid,]
         if (!is.null(weights))
             weights <- weights[-ind.invalid]
-    } 
+    }
+    if (length(weights) > 1)
+        weights <- weights/sum(weights, na.rm = TRUE) * nrow(x)
     if (output != "Attitude of respondents" && !any(apply(x, 1, function(xx) sum(!is.na(xx)) == 6)))
         stop("Data must include at least one valid observation containing all 6 values: ",
              "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
@@ -166,12 +168,9 @@ PriceSensitivityMeter <- function(x,
             if (any(is.na(likelihood.scale)))
                 stop("Likelhood scale is not valid")
         }
-        if (length(likelihood.scale) < max.likelihood.score)
-            stop("Likelihood scale contains ", length(likelihood.scale), 
-            "values but likelihood scores in the input data range up to ", max.likelihood.score)
-        l.vals <- 1:floor(max.likelihood.score)
+        l.vals <- 1:length(likelihood.scale)
         if (any(!x[,5:6] %in% l.vals & !is.na(x[,5:6])))
-            stop("Likelihood scores should consist of values in ", l.vals, ".")      
+            stop("Likelihood scores should consist of values in [", paste(l.vals, collapse=","), "].")      
 
         nsmat <- matrix(NA, nrow(x), length(xpts))
         for (i in 1:nrow(x))
