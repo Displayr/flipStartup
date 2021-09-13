@@ -167,6 +167,8 @@ PriceSensitivityMeter <- function(x,
             likelihood.scale <- suppressWarnings(as.numeric(ConvertCommaSeparatedStringToVector(likelihood.scale)))
             if (any(is.na(likelihood.scale)))
                 stop("Likelhood scale is not valid")
+            if (any(likelihood.scale < 0) || any(likelihood.scale > 1))
+                stop("Likelihood scale should consist of values between 0 and 1.")
         }
         l.vals <- 1:length(likelihood.scale)
         if (any(!x[,5:6] %in% l.vals & !is.na(x[,5:6])))
