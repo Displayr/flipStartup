@@ -39,6 +39,7 @@
 #' @importFrom plotly layout config add_trace
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
 #' @importFrom flipU ConvertCommaSeparatedStringToVector
+#' @importFrom verbs Sum SumEmptyHandling
 #' @export
 
 PriceSensitivityMeter <- function(x,
@@ -90,7 +91,7 @@ PriceSensitivityMeter <- function(x,
                                   ...)
 {
     x <- as.matrix(x)
-    if (output != "Attitude of respondents" && sum(apply(x, 2, function(xx) any(!is.na(xx)))) < 6)
+    if (output != "Attitude of respondents" && SumEmptyHandling(apply(x, 2, function(xx) any(!is.na(xx))), remove.missing = FALSE) < 6)
         stop("Data input must include price considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
              "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
     ind <- which(x < 0)
@@ -118,8 +119,8 @@ PriceSensitivityMeter <- function(x,
             weights <- weights[-ind.invalid]
     }
     if (length(weights) > 1)
-        weights <- weights/sum(weights, na.rm = TRUE) * nrow(x)
-    if (output != "Attitude of respondents" && !any(apply(x, 1, function(xx) sum(!is.na(xx)) == 6)))
+        weights <- weights/Sum(weights) * nrow(x)
+    if (output != "Attitude of respondents" && !any(apply(x, 1, function(xx) SumEmptyHandling(!is.na(xx)) == 6)))
         stop("Data must include at least one valid observation containing all 6 values: ",
              "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
              "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
