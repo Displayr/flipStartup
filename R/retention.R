@@ -18,7 +18,7 @@
 #'   \item{churn.volume}{Churn, weighted by subscriber value in the preceeding period.}
 #' @importFrom flipTime AsDate CompleteListPeriodNames Period Periods
 #' @importFrom lubridate as_date
-#' @importFrom verbs Sum
+#' @importFrom verbs Sum SumEmptyHandling
 #' @export
 Retention <- function(data)
 {
@@ -57,7 +57,7 @@ Retention <- function(data)
             churn <- data$churn[base]
             ids <- data$id[base]
             revenue.base <- Sum(revenue)
-            revenue.lost <- Sum(revenue[churn])
+            revenue.lost <- SumEmptyHandling(revenue[churn])
             n.subscriptions[r, c] <- n.subscribers <- length(unique(ids))
             n.retained[r, c] <- retained <-  n.subscribers - length(unique(ids[churn]))
             retention.rate[r, c] <- retained / n.subscribers
