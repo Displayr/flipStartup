@@ -40,4 +40,4 @@ IndexDiagonal <- function(x, off = FALSE, by.row = TRUE)
 
 
 #' @export
-print.Index <- function(x, ...) print.table(x, digits = 0)
+print.Index <- function(x, ...) print.table(x)

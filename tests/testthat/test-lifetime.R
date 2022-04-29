@@ -16,11 +16,11 @@ for (by in c("month", "year"))
                 # z = rd[rd$observation.within.period == 1,]
                 # rd[364 > (z$to - z$from), ]
                 # #)
-                Lifetime(rd)
+                expect_warning(Lifetime(rd))
                 
                 
  #               , NA)
-            expect_error(r <- Lifetime(rd), NA)
+            expect_warning(r <- Lifetime(rd))
             expect_error(capture.output(print(r)), NA)
 })
 
