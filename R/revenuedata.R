@@ -82,13 +82,6 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     checkVariableForLengthAndMissingData(to, n)
     checkVariableForLengthAndMissingData(id, n)
 
-    all.args.valid <- vapply(c(from, to, start, end), inherits, logical(1L), c("POSIXlt", "POSIXct"))
-    if (!all(all.args.valid)) {
-        first.invalid <- sQuote(c("from", "to", "start", "end"))[which(!all.args.valid)[1L]]
-        warning("All the time arguments (from, to, start and end) need to be either POSIXt or POSIXct. ",
-                first.invalid, " is not")
-    }
-
     # Removing leap years
     from <- Change29FebTo28th(from)
     to <- Change29FebTo28th(to)
