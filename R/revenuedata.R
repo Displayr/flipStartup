@@ -3,9 +3,9 @@
 #' @description Cleans and tidies data for use in growth accounting
 #'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
 #' @param value A vector of containing the revenue per transaction.
-#' @param from A vector of class \code{POSIXct} or \code{POSIXt},
+#' @param from A vector of class \code{POSIXct} or \code{POSIXlt},
 #'     recording the date and time each subscription commences.
-#' @param to A vector of class \code{POSIXct} or \code{POSIXt},
+#' @param to A vector of class \code{POSIXct} or \code{POSIXlt},
 #'     recording the date and time each subscription ends
 #' @param start The date at which the analysis outputs should
 #'     commence. By default, the earliest date recorded in

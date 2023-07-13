@@ -20,10 +20,10 @@ RevenueData(
 \arguments{
 \item{value}{A vector of containing the revenue per transaction.}
 
-\item{from}{A vector of class \code{POSIXct} or \code{POSIXt},
+\item{from}{A vector of class \code{POSIXct} or \code{POSIXlt},
 recording the date and time each subscription commences.}
 
-\item{to}{A vector of class \code{POSIXct} or \code{POSIXt},
+\item{to}{A vector of class \code{POSIXct} or \code{POSIXlt},
 recording the date and time each subscription ends}
 
 \item{start}{The date at which the analysis outputs should
