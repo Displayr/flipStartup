@@ -62,8 +62,20 @@ test_that("Displayr", {
         #subset = z$filter,
         id = z$id,
         start = min(z$start, na.rm = TRUE),
+        end = "2023-01-01"),
+        "All the time arguments"
+    )
+    expect_error(DisplayrTotalPaymentMonthlyRevenueData <- RevenueData(value = z$value,
+        from = as.Date(z$from),
+        to = as.Date(z$end),
+        subscription.length = "month",
+        #subset = z$filter,
+        id = z$id,
+        start = min(z$start, na.rm = TRUE),
         end = as.POSIXct(Sys.Date())),
-    NA)
+        NA
+    )
+
     z = structure(list(value = structure(c(NA, NA, NA, NA, NA, 3999, 
         NA, NA, 7998, NA, 1998.86426651879, NA, NA, NA, NA, NA, 3999, 
         NA, NA, NA, NA, NA, 7998), questiontype = "Number", name = "TotalAnnualLicenceValue", label = "TotalAnnualLicenceValue", question = "TotalAnnualLicenceValue"), 
