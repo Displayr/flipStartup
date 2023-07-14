@@ -43,26 +43,39 @@ for (by in c("week", "month", "quarter", "year"))
 })
 
 
-test_that("Displayr",{
-    
-    z = structure(list(value = c(3999, 7998, 3999, 7998), from = structure(c(1515070800, 
-        1512460800, 1507791600, 1503532800), class = c("POSIXct", "POSIXt", 
-        "QDate")), to = structure(c(1546606800, 1543996800, 1539327600, 
-        1535068800), class = c("POSIXct", "POSIXt", "QDate")), subscription.length = structure(c(1L, 
-        1L, 1L, 1L), .Label = "month", class = "factor"), subset = c(TRUE, 
-        TRUE, TRUE, TRUE), id = LETTERS[1:4], start = structure(c(1503532800, 
-        1503532800, 1503532800, 1503532800), class = c("POSIXct", "POSIXt"
-        )), end = structure(c(17564, 17564, 17564, 17564), class = "Date")), .Names = c("value", 
-        "from", "to", "subscription.length", "subset", "id", "start", 
-        "end"), row.names = c(6L, 9L, 17L, 23L), class = "data.frame")
-    expect_error(DisplayrTotalPaymentMonthlyRevenueData <- RevenueData(value = z$value, 
+test_that("Displayr", {
+
+    z <- data.frame(
+        value = c(3999, 7998, 3999, 7998),
+        from = structure(c(1515070800, 1512460800, 1507791600, 1503532800), class = c("POSIXct", "POSIXt", "QDate")),
+        to = structure(c(1546606800, 1543996800, 1539327600, 1535068800), class = c("POSIXct", "POSIXt", "QDate")),
+        subscription.length = structure(c(1L, 1L, 1L, 1L), .Label = "month", class = "factor"),
+        subset = c(TRUE, TRUE, TRUE, TRUE),
+        id = LETTERS[1:4],
+        start = structure(c(1503532800, 1503532800, 1503532800, 1503532800), class = c("POSIXct", "POSIXt")),
+        end = structure(c(17564, 17564, 17564, 17564), class = "Date")
+    )
+    expect_error(DisplayrTotalPaymentMonthlyRevenueData <- RevenueData(value = z$value,
         from = as.Date(z$from),
         to = as.Date(z$end),
         subscription.length = "month",
-        #subset = z$filter, 
+        #subset = z$filter,
         id = z$id,
         start = min(z$start, na.rm = TRUE),
-        end = Sys.Date()), NA)
+        end = "2023-01-01"),
+        "All the time arguments"
+    )
+    expect_error(DisplayrTotalPaymentMonthlyRevenueData <- RevenueData(value = z$value,
+        from = as.Date(z$from),
+        to = as.Date(z$end),
+        subscription.length = "month",
+        #subset = z$filter,
+        id = z$id,
+        start = min(z$start, na.rm = TRUE),
+        end = as.POSIXct(Sys.Date())),
+        NA
+    )
+
     z = structure(list(value = structure(c(NA, NA, NA, NA, NA, 3999, 
         NA, NA, 7998, NA, 1998.86426651879, NA, NA, NA, NA, NA, 3999, 
         NA, NA, NA, NA, NA, 7998), questiontype = "Number", name = "TotalAnnualLicenceValue", label = "TotalAnnualLicenceValue", question = "TotalAnnualLicenceValue"), 

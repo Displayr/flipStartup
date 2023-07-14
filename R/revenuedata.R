@@ -3,9 +3,9 @@
 #' @description Cleans and tidies data for use in growth accounting
 #'     computations for a startup. Turns all dates with 29th of Feb into the 28th.
 #' @param value A vector of containing the revenue per transaction.
-#' @param from A vector of class \code{POSIXct} or \code{POSIXt},
+#' @param from A vector of class \code{POSIXct} or \code{POSIXlt},
 #'     recording the date and time each subscription commences.
-#' @param to A vector of class \code{POSIXct} or \code{POSIXt},
+#' @param to A vector of class \code{POSIXct} or \code{POSIXlt},
 #'     recording the date and time each subscription ends
 #' @param start The date at which the analysis outputs should
 #'     commence. By default, the earliest date recorded in
@@ -76,16 +76,22 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
                         profiling = NULL, trim.id = 50) #, tolerance = .01)
 {
     # Checking the input variables.
-    n = length(value)
+    n <- length(value)
     checkVariableForLengthAndMissingData(value, n)
     checkVariableForLengthAndMissingData(from, n)
     checkVariableForLengthAndMissingData(to, n)
     checkVariableForLengthAndMissingData(id, n)
 
+    all.args.valid <- vapply(list(from, to, start, end), inherits, logical(1L), c("Date", "POSIXlt", "POSIXct"))
+    if (!all(all.args.valid)) {
+        first.invalid <- sQuote(c("from", "to", "start", "end")[which(!all.args.valid)[1L]])
+        stop("All the time arguments (from, to, start and end) need to be either Date, POSIXt or POSIXct. ",
+             first.invalid, " is not")
+    }
     # Removing leap years
     from <- Change29FebTo28th(from)
     to <- Change29FebTo28th(to)
-    
+
     default.start.end <- start == min(from, na.rm = TRUE) & end == max(from, na.rm = TRUE)
     # Units.
     units <- Periods(1, subscription.length)
