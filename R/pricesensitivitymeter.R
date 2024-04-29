@@ -228,6 +228,7 @@ PriceSensitivityMeter <- function(x,
         if (!any(nzchar(y.tick.format)))
             y.tick.format <- "%"
         plot.data <- psm.dat[,1:4,drop = FALSE]
+        print(rownames(plot.data))
 
         if (intersection.show)
         {
@@ -251,7 +252,7 @@ PriceSensitivityMeter <- function(x,
         }
     }
    
-    pp <- suppressWarnings(Line(plot.data, colors = colors,
+    pp <- Line(plot.data, colors = colors,
                line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
                x.title = x.title, x.tick.prefix = x.tick.prefix, x.hovertext.format = x.hovertext.format,
@@ -263,7 +264,7 @@ PriceSensitivityMeter <- function(x,
                x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size,
                hovertext.font.family = hovertext.font.family, y.title.font.family = y.title.font.family,
                y.tick.font.family = y.tick.font.family, y.title.font.color = y.title.font.color,
-               y.tick.font.color = y.tick.font.color))
+               y.tick.font.color = y.tick.font.color)
 
     if (output == "Likelihood to buy and Revenue")
     {
