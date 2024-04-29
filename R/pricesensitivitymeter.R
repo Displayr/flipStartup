@@ -145,7 +145,7 @@ PriceSensitivityMeter <- function(x,
     # Determine x-positions (price) to calculate proportions
     rg.raw <- range(x, na.rm = TRUE)
     if (is.null(resolution)) 
-        xpts <- sort(unique(as.numeric(x))) 
+        xpts <- sort(unique(round(as.numeric(x), 2))) 
     else
         xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
     print(str(xpts))
