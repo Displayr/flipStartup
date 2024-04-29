@@ -148,6 +148,7 @@ PriceSensitivityMeter <- function(x,
         xpts <- sort(unique(as.numeric(x))) 
     else
         xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
+    print(str(xpts))
 
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
