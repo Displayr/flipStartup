@@ -148,7 +148,6 @@ PriceSensitivityMeter <- function(x,
         xpts <- sort(unique(round(as.numeric(x), 2))) 
     else
         xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
-    print(str(xpts))
 
     # Compute proportions - cannot use ecdf because we want '>=' not '>'
     psm.dat <- matrix(NA, nrow = length(xpts), ncol = 4,
@@ -229,7 +228,6 @@ PriceSensitivityMeter <- function(x,
         if (!any(nzchar(y.tick.format)))
             y.tick.format <- "%"
         plot.data <- psm.dat[,1:4,drop = FALSE]
-        print(rownames(plot.data))
 
         if (intersection.show)
         {
