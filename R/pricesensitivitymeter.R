@@ -145,7 +145,7 @@ PriceSensitivityMeter <- function(x,
     # Determine x-positions (price) to calculate proportions
     rg.raw <- range(x, na.rm = TRUE)
     if (is.null(resolution)) 
-        xpts <- sort(unique(as.numeric(x))) 
+        xpts <- sort(unique(round(as.numeric(x), 2))) 
     else
         xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
 
@@ -251,7 +251,7 @@ PriceSensitivityMeter <- function(x,
         }
     }
    
-    pp <- suppressWarnings(Line(plot.data, colors = colors,
+    pp <- Line(plot.data, colors = colors,
                line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
                x.title = x.title, x.tick.prefix = x.tick.prefix, x.hovertext.format = x.hovertext.format,
@@ -263,7 +263,7 @@ PriceSensitivityMeter <- function(x,
                x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size,
                hovertext.font.family = hovertext.font.family, y.title.font.family = y.title.font.family,
                y.tick.font.family = y.tick.font.family, y.title.font.color = y.title.font.color,
-               y.tick.font.color = y.tick.font.color))
+               y.tick.font.color = y.tick.font.color)
 
     if (output == "Likelihood to buy and Revenue")
     {
