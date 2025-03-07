@@ -67,7 +67,8 @@
 #'
 #' @importFrom lubridate period year years quarter month week weeks
 #' day days interval floor_date as.duration
-#' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th 
+#' @importFrom flipTime Period Periods AsDate DiffPeriod Change29FebTo28th
+#' @importFrom flipU StopForUserError
 #' @importFrom stats ave
 #' @importFrom verbs Sum
 #' @export
@@ -85,8 +86,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     all.args.valid <- vapply(list(from, to, start, end), inherits, logical(1L), c("Date", "POSIXlt", "POSIXct"))
     if (!all(all.args.valid)) {
         first.invalid <- sQuote(c("from", "to", "start", "end")[which(!all.args.valid)[1L]])
-        stop("All the time arguments (from, to, start and end) need to be either Date, POSIXt or POSIXct. ",
-             first.invalid, " is not")
+        StopForUserError("All the time arguments (from, to, start and end) need to be either Date, POSIXt or POSIXct. ",
+                         first.invalid, " is not")
     }
     # Removing leap years
     from <- Change29FebTo28th(from)
@@ -127,8 +128,8 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
     cat(paste0(n, " transactions remaining.\n"))
     if (n == 0)
         return(NULL)
-# 
-#     # Splitting apart transactions that exceed the subscription length. They are split so that the final 
+#
+#     # Splitting apart transactions that exceed the subscription length. They are split so that the final
 #     # transaction is the subscription length and ends on the original data. E.g., if a person has a sub-
 #     # scription of 1 year and 6 months, it is changed so that the first subscription is 6 months
 #     # and the second is 1 year.
@@ -170,11 +171,11 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
 #             to <- as.Date(data$to)
 #             from <- as.Date(data$to)
 #             new.from <- to - units
-#             
-#             
+#
+#
 #         }
-#         
-# 
+#
+#
 #     # Removing transactions that have license running for a single day
 #     to <- as.Date(data$to)
 #     n <- length(to)
@@ -214,12 +215,12 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
         lookup <- match(as.character(id.data$id), profiling.id)
         if (Sum(!is.na(lookup), remove.missing = FALSE) == 0)
         {
-            stop("The 'profiling' data is needs to either contain an 'id' variable, or have rownames that contain the 'id' values.")
+            StopForUserError("The 'profiling' data is needs to either contain an 'id' variable, or have rownames that contain the 'id' values.")
         }
         else if (Sum(is.na(lookup), remove.missing = FALSE) > 0)
         {
             missing.ids <- paste(id.data$id[is.na(lookup)], collapse = ",")
-            stop(paste0("The 'profiling' data is missing some ids: ", missing.ids))
+            StopForUserError(paste0("The 'profiling' data is missing some ids: ", missing.ids))
         }
         if (pos <- "value" %in% names(profiling))
         {
@@ -279,7 +280,7 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
         window <- interval(start, end)
         from0 <- AsDate(data$from.period, on.parse.failure = "silent")
         to0 <- AsDate(data$to.period, on.parse.failure = "silent")
-        
+
         # ignore hour/timezone which has been unreliable since calling aggregate in line 192
         from <- ISOdate(year(from0), month(from0), day(from0))
         to <- ISOdate(year(to0), month(to0), day(to0))
@@ -300,10 +301,11 @@ RevenueData <- function(value, from, to, start = min(from), end = max(from), id,
 }
 
 
+#' @importFrom flipU StopForUserError
 checkVariableForLengthAndMissingData <- function(x, n)
 {
     if (any(is.na(x)))
-        stop("'", deparse(substitute(x)), "' contains missing values.")
+        StopForUserError("'", deparse(substitute(x)), "' contains missing values.")
     if (length(x) != n)
-        stop("'" , deparse(substitute(x)), "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
+        StopForUserError("'" , deparse(substitute(x)), "' contains ", deparse(substitute(x)), " observations, but 'value' contains ", n, ".")
 }

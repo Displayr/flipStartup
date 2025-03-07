@@ -2,7 +2,7 @@
 #'
 #' @inheritParams flipStandardCharts::Line
 #' @param x Input table containing survey responses in 4 columns
-#'   At what price would you consider this product/brand to be 
+#'   At what price would you consider this product/brand to be
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
 #' @param output Type of data to show in the chart. One of "Attitude of respondents",
 #'   "Likelihood to buy" and "Revenue".
@@ -10,11 +10,11 @@
 #'  are supplied in increasing order. For backwards compatibility this is off by default.
 #' @param likelihood.scale Used in NSM calculation to convert likelihood scale to probabiliy.
 #'   Default scale assumes a 7 point scale.
-#' @param weights A numeric vector with length equal to the number of rows in \code{x}. 
+#' @param weights A numeric vector with length equal to the number of rows in \code{x}.
 #'   They are applied whem computing the proportions of respondents for each question
-#' @param resolution Numeric; controls the intervals (in terms of price) between which 
+#' @param resolution Numeric; controls the intervals (in terms of price) between which
 #'   "Proportion of respondents" is computed. For example, set to \code{0.1}, to
-#'   evaluate proportions every 10 cents. By default, we use observed values. 
+#'   evaluate proportions every 10 cents. By default, we use observed values.
 #' @param currency Character; Currency symbol to prepend to the intersection labels. These
 #'   will also be used to set the default prefix to the x tick labels and hovertext.
 #' @param intersection.show Logical; Whether to show labels to the intersection points of the lines.
@@ -38,7 +38,7 @@
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config add_trace
 #' @importFrom flipStandardCharts Line autoFormatLongLabels
-#' @importFrom flipU ConvertCommaSeparatedStringToVector
+#' @importFrom flipU ConvertCommaSeparatedStringToVector StopForUserError
 #' @importFrom verbs Sum SumEmptyHandling
 #' @export
 
@@ -46,10 +46,10 @@ PriceSensitivityMeter <- function(x,
                                   check.prices.ordered = FALSE,
                                   weights = NULL,
                                   likelihood.scale = c(0.0, 0.1, 0.3, 0.5, 0.7),
-                                  output = c("Attitude of respondents", "Likelihood to buy", "Revenue", 
-                                    "Likelihood to buy and Revenue")[1], 
+                                  output = c("Attitude of respondents", "Likelihood to buy", "Revenue",
+                                    "Likelihood to buy and Revenue")[1],
                                   resolution = NULL,
-                                  colors = c("#FF0000", "#FF0000", "#008000", "#008000"), 
+                                  colors = c("#FF0000", "#FF0000", "#008000", "#008000"),
                                   line.type = c("dot", "solid", "solid", "dot"),
                                   line.thickness = c(1, 2, 2, 1),
                                   currency = "$",
@@ -87,13 +87,13 @@ PriceSensitivityMeter <- function(x,
                                   intersection.label.decimals = 2,
                                   intersection.label.wrap = TRUE,
                                   intersection.label.wrap.nchar = 21,
-                                  font.units = "px", 
+                                  font.units = "px",
                                   ...)
 {
     x <- as.matrix(x)
     if (output != "Attitude of respondents" && SumEmptyHandling(apply(x, 2, function(xx) any(!is.na(xx))), remove.missing = FALSE) < 6)
-        stop("Data input must include price considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
-             "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
+        StopForUserError("Data input must include price considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
+                         "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
     ind <- which(x < 0)
     if (length(ind) > 0)
     {
@@ -101,17 +101,17 @@ PriceSensitivityMeter <- function(x,
         x[ind] <- NA
     }
     if (ncol(x) < 4)
-        stop("Price sensitivity meter needs input data containing 4 columns: ",
-             "'Very cheap', 'Cheap', 'Expensive', 'Very expensive'")
+        StopForUserError("Price sensitivity meter needs input data containing 4 columns: ",
+                         "'Very cheap', 'Cheap', 'Expensive', 'Very expensive'")
     if (length(weights) > 1 && length(weights) != nrow(x))
-        stop("Weights should be the same length as the number of respondents.")
+        StopForUserError("Weights should be the same length as the number of respondents.")
     if (length(weights) > 1 && any(is.na(weights)))
-        stop("Weights contain missing values")
+        StopForUserError("Weights contain missing values")
     ind.invalid <- which(x[,4] < x[,3] | x[,3] < x[,2] | x[,2] < x[,1])
     if (check.prices.ordered && length(ind.invalid) > 0)
     {
         if (length(ind.invalid) == NROW(x))
-            stop("No data remaining after invalid observations were ignored.")
+            StopForUserError("No data remaining after invalid observations were ignored.")
         warning(length(ind.invalid), " observations were not valid and ignored. ",
             "Prices for each respondent should be supplied in increasing order.")
         x <- x[-ind.invalid,]
@@ -121,10 +121,10 @@ PriceSensitivityMeter <- function(x,
     if (length(weights) > 1)
         weights <- weights/Sum(weights) * nrow(x)
     if (output != "Attitude of respondents" && !any(apply(x, 1, function(xx) SumEmptyHandling(!is.na(xx)) == 6)))
-        stop("Data must include at least one valid observation containing all 6 values: ",
-             "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
-             "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
-    
+        StopForUserError("Data must include at least one valid observation containing all 6 values: ",
+                         "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
+                         "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
+
     # For the standard charts, the font size conversion happens inside flipChart::CChart
     if (tolower(font.units) %in% c("pt", "point", "points"))
     {
@@ -144,8 +144,8 @@ PriceSensitivityMeter <- function(x,
 
     # Determine x-positions (price) to calculate proportions
     rg.raw <- range(x, na.rm = TRUE)
-    if (is.null(resolution)) 
-        xpts <- sort(unique(round(as.numeric(x), 2))) 
+    if (is.null(resolution))
+        xpts <- sort(unique(round(as.numeric(x), 2)))
     else
         xpts <- seq(from = rg.raw[1], to = rg.raw[2], by = resolution)
 
@@ -157,7 +157,7 @@ PriceSensitivityMeter <- function(x,
     psm.dat[,2] <- propGreatorEqual(x[,2], xpts, weights)
     psm.dat[,3] <- propLessorEqual(x[,3], xpts, weights)
     psm.dat[,4] <- propLessorEqual(x[,4], xpts, weights)
- 
+
 
     # NSM extension
     if (output != "Attitude of respondents" && ncol(x) >= 6 && !all(is.na(x[,5:6])))
@@ -167,17 +167,17 @@ PriceSensitivityMeter <- function(x,
         {
             likelihood.scale <- suppressWarnings(as.numeric(ConvertCommaSeparatedStringToVector(likelihood.scale)))
             if (any(is.na(likelihood.scale)))
-                stop("Likelhood scale is not valid")
+                StopForUserError("Likelhood scale is not valid")
             if (any(likelihood.scale < 0) || any(likelihood.scale > 1))
-                stop("Likelihood scale should consist of values between 0 and 1.")
+                StopForUserError("Likelihood scale should consist of values between 0 and 1.")
         }
         l.vals <- 1:length(likelihood.scale)
         if (any(!x[,5:6] %in% l.vals & !is.na(x[,5:6])))
-            stop("Likelihood scores should consist of values in [", paste(l.vals, collapse=","), "].")      
+            StopForUserError("Likelihood scores should consist of values in [", paste(l.vals, collapse=","), "].")
 
         nsmat <- matrix(NA, nrow(x), length(xpts))
         for (i in 1:nrow(x))
-            nsmat[i,] <- interpolate_prob(x[i,], xpts, likelihood.scale, 
+            nsmat[i,] <- interpolate_prob(x[i,], xpts, likelihood.scale,
                             if (is.null(weights)) 1 else weights[i])
         trial <- apply(nsmat, 2, mean, na.rm = TRUE)
         revenue <- xpts * trial
@@ -211,7 +211,7 @@ PriceSensitivityMeter <- function(x,
         if (!any(nzchar(y.tick.format)))
             y.tick.format <- "$.2f"
         plot.data <- psm.dat[,6,drop = FALSE]
-        
+
         if (intersection.show)
         {
             ind.max.revenue <- which.max(revenue)
@@ -232,9 +232,9 @@ PriceSensitivityMeter <- function(x,
         if (intersection.show)
         {
             intersect.pts <- matrix(NA, 4, 2)
-            intersect.pts[1,] <- getIntersect(psm.dat[,3], psm.dat[,1], xpts)    
-            intersect.pts[2,] <- getIntersect(psm.dat[,4], psm.dat[,1], xpts)    
-            intersect.pts[3,] <- getIntersect(psm.dat[,3], psm.dat[,2], xpts)    
+            intersect.pts[1,] <- getIntersect(psm.dat[,3], psm.dat[,1], xpts)
+            intersect.pts[2,] <- getIntersect(psm.dat[,4], psm.dat[,1], xpts)
+            intersect.pts[3,] <- getIntersect(psm.dat[,3], psm.dat[,2], xpts)
             intersect.pts[4,] <- getIntersect(psm.dat[,4], psm.dat[,2], xpts)
             rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
                                        "Indifference price point", "Point of marginal expensiveness")
@@ -250,7 +250,7 @@ PriceSensitivityMeter <- function(x,
             }
         }
     }
-   
+
     pp <- Line(plot.data, colors = colors,
                line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
@@ -303,18 +303,18 @@ PriceSensitivityMeter <- function(x,
                 tmp.ylab <- sprintf("$%.2f", intersect.pts[i,2])
             else
                 tmp.ylab <- sprintf("%.0f%%", intersect.pts[i,2] * 100)
-            
-            annot[[i]] = list(xref = "x", 
+
+            annot[[i]] = list(xref = "x",
                             yref = if (output == "Likelihood to buy and Revenue" && i == 2) "y2" else "y",
                             x = intersect.pts[i,1], y = intersect.pts[i,2],
                             arrowsize = intersection.arrow.size, arrowwidth = intersection.arrow.width,
                             arrowcolor = intersection.arrow.color, standoff = intersection.arrow.standoff,
                             axref = "pixel", ax = intersect.ax[i],
-                            ayref = "pixel", ay = intersect.ay[i], 
+                            ayref = "pixel", ay = intersect.ay[i],
                             font = list(family = intersection.label.font.family,
                             color = tmp.font.color, size = intersection.label.font.size),
-                            text = autoFormatLongLabels(sprintf(paste0("%s %s%.", 
-                            intersection.label.decimals, "f", " (%s)"), 
+                            text = autoFormatLongLabels(sprintf(paste0("%s %s%.",
+                            intersection.label.decimals, "f", " (%s)"),
                             rownames(intersect.pts)[i], currency, intersect.pts[i,1], tmp.ylab),
                             wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
         }
@@ -322,7 +322,7 @@ PriceSensitivityMeter <- function(x,
     }
 
     # allow labels to be movable - but turn off editing to other parts of the text
-    pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE, 
+    pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE,
                             edits = list(annotationPosition = FALSE, annotationText = FALSE,
                                          axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     attr(pp, "ChartData") <- psm.dat
@@ -340,7 +340,7 @@ propLessorEqual <- function(vals, pts, wgts)
     n <- length(ord)
     denom <- Sum(wgts[ord], remove.missing = FALSE)
     res <- rep(0, length(pts))
-    
+
     j <- 1
     for (i in seq_along(pts))
     {
@@ -389,7 +389,7 @@ getIntersect <- function(y1, y2, x, y.min = 0, y.max = 1.0)
     ind0 <- max(which(diff >= 0))
     ind1 <- min(which(diff <= 0))
     if (diff[ind0] == 0)
-        return(c(x[ind0], y1[ind0])) 
+        return(c(x[ind0], y1[ind0]))
 
     r <- diff[ind0]/(diff[ind0] - diff[ind1])
     x.delta <- r * (x[ind1] - x[ind0])
