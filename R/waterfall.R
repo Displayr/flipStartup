@@ -7,6 +7,7 @@
 #' (relative to the previous period). If NULL, the total, aggregated across all periods, is shown.
 #' @importFrom flipFormat FormatAsPercent
 #' @importFrom verbs Sum SumEachColumn
+#' @importFrom flipU StopForUserError
 #' @export
 Waterfall <- function(x, periods = NULL)
 {
@@ -19,8 +20,8 @@ Waterfall <- function(x, periods = NULL)
     # Computing the base.
     lookup <- match(periods, all.periods) - 1
     if (!all(lookup %in% 1:length(all.periods)))
-        stop("Invalid 'periods': 'periods' must match the labels in the data of 'x' and
-             must not include the first period.'")
+        StopForUserError("Invalid 'periods': 'periods' must match the labels in the data of 'x' and
+                         must not include the first period.'")
     base.periods <- all.periods[lookup ]
     base <- Sum(x$Revenue[base.periods], remove.missing = FALSE)
     # Growth as a percentage of the base

@@ -56,13 +56,13 @@ PriceSensitivityMeter(
 }
 \arguments{
 \item{x}{Input table containing survey responses in 4 columns
-At what price would you consider this product/brand to be 
+At what price would you consider this product/brand to be
 1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.}
 
 \item{check.prices.ordered}{Check that prices supplied in the first 4 columns of \code{x}
 are supplied in increasing order. For backwards compatibility this is off by default.}
 
-\item{weights}{A numeric vector with length equal to the number of rows in \code{x}. 
+\item{weights}{A numeric vector with length equal to the number of rows in \code{x}.
 They are applied whem computing the proportions of respondents for each question}
 
 \item{likelihood.scale}{Used in NSM calculation to convert likelihood scale to probabiliy.
@@ -71,7 +71,7 @@ Default scale assumes a 7 point scale.}
 \item{output}{Type of data to show in the chart. One of "Attitude of respondents",
 "Likelihood to buy" and "Revenue".}
 
-\item{resolution}{Numeric; controls the intervals (in terms of price) between which 
+\item{resolution}{Numeric; controls the intervals (in terms of price) between which
 "Proportion of respondents" is computed. For example, set to \code{0.1}, to
 evaluate proportions every 10 cents. By default, we use observed values.}
 
