@@ -24,7 +24,9 @@ PriceSensitivityMeter(
   legend.font.size = 10,
   hovertext.font.size = 11,
   y.title.font.size = 12,
+  y2.title.font.size = 12,
   x.title.font.size = 12,
+  y2.tick.font.size = 10,
   y.tick.font.size = 10,
   x.tick.font.size = 10,
   data.label.font.size = 10,
@@ -33,11 +35,21 @@ PriceSensitivityMeter(
   y.title.font.color = global.font.color,
   y.tick.font.family = global.font.family,
   y.tick.font.color = global.font.color,
+  y2.title.font.family = global.font.family,
+  y2.title.font.color = global.font.color,
+  y2.tick.font.family = global.font.family,
+  y2.tick.font.color = global.font.color,
+  y2.bounds.minimum = NULL,
+  y2.bounds.maximum = NULL,
   x.title = "Price",
+  y2.title = "Revenue",
+  y2.tick.prefix = currency,
+  y2.tick.suffix = "",
   x.tick.prefix = currency,
   x.hovertext.format = ".2f",
   y.title = "",
   y.tick.format = "",
+  y2.tick.format = ".2f",
   intersection.show = TRUE,
   intersection.arrow.color = global.font.color,
   intersection.arrow.size = 0,
@@ -69,7 +81,7 @@ They are applied whem computing the proportions of respondents for each question
 Default scale assumes a 7 point scale.}
 
 \item{output}{Type of data to show in the chart. One of "Attitude of respondents",
-"Likelihood to buy" and "Revenue".}
+"Likelihood to buy", "Revenue", or "Likelihood to buy and Revenue".}
 
 \item{resolution}{Numeric; controls the intervals (in terms of price) between which
 "Proportion of respondents" is computed. For example, set to \code{0.1}, to
@@ -102,7 +114,11 @@ font attribute for the chart unless specified individually.}
 
 \item{y.title.font.size}{Integer; y-axis title font size}
 
+\item{y2.title.font.size}{Font size of title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
+
 \item{x.title.font.size}{Integer; x-axis title font size}
+
+\item{y2.tick.font.size}{Font size of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
 
 \item{y.tick.font.size}{Integer; y-axis tick label font size}
 
@@ -122,8 +138,26 @@ character format (e.g. "black") or a hex code.}
 \item{y.tick.font.color}{y-axis tick label font color as a named color
 in character format (e.g. "black") or an a hex code.}
 
+\item{y2.title.font.family}{Font family of title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
+
+\item{y2.title.font.color}{Font color of title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
+
+\item{y2.tick.font.family}{Font family of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
+
+\item{y2.tick.font.color}{Font color of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
+
+\item{y2.bounds.minimum}{Lower bound of the range for the secondary y axis.}
+
+\item{y2.bounds.maximum}{Upper bound of the range for the secondary y axis.}
+
 \item{x.title}{Character, x-axis title; defaults to chart input values;
 to turn off set to "FALSE".}
+
+\item{y2.title}{Title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".}
+
+\item{y2.tick.prefix}{Prefix for for tick labels on the secondary axis.}
+
+\item{y2.tick.suffix}{Suffix for for tick labels on the secondary axis.}
 
 \item{x.tick.prefix}{x-axis tick label prefix}
 

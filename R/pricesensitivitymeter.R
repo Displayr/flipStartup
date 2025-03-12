@@ -5,7 +5,7 @@
 #'   At what price would you consider this product/brand to be
 #'   1) Very cheap, 2) Cheap, 3) Expensive, 4) Very expensive.
 #' @param output Type of data to show in the chart. One of "Attitude of respondents",
-#'   "Likelihood to buy" and "Revenue".
+#'   "Likelihood to buy", "Revenue", or "Likelihood to buy and Revenue".
 #' @param check.prices.ordered Check that prices supplied in the first 4 columns of \code{x}
 #'  are supplied in increasing order. For backwards compatibility this is off by default.
 #' @param likelihood.scale Used in NSM calculation to convert likelihood scale to probabiliy.
@@ -34,6 +34,19 @@
 #' @param font.units One of "px" of "pt". By default all font sizes are specified in terms of
 #' pixels ("px"). But changing this to "pt" will mean that the font sizes will be in terms
 #' points ("pt"), which will be consistent with font sizes in text boxes.
+#' @param y2.title Title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.title.font.family Font family of title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.title.font.color Font color of title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.title.font.size Font size of title for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.tick.font.family Font family of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.tick.font.color Font color of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.tick.font.size Font size of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
+#' @param y2.tick.prefix Prefix for for tick labels on the secondary axis.
+#' @param y2.tick.suffix Suffix for for tick labels on the secondary axis.
+#' @param y2.tick.suffix Tick format for for tick labels on the secondary axis as a d3 format string.
+#' @param y2.bounds.minimum Lower bound of the range for the secondary y axis.
+#' @param y2.bounds.maximum Upper bound of the range for the secondary y axis.
+
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config add_trace
@@ -61,7 +74,9 @@ PriceSensitivityMeter <- function(x,
                                   legend.font.size = 10,
                                   hovertext.font.size = 11,
                                   y.title.font.size = 12,
+                                  y2.title.font.size = 12,
                                   x.title.font.size = 12,
+                                  y2.tick.font.size = 10,
                                   y.tick.font.size = 10,
                                   x.tick.font.size = 10,
                                   data.label.font.size = 10,
@@ -70,11 +85,21 @@ PriceSensitivityMeter <- function(x,
                                   y.title.font.color = global.font.color,
                                   y.tick.font.family = global.font.family,
                                   y.tick.font.color = global.font.color,
+                                  y2.title.font.family = global.font.family,
+                                  y2.title.font.color = global.font.color,
+                                  y2.tick.font.family = global.font.family,
+                                  y2.tick.font.color = global.font.color,
+                                  y2.bounds.minimum = NULL,
+                                  y2.bounds.maximum = NULL,
                                   x.title = "Price",
+                                  y2.title = "Revenue",
+                                  y2.tick.prefix = currency,
+                                  y2.tick.suffix = "",
                                   x.tick.prefix = currency,
                                   x.hovertext.format = ".2f",
                                   y.title = "",
                                   y.tick.format = "",
+                                  y2.tick.format = ".2f",
                                   intersection.show = TRUE,
                                   intersection.arrow.color = global.font.color,
                                   intersection.arrow.size = 0,
@@ -267,17 +292,23 @@ PriceSensitivityMeter <- function(x,
 
     if (output == "Likelihood to buy and Revenue")
     {
+        if (is.null(y2.bounds.minimum))
+            y2.bounds.minimum <- 0
+        if (is.null(y2.bounds.maximum))
+            y2.bounds.maximum <- 1.1 * max(revenue)
+
         pp$htmlwidget <- add_trace(pp$htmlwidget, x = xpts, y = psm.dat[,6], yaxis = "y2",
-            type = "scatter", mode = "lines", cliponaxis = FALSE, name = "Revenue",
+            type = "scatter", mode = "lines", cliponaxis = FALSE, name = y2.title,
             line = list(color = colors[2], width = line.thickness[2], dash = line.type[2]),
             hoverlabel = list(font = list(color = flipStandardCharts:::autoFontColor(colors[2]),
             size = hovertext.font.size, family = hovertext.font.family)))
         pp$htmlwidget <- layout(pp$htmlwidget,
-            yaxis2 = list(side = "right", anchor = "y", range = c(0, 1.1 * max(revenue)),
-                title = list(text = "Revenue", font = list(family = y.title.font.family,
-                color = y.title.font.color, size = y.title.font.size), standoff = 20),
-                tickformat = "$.2f", tickfont = list(family = y.tick.font.family,
-                color = y.tick.font.family, size = y.tick.font.size),
+            yaxis2 = list(side = "right", anchor = "y", range = c(y2.bounds.minimum, y2.bounds.maximum),
+                title = list(text = y2.title, font = list(family = y2.title.font.family,
+                color = y2.title.font.color, size = y2.title.font.size), standoff = 20),
+                tickformat = y2.tick.format, tickfont = list(family = y2.tick.font.family,
+                color = y2.tick.font.color, size = y2.tick.font.size),
+                tickprefix = y2.tick.prefix, ticksuffix = y2.tick.suffix,
                 gridcolor = "transparent", layer = "below axis"), margin = list(r = 80))
 
         if (intersection.show)
