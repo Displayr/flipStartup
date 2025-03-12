@@ -280,7 +280,7 @@ PriceSensitivityMeter <- function(x,
                line.type = line.type, line.thickness = line.thickness,
                global.font.family = global.font.family, global.font.color = global.font.color,
                x.title = x.title, x.tick.prefix = x.tick.prefix, x.hovertext.format = x.hovertext.format,
-               y.title = y.title, y.tick.format = y.tick.format, ...,
+               y.title = y.title, y.tick.format = y.tick.format,
                title.font.size = title.font.size, subtitle.font.size = subtitle.font.size,
                footer.font.size = footer.font.size, legend.font.size = legend.font.size,
                hovertext.font.size = hovertext.font.size, data.label.font.size  = data.label.font.size,
@@ -288,7 +288,7 @@ PriceSensitivityMeter <- function(x,
                x.title.font.size = x.title.font.size, x.tick.font.size = x.tick.font.size,
                hovertext.font.family = hovertext.font.family, y.title.font.family = y.title.font.family,
                y.tick.font.family = y.tick.font.family, y.title.font.color = y.title.font.color,
-               y.tick.font.color = y.tick.font.color)
+               y.tick.font.color = y.tick.font.color, ...)
 
     if (output == "Likelihood to buy and Revenue")
     {
