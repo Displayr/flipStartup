@@ -170,6 +170,8 @@ to turn off set to "FALSE".}
 \item{y.tick.format}{A string representing a d3 formatting code.
 See https://github.com/d3/d3/blob/master/API.md#number-formats-d3-format}
 
+\item{y2.tick.format}{Tick format for for tick labels on the secondary axis as a d3 format string.}
+
 \item{intersection.show}{Logical; Whether to show labels to the intersection points of the lines.}
 
 \item{intersection.arrow.color}{Color of the arrows to the intersection points.}

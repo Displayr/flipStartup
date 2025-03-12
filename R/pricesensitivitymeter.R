@@ -43,7 +43,7 @@
 #' @param y2.tick.font.size Font size of tick for secondary axis. Only used wihen output is "Likelihood to bug and Revenue".
 #' @param y2.tick.prefix Prefix for for tick labels on the secondary axis.
 #' @param y2.tick.suffix Suffix for for tick labels on the secondary axis.
-#' @param y2.tick.suffix Tick format for for tick labels on the secondary axis as a d3 format string.
+#' @param y2.tick.format Tick format for for tick labels on the secondary axis as a d3 format string.
 #' @param y2.bounds.minimum Lower bound of the range for the secondary y axis.
 #' @param y2.bounds.maximum Upper bound of the range for the secondary y axis.
 

@@ -35,13 +35,13 @@
 #'     unique combinations of periods and subscribers. Where a
 #'     subscriber has multiple transactions in a period, they are
 #'     aggregated. Contains the following variables, along with any
-#'     other variables in the \code{data}: \code{id}{The unique
-#'     identifier.}  \code{value}{The total fee/price for a
-#'     subscription.}  \code{from}{The commencement date of a
+#'     other variables in the \code{data}: \item{id}{The unique
+#'     identifier.}  \item{value}{The total fee or price for a
+#'     subscription.}  \item{from}{The commencement date of a
 #'     subscription.}  \code{from.period} The \code{period} of the
 #'     subscription commencement as a character.
 #'     \code{period.counter} The number of the period, where 0
-#'     indicates the initial period.  \code{to}{The end-date of a
+#'     indicates the initial period.  \item{to}{The end-date of a
 #'     subscription.}  \code{to.period} The \code{period} of the
 #'     subscription end as a character.  \code{subscriber.from} The
 #'     date of a customer's first subscription's commencement.
