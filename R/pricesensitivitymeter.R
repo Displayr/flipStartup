@@ -236,7 +236,7 @@ PriceSensitivityMeter <- function(x,
         if (!any(nzchar(y.title)))
             y.title <- "Revenue"
         if (!any(nzchar(y.tick.format)))
-            y.tick.format <- "$.2f"
+            y.tick.format <- paste0(currency, ".2f")
         plot.data <- psm.dat[,6,drop = FALSE]
 
         if (intersection.show)
@@ -246,7 +246,7 @@ PriceSensitivityMeter <- function(x,
                 dimnames = list("Optimal price", c("X", "Y")))
             intersect.ax <- 10 * intersection.arrow.length
             intersect.ay <- -2 * intersection.arrow.length
-            intersect.label.format <- "$%.2f"
+            intersect.label.format <- paste0(currency, "%.2f")
         }
     } else
     {
@@ -333,7 +333,7 @@ PriceSensitivityMeter <- function(x,
             if (output == "Likelihood to buy and Revenue")
                 tmp.font.color <- colors[i]
             if (output == "Revenue" || (output == "Likelihood to buy and Revenue" && i == 2))
-                tmp.ylab <- sprintf("$%.2f", intersect.pts[i,2])
+                tmp.ylab <- sprintf("%s%.2f", currency, intersect.pts[i,2])
             else
                 tmp.ylab <- sprintf("%.0f%%", intersect.pts[i,2] * 100)
 
