@@ -294,6 +294,8 @@ PriceSensitivityMeter <- function(x,
 
     if (output == "Likelihood to buy and Revenue")
     {
+        y2.bounds.minimum <- charToNumeric(y2.bounds.minimum)
+        y2.bounds.maximum <- charToNumeric(y2.bounds.maximum)
         if (is.null(y2.bounds.minimum))
             y2.bounds.minimum <- 0
         if (is.null(y2.bounds.maximum))
@@ -311,7 +313,8 @@ PriceSensitivityMeter <- function(x,
                 tickformat = y2.tick.format, tickfont = list(family = y2.tick.font.family,
                 color = y2.tick.font.color, size = y2.tick.font.size),
                 tickprefix = y2.tick.prefix, ticksuffix = y2.tick.suffix,
-                gridcolor = "transparent", layer = "below axis"), margin = list(r = 80))
+                gridcolor = "transparent", zeroline = FALSE, layer = "below axis"),
+                margin = list(r = 80))
 
         if (intersection.show)
         {
@@ -457,4 +460,30 @@ interpolate_prob <- function(xx, prices, sc, ww)
             return(0)
     }
     return(sapply(prices, .interpseg))
+}
+
+# Copied from flipStandardCharts
+# This differs from as.numeric in that it returns NULL
+# instead of NA if there is no valid output
+# Also so basic substitution such as removing commas
+charToNumeric <- function(x)
+{
+    if (!is.character(x))
+        return(x)
+    if (length(x) == 0 || is.na(x))
+        return(NULL)
+    if (nchar(x) == 0)
+        return(NULL)
+
+    x.orig <- x
+    x <- gsub(" ", "", x)
+    x <- gsub(",", "", x) # e.g. '5,000'
+    xnum <- suppressWarnings(as.numeric(x))
+    xnum <- xnum[!is.na(xnum)]
+    if (length(xnum) != 1)
+    {
+        warning("Value '", x.orig, "' is not numeric.")
+        return(NULL)
+    }
+    return(xnum)
 }
