@@ -13,7 +13,7 @@ Suggests:
 Imports:
     flipFormat,
     flipStatistics,
-    flipStandardCharts,
+    flipStandardCharts (>= 1.32.6),
     flipTime (>= 2.7.7),
     flipU (>= 1.6.2),
     ggplot2,

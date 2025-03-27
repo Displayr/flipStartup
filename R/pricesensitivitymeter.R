@@ -50,7 +50,7 @@
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config add_trace
-#' @importFrom flipStandardCharts Line autoFormatLongLabels
+#' @importFrom flipStandardCharts Line autoFormatLongLabels charToNumeric
 #' @importFrom flipU ConvertCommaSeparatedStringToVector StopForUserError
 #' @importFrom verbs Sum SumEmptyHandling
 #' @export
@@ -460,30 +460,4 @@ interpolate_prob <- function(xx, prices, sc, ww)
             return(0)
     }
     return(sapply(prices, .interpseg))
-}
-
-# Copied from flipStandardCharts
-# This differs from as.numeric in that it returns NULL
-# instead of NA if there is no valid output
-# Also so basic substitution such as removing commas
-charToNumeric <- function(x)
-{
-    if (!is.character(x))
-        return(x)
-    if (length(x) == 0 || is.na(x))
-        return(NULL)
-    if (nchar(x) == 0)
-        return(NULL)
-
-    x.orig <- x
-    x <- gsub(" ", "", x)
-    x <- gsub(",", "", x) # e.g. '5,000'
-    xnum <- suppressWarnings(as.numeric(x))
-    xnum <- xnum[!is.na(xnum)]
-    if (length(xnum) != 1)
-    {
-        warning("Value '", x.orig, "' is not numeric.")
-        return(NULL)
-    }
-    return(xnum)
 }
