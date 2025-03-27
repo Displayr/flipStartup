@@ -50,7 +50,7 @@
 #' @param ... Other charting parameters passed to \code{\link[flipStandardCharts]{Line}}.
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config add_trace
-#' @importFrom flipStandardCharts Line autoFormatLongLabels
+#' @importFrom flipStandardCharts Line autoFormatLongLabels charToNumeric
 #' @importFrom flipU ConvertCommaSeparatedStringToVector StopForUserError
 #' @importFrom verbs Sum SumEmptyHandling
 #' @export
@@ -294,6 +294,8 @@ PriceSensitivityMeter <- function(x,
 
     if (output == "Likelihood to buy and Revenue")
     {
+        y2.bounds.minimum <- charToNumeric(y2.bounds.minimum)
+        y2.bounds.maximum <- charToNumeric(y2.bounds.maximum)
         if (is.null(y2.bounds.minimum))
             y2.bounds.minimum <- 0
         if (is.null(y2.bounds.maximum))
@@ -311,7 +313,8 @@ PriceSensitivityMeter <- function(x,
                 tickformat = y2.tick.format, tickfont = list(family = y2.tick.font.family,
                 color = y2.tick.font.color, size = y2.tick.font.size),
                 tickprefix = y2.tick.prefix, ticksuffix = y2.tick.suffix,
-                gridcolor = "transparent", layer = "below axis"), margin = list(r = 80))
+                gridcolor = "transparent", zeroline = FALSE, layer = "below axis"),
+                margin = list(r = 80))
 
         if (intersection.show)
         {
