@@ -296,6 +296,11 @@ PriceSensitivityMeter <- function(x,
     {
         y2.bounds.minimum <- charToNumeric(y2.bounds.minimum)
         y2.bounds.maximum <- charToNumeric(y2.bounds.maximum)
+        if (isTRUE(y2.bounds.minimum == y2.bounds.maximum)) {
+            warning("Maximum and minimum bounds of the axis cannot be the same.")
+            y2.bounds.minimum <- NULL
+            y2.bounds.maximum <- NULL
+        }
         if (is.null(y2.bounds.minimum))
             y2.bounds.minimum <- 0
         if (is.null(y2.bounds.maximum))
