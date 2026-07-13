@@ -367,6 +367,17 @@ PriceSensitivityMeter <- function(x,
                             edits = list(annotationPosition = FALSE, annotationText = FALSE,
                                          axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     attr(pp, "ChartData") <- psm.dat
+    # Expose the chart title (forwarded to Line via ...) as a ChartLabels$ChartTitle
+    # attribute so downstream consumers can label the chart's data. Merge into any
+    # ChartLabels already set by Line rather than overwriting it.
+    chart.title <- list(...)[["title"]]
+    if (!is.null(chart.title) && any(nzchar(chart.title))) {
+        chart.labels <- attr(pp, "ChartLabels")
+        if (is.null(chart.labels))
+            chart.labels <- list()
+        chart.labels$ChartTitle <- chart.title
+        attr(pp, "ChartLabels") <- chart.labels
+    }
     return(pp)
 }
 

@@ -231,3 +231,15 @@ test_that("PSM with two axes",
             y2.title.font.family = "Courier New", y2.title.font.color = "#0000FF",
             y2.bounds.minimum = 0.5, y2.bounds.maximum = 5, y2.title = "R"), NA)
 })
+
+test_that("Chart title exposed as ChartLabels$ChartTitle",
+{
+    psm <- PriceSensitivityMeter(dat, title = "My price sensitivity meter")
+    expect_equal(attr(psm, "ChartLabels")$ChartTitle, "My price sensitivity meter")
+    # ChartData is still attached alongside the title
+    expect_false(is.null(attr(psm, "ChartData")))
+
+    # No ChartTitle is exposed when the title is empty
+    psm.no.title <- PriceSensitivityMeter(dat)
+    expect_null(attr(psm.no.title, "ChartLabels")$ChartTitle)
+})
