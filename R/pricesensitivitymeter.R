@@ -367,6 +367,9 @@ PriceSensitivityMeter <- function(x,
                             edits = list(annotationPosition = FALSE, annotationText = FALSE,
                                          axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     attr(pp, "ChartData") <- psm.dat
+    # ChartSettings lets Displayr export an editable chart when the PowerPoint format is Default.
+    # Once ChartSettings is present, Displayr shows data labels on each series unless ShowDataLabels is FALSE.
+    attr(pp, "ChartSettings") <- list(TemplateSeries = rep(list(list(ShowDataLabels = FALSE)), NCOL(psm.dat)))
     return(pp)
 }
 

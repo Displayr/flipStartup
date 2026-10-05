@@ -231,3 +231,18 @@ test_that("PSM with two axes",
             y2.title.font.family = "Courier New", y2.title.font.color = "#0000FF",
             y2.bounds.minimum = 0.5, y2.bounds.maximum = 5, y2.title = "R"), NA)
 })
+
+test_that("ChartSettings hides data labels on every exported series",
+{
+    expectLabelsHidden <- function(psm, info)
+    {
+        template.series <- attr(psm, "ChartSettings")$TemplateSeries
+        expect_length(template.series, NCOL(attr(psm, "ChartData")))
+        expect_true(all(vapply(template.series, function(s) identical(s$ShowDataLabels, FALSE), logical(1))),
+                    info = info)
+    }
+    expectLabelsHidden(PriceSensitivityMeter(dat), "four price columns")
+    for (output in c("Attitude of respondents", "Likelihood to buy", "Revenue",
+                     "Likelihood to buy and Revenue"))
+        expectLabelsHidden(PriceSensitivityMeter(data.with.likelihoods, output = output), output)
+})
