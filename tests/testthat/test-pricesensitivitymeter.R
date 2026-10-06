@@ -334,3 +334,50 @@ test_that("A colour that isn't a string is replaced so the export still loads",
     expect_true(is.character(settings$PrimaryAxis$AxisLine$Color))
     expect_true(is.character(settings$ValueAxis$AxisLine$Color))
 })
+
+# Displayr fails the whole export when a ChartSettings or ChartLabels value it reads is NA,
+# zero-length, or a colour that isn't a single string.
+expectLoadableByDisplayr <- function(x, path)
+{
+    if (is.list(x))
+    {
+        for (i in seq_along(x))
+            expectLoadableByDisplayr(x[[i]], paste0(path, "$", if (is.null(names(x))) i else names(x)[i]))
+        return(invisible())
+    }
+    if (is.null(x))
+        return(invisible())
+    expect_true(length(x) > 0, info = path)
+    expect_false(anyNA(x), info = path)
+    if (grepl("color$", path, ignore.case = TRUE))
+        expect_true(is.character(x) && length(x) == 1, info = path)
+}
+
+test_that("The export loads in Displayr with the arguments the Standard R plugin passes",
+{
+    font <- "Arial"
+    color <- "#2C2C2C"
+    plugin.args <- list(colors = c("#FF0000", "#FF0000", "#008000", "#008000"),
+        line.type = c("Dot", "Solid", "Solid", "Dot"), line.thickness = c(1, 2, 2, 1),
+        currency = "$", global.font.family = font, global.font.color = color,
+        intersection.show = TRUE, intersection.arrow.color = color, intersection.label.decimals = 2,
+        intersection.label.font.family = font, intersection.label.font.color = color,
+        intersection.label.font.size = 8, intersection.label.wrap = FALSE,
+        # A colour that isn't a string must not reach the export
+        y.line.width = 0, y.line.color = 26, y.grid.width = 0, y.grid.color = "#D2D8E1",
+        x.line.width = 0, x.line.color = 26, x.grid.width = 0, x.grid.color = "#D2D8E1",
+        legend.show = TRUE, legend.orientation = "Vertical", legend.font.family = font,
+        legend.font.color = color, legend.font.size = 8, title = "", title.font.family = font,
+        title.font.color = color, title.font.size = 12, subtitle = "", footer = "",
+        x.tick.format = "", x.title = "Price", x.title.font.family = font, x.title.font.color = color,
+        x.title.font.size = 10, x.tick.font.family = font, x.tick.font.color = color, x.tick.font.size = 9,
+        y.tick.format = "", y.title = "", y.title.font.family = font, y.title.font.color = color,
+        y.title.font.size = 10, y.tick.font.family = font, y.tick.font.color = color, y.tick.font.size = 9,
+        font.units = "pt")
+    for (output in c("Attitude of respondents", "Likelihood to buy", "Revenue", "Likelihood to buy and Revenue"))
+    {
+        psm <- do.call(PriceSensitivityMeter, c(list(x = data.with.likelihoods, output = output), plugin.args))
+        expectLoadableByDisplayr(attr(psm, "ChartSettings"), paste(output, "ChartSettings"))
+        expectLoadableByDisplayr(attr(psm, "ChartLabels"), paste(output, "ChartLabels"))
+    }
+})
