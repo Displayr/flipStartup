@@ -186,9 +186,9 @@ test_that("PSM",
 fake <- data.frame(A = 1:10, B = (1:10) + 1, C = (1:10) + 2, D = (1:10) + 3)
 test_that("Check proportions",
 {
-   psm0 <- PriceSensitivityMeter(fake)
+   psm0 <- PriceSensitivityMeter(fake, intersection.show = FALSE)
    expect_equal(attr(psm0, "ChartData")[,1], c((10:1)/10, 0.0, 0.0, 0.0), check.attributes = FALSE)
-   psm1 <- PriceSensitivityMeter(fake, resolution = 0.1)
+   psm1 <- PriceSensitivityMeter(fake, resolution = 0.1, intersection.show = FALSE)
    expect_equal(attr(psm1, "ChartData")[,3],
            c(`1` = 0, `1.1` = 0, `1.2` = 0, `1.3` = 0, `1.4` = 0, `1.5` = 0,
            `1.6` = 0, `1.7` = 0, `1.8` = 0, `1.9` = 0, `2` = 0, `2.1` = 0,
@@ -214,7 +214,7 @@ test_that("Check proportions",
            `11.9` = 0.9, `12` = 1, `12.1` = 1, `12.2` = 1, `12.3` = 1, `12.4` = 1,
            `12.5` = 1, `12.6` = 1, `12.7` = 1, `12.8` = 1, `12.9` = 1, `13` = 1)
          )
-    psm2 <- PriceSensitivityMeter(fake, weights = 1:10)
+    psm2 <- PriceSensitivityMeter(fake, weights = 1:10, intersection.show = FALSE)
     expect_equal(attr(psm2, "ChartData")[,2],
         c(`1` = 1, `2` = 1, `3` = 0.981818181818182, `4` = 0.945454545454545,
         `5` = 0.890909090909091, `6` = 0.818181818181818, `7` = 0.727272727272727,
@@ -255,4 +255,74 @@ test_that("Only the two-axis output warns that it will export as an image",
     for (output in c("Attitude of respondents", "Likelihood to buy", "Revenue"))
         expect_null(attr(PriceSensitivityMeter(data.with.likelihoods, output = output), "ChartWarning"),
                     info = output)
+})
+
+test_that("Only the plotted lines are exported, with their colours and line types",
+{
+    series <- attr(PriceSensitivityMeter(dat), "ChartSettings")$TemplateSeries
+    expect_equal(colnames(attr(PriceSensitivityMeter(dat), "ChartData")),
+                 c("Too cheap", "Cheap", "Expensive", "Too expensive"))
+    expect_equal(vapply(series, `[[`, "", "OutlineColor"), c("#FF0000", "#FF0000", "#008000", "#008000"))
+    expect_equal(vapply(series, `[[`, "", "OutlineStyle"), c("Dot", "Solid", "Solid", "Dot"))
+
+    for (output in c("Likelihood to buy", "Revenue"))
+        expect_equal(colnames(attr(PriceSensitivityMeter(data.with.likelihoods, output = output), "ChartData")),
+                     output, info = output)
+    two.axes <- PriceSensitivityMeter(data.with.likelihoods, output = "Likelihood to buy and Revenue")
+    expect_equal(colnames(attr(two.axes, "ChartData")), c("Likelihood to buy", "Revenue"))
+})
+
+test_that("Axis titles are exported",
+{
+    labels <- attr(PriceSensitivityMeter(dat), "ChartLabels")
+    expect_equal(labels$PrimaryAxisTitle, "Price")
+    expect_equal(labels$ValueAxisTitle, "Proportion of respondents")
+    expect_equal(attr(PriceSensitivityMeter(data.with.likelihoods, output = "Revenue"), "ChartLabels")$ValueAxisTitle,
+                 "Revenue")
+    expect_null(labels$ChartTitle)
+    expect_false(attr(PriceSensitivityMeter(dat), "ChartSettings")$ShowChartTitle)
+    expect_equal(attr(PriceSensitivityMeter(dat, title = "Price check"), "ChartLabels")$ChartTitle, "Price check")
+})
+
+test_that("Each intersection label is exported on a row at its price, where its two lines meet",
+{
+    psm <- PriceSensitivityMeter(dat)
+    chart.data <- attr(psm, "ChartData")
+    prices <- as.numeric(rownames(chart.data))
+    series.labels <- attr(psm, "ChartLabels")$SeriesLabels
+    expect_length(series.labels, NCOL(chart.data))
+    expect_false(is.unsorted(prices))
+
+    crossing.lines <- list("Point of marginal cheapness" = c(3, 1), "Optimal price point" = c(4, 1),
+                           "Indifference price point" = c(3, 2), "Point of marginal expensiveness" = c(4, 2))
+    n.labels <- 0
+    for (s in seq_along(series.labels))
+        for (point in series.labels[[s]]$CustomPoints)
+        {
+            text <- point$Segments[[1]]$Text
+            lines <- crossing.lines[[which(startsWith(text, names(crossing.lines)))]]
+            row <- point$Index + 1
+            expect_equal(s, lines[1], info = text)
+            expect_equal(chart.data[row, lines[1]], chart.data[row, lines[2]], info = text)
+            expect_lt(abs(prices[row] - as.numeric(sub(".*\\$([0-9.]+) \\(.*", "\\1", text))), 0.006)
+            n.labels <- n.labels + 1
+        }
+    expect_equal(n.labels, 4)
+
+    without.labels <- attr(PriceSensitivityMeter(dat, intersection.show = FALSE), "ChartData")
+    expect_null(attr(PriceSensitivityMeter(dat, intersection.show = FALSE), "ChartLabels")$SeriesLabels)
+    expect_true(all(rownames(without.labels) %in% rownames(chart.data)))
+    expect_true((NROW(chart.data) - NROW(without.labels)) %in% 0:4)
+})
+
+test_that("The optimal price label is exported on the row with the highest value",
+{
+    for (output in c("Likelihood to buy", "Revenue"))
+    {
+        psm <- PriceSensitivityMeter(data.with.likelihoods, output = output)
+        points <- attr(psm, "ChartLabels")$SeriesLabels[[1]]$CustomPoints
+        expect_length(points, 1)
+        expect_equal(points[[1]]$Index + 1, unname(which.max(attr(psm, "ChartData")[, 1])), info = output)
+        expect_true(startsWith(points[[1]]$Segments[[1]]$Text, "Optimal price"), info = output)
+    }
 })
