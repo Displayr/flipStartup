@@ -370,6 +370,14 @@ PriceSensitivityMeter <- function(x,
     # ChartSettings lets Displayr export an editable chart when the PowerPoint format is Default.
     # Once ChartSettings is present, Displayr shows data labels on each series unless ShowDataLabels is FALSE.
     attr(pp, "ChartSettings") <- list(TemplateSeries = rep(list(list(ShowDataLabels = FALSE)), NCOL(psm.dat)))
+    # A ChartWarning makes Displayr export an image instead and show the warning. Match Displayr only
+    # does so when the warning contains "It will be exported to PowerPoint as an image".
+    if (output == "Likelihood to buy and Revenue")
+        attr(pp, "ChartWarning") <- paste("The secondary values axis cannot be exported to PowerPoint.",
+            "It will be exported to PowerPoint as an image.",
+            "Set 'PowerPoint Export > Format' to 'Microsoft Chart' and select a",
+            "supported chart type or set the export format to 'Image' to",
+            "suppress this warning.")
     return(pp)
 }
 
