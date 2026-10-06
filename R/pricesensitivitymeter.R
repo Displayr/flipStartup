@@ -410,6 +410,10 @@ PriceSensitivityMeter <- function(x,
     # Once ChartSettings is present, Displayr shows data labels on each series unless they are turned off.
     export.args$data.label.show <- FALSE
     names(export.args) <- sub("^y\\.", "values.", sub("^x\\.", "categories.", names(export.args)))
+    # Displayr rejects the whole export when any colour in ChartSettings isn't a string
+    for (nm in grep("color$", names(export.args), value = TRUE))
+        if (!is.character(export.args[[nm]]))
+            export.args[[nm]] <- global.font.color
     pp <- AppendExportAttributes(pp, "Line", export.args, export.data)
     # A ChartWarning makes Displayr export an image instead and show the warning. Match Displayr only
     # does so when the warning contains "It will be exported to PowerPoint as an image".

@@ -326,3 +326,11 @@ test_that("The optimal price label is exported on the row with the highest value
         expect_true(startsWith(points[[1]]$Segments[[1]]$Text, "Optimal price"), info = output)
     }
 })
+
+test_that("A colour that isn't a string is replaced so the export still loads",
+{
+    psm <- PriceSensitivityMeter(dat, x.line.width = 1, x.line.color = 26, y.line.color = 26)
+    settings <- attr(psm, "ChartSettings")
+    expect_true(is.character(settings$PrimaryAxis$AxisLine$Color))
+    expect_true(is.character(settings$ValueAxis$AxisLine$Color))
+})
