@@ -152,8 +152,8 @@ PriceSensitivityMeter <- function(x,
                          "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
                          "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
 
-    # Displayr draws whole pixel sizes, but the export converts back to points, so it keeps the exact size
-    px.per.unit <- if (tolower(font.units) %in% c("pt", "point", "points")) 1.3333 else 1
+    # The chart is drawn at whole pixel sizes; the export converts back to points, so it takes the unrounded size
+    px.per.unit <- if (tolower(font.units) %in% c("pt", "point", "points")) 4 / 3 else 1
     export.font.sizes <- lapply(list(title = title.font.size, legend = legend.font.size,
                                      x.title = x.title.font.size, x.tick = x.tick.font.size,
                                      y.title = y.title.font.size, y.tick = y.tick.font.size,
@@ -443,7 +443,7 @@ PriceSensitivityMeter <- function(x,
     markers.shown <- identical(attr(pp, "ChartType"), "Line Markers")
     pp <- AppendExportAttributes(pp, "Line", export.args, export.data)
     attr(pp, "ChartType") <- if (markers.shown) "X Y Scatter Lines" else "X Y Scatter Lines No Markers"
-    # On a scatter chart, Displayr draws markers wherever a series has a marker style
+    # An exported scatter chart draws markers wherever a series has a marker style
     if (!markers.shown)
         attr(pp, "ChartSettings")$TemplateSeries <- lapply(attr(pp, "ChartSettings")$TemplateSeries,
             function(s) { s$Marker$Style <- "None"; s })
@@ -462,10 +462,8 @@ PriceSensitivityMeter <- function(x,
     return(pp)
 }
 
-# Chart data for a PowerPoint scatter chart: one row per point, with the series in the
-# third column, so prices sit on a numeric axis. PowerPoint can only label a data point,
+# Long-format data for a PowerPoint scatter chart. PowerPoint can only label a data point,
 # so a label between two observed prices adds its point to the series it labels.
-# Returns the data and, for each label, its row.
 scatterChartData <- function(chart.data, prices, label.series, label.points)
 {
     series.names <- colnames(chart.data)

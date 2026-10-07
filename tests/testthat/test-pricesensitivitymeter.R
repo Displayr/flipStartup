@@ -293,6 +293,24 @@ test_that("The export is a scatter chart with straight lines, so prices sit on a
     settings <- attr(psm, "ChartSettings")
     expect_true(all(vapply(settings$TemplateSeries, function(s) identical(s$Marker$Style, "None"), logical(1))))
     expect_equal(settings$PrimaryAxis$Maximum, max(chart.data$Price))
+
+    with.markers <- PriceSensitivityMeter(dat, marker.show = TRUE)
+    expect_equal(attr(with.markers, "ChartType"), "X Y Scatter Lines")
+    expect_false(any(vapply(attr(with.markers, "ChartSettings")$TemplateSeries,
+                            function(s) identical(s$Marker$Style, "None"), logical(1))))
+})
+
+test_that("The two-axis output exports both lines, each labelled at its highest point",
+{
+    psm <- PriceSensitivityMeter(data.with.likelihoods, output = "Likelihood to buy and Revenue")
+    chart.data <- attr(psm, "ChartData")
+    for (s in 1:2)
+    {
+        series <- levels(chart.data$Series)[s]
+        point <- attr(psm, "ChartLabels")$SeriesLabels[[s]]$CustomPoints[[1]]
+        rows <- which(chart.data$Series == series)
+        expect_equal(point$Index + 1, rows[which.max(chart.data$Value[rows])], info = series)
+    }
 })
 
 test_that("Font sizes given in points export at the same size",
