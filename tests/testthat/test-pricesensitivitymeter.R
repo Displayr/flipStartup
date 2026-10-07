@@ -246,3 +246,13 @@ test_that("ChartSettings hides data labels on every exported series",
                      "Likelihood to buy and Revenue"))
         expectLabelsHidden(PriceSensitivityMeter(data.with.likelihoods, output = output), output)
 })
+
+test_that("Only the two-axis output warns that it will export as an image",
+{
+    two.axes <- PriceSensitivityMeter(data.with.likelihoods, output = "Likelihood to buy and Revenue")
+    expect_match(attr(two.axes, "ChartWarning"), "It will be exported to PowerPoint as an image", fixed = TRUE)
+    expect_null(attr(PriceSensitivityMeter(dat), "ChartWarning"))
+    for (output in c("Attitude of respondents", "Likelihood to buy", "Revenue"))
+        expect_null(attr(PriceSensitivityMeter(data.with.likelihoods, output = output), "ChartWarning"),
+                    info = output)
+})
