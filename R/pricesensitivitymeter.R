@@ -398,12 +398,15 @@ PriceSensitivityMeter <- function(x,
                                                            export.labels, label.fonts, label.positions)
     }
     attr(pp, "ChartData") <- export.data
-    # AppendExportAttributes reads `args$title`, which partially matches `title.font.size` when no title is given
-    export.args <- modifyList(list(title = "",
-                                   colors = rep_len(colors, n.series),
+    # Fonts default to the global font, as they do in the chart Displayr draws; `...` overrides them
+    export.args <- modifyList(list(colors = rep_len(colors, n.series),
                                    line.type = paste(titleCase(rep_len(line.type, n.series)), collapse = ", "),
                                    line.thickness = paste(rep_len(line.thickness, n.series), collapse = ", "),
                                    global.font.family = global.font.family, global.font.color = global.font.color,
+                                   title.font.family = global.font.family, title.font.color = global.font.color,
+                                   legend.font.family = global.font.family, legend.font.color = global.font.color,
+                                   x.title.font.family = global.font.family, x.title.font.color = global.font.color,
+                                   x.tick.font.family = global.font.family, x.tick.font.color = global.font.color,
                                    title.font.size = title.font.size, legend.font.size = legend.font.size,
                                    data.label.font.family = intersection.label.font.family,
                                    data.label.font.color = intersection.label.font.color,
@@ -419,10 +422,11 @@ PriceSensitivityMeter <- function(x,
     # Once ChartSettings is present, Displayr shows data labels on each series unless they are turned off.
     export.args$data.label.show <- FALSE
     names(export.args) <- sub("^y\\.", "values.", sub("^x\\.", "categories.", names(export.args)))
-    # Displayr rejects the whole export when any colour in ChartSettings isn't a string
+    # Displayr rejects the whole export when any colour in ChartSettings isn't a single string
+    fallback.color <- if (isSingleString(global.font.color)) global.font.color else "#2C2C2C"
     for (nm in grep("color$", names(export.args), value = TRUE))
-        if (!is.character(export.args[[nm]]))
-            export.args[[nm]] <- global.font.color
+        if (!isSingleString(export.args[[nm]]))
+            export.args[[nm]] <- fallback.color
     # Proportions stop at 100% in Displayr, where PowerPoint would pad the axis to 120%
     if (output == "Attitude of respondents" && !any(nzchar(export.args[["values.bounds.maximum"]])))
         export.args[["values.bounds.maximum"]] <- 1
@@ -495,6 +499,8 @@ newPriceNames <- function(new.prices, prices, decimals)
     nms[clash] <- as.character(signif(new.prices[clash], 6))
     nms
 }
+
+isSingleString <- function(x) is.character(x) && length(x) == 1 && !is.na(x) && nzchar(x)
 
 titleCase <- function(x) paste0(toupper(substring(x, 1, 1)), tolower(substring(x, 2)))
 

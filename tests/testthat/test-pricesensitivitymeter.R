@@ -405,3 +405,20 @@ test_that("The export places labels, legend and axis range as Displayr draws the
     expect_equal(attr(PriceSensitivityMeter(dat, y.bounds.maximum = 0.8), "ChartSettings")$ValueAxis$Maximum, 0.8)
     expect_null(attr(PriceSensitivityMeter(data.with.likelihoods, output = "Revenue"), "ChartSettings")$ValueAxis$Maximum)
 })
+
+test_that("Exported fonts default to the global font",
+{
+    settings <- attr(PriceSensitivityMeter(dat, global.font.family = "Courier New", global.font.color = "#123456"),
+                     "ChartSettings")
+    expect_equal(settings$ChartTitleFont$family, "Courier New")
+    expect_equal(settings$Legend$Font$family, "Courier New")
+    expect_equal(settings$PrimaryAxis$TitleFont$family, "Courier New")
+    expect_equal(settings$PrimaryAxis$LabelsFont$color, "#123456")
+})
+
+test_that("Only a single non-empty string counts as a colour",
+{
+    expect_true(isSingleString("#FF0000"))
+    for (bad in list(26, NA_character_, character(0), c("#FF0000", "#00FF00"), "", NULL))
+        expect_false(isSingleString(bad), info = deparse(bad))
+})
