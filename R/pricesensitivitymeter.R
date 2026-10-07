@@ -52,7 +52,6 @@
 #' @importFrom plotly layout config add_trace
 #' @importFrom flipStandardCharts Line autoFormatLongLabels charToNumeric
 #' @importFrom flipChart AppendExportAttributes
-#' @importFrom stats approx
 #' @importFrom utils modifyList
 #' @importFrom flipU ConvertCommaSeparatedStringToVector StopForUserError
 #' @importFrom verbs Sum SumEmptyHandling
@@ -153,6 +152,14 @@ PriceSensitivityMeter <- function(x,
                          "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
                          "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
 
+    # Displayr draws whole pixel sizes, but the export converts back to points, so it keeps the exact size
+    px.per.unit <- if (tolower(font.units) %in% c("pt", "point", "points")) 1.3333 else 1
+    export.font.sizes <- lapply(list(title = title.font.size, legend = legend.font.size,
+                                     x.title = x.title.font.size, x.tick = x.tick.font.size,
+                                     y.title = y.title.font.size, y.tick = y.tick.font.size,
+                                     intersection = intersection.label.font.size),
+                                function(size) px.per.unit * size)
+
     # For the standard charts, the font size conversion happens inside flipChart::CChart
     if (tolower(font.units) %in% c("pt", "point", "points"))
     {
@@ -215,7 +222,7 @@ PriceSensitivityMeter <- function(x,
     }
 
     intersect.pts <- NULL
-    # The column of the exported chart data that each intersection label is attached to
+    # The exported series that each intersection label is attached to
     intersect.series <- NULL
     intersect.label.format <- "%.0f%%"
     if (grepl("Likelihood", output, fixed = TRUE))
@@ -381,23 +388,21 @@ PriceSensitivityMeter <- function(x,
                                          axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
     export.data <- if (output == "Likelihood to buy and Revenue") psm.dat[, 5:6, drop = FALSE] else plot.data
     n.series <- NCOL(export.data)
+    scatter <- scatterChartData(export.data, xpts, intersect.series, intersect.pts)
     if (NROW(intersect.pts) > 0)
     {
-        with.intersections <- addIntersectionRows(export.data, xpts, intersect.pts[, 1],
-                                                  intersection.label.decimals)
-        export.data <- with.intersections$data
         label.colors <- if (output == "Likelihood to buy and Revenue") colors[seq_along(intersect.labels)]
                         else rep(intersection.label.font.color, length(intersect.labels))
         label.fonts <- lapply(label.colors, function(color) list(family = intersection.label.font.family,
-                              size = 0.75 * intersection.label.font.size, color = color))
+                              size = 0.75 * export.font.sizes$intersection, color = color))
         # The side of the point each label is offset to in Displayr; plotly's ay is positive downwards
         label.positions <- ifelse(intersect.ax < 0, "Left", ifelse(intersect.ax > 0, "Right",
                                   ifelse(intersect.ay < 0, "Top", "Bottom")))
         export.labels <- gsub("<br\\s*/?>", "\n", wrapped.labels, ignore.case = TRUE)
-        attr(pp, "ChartLabels") <- intersectionChartLabels(n.series, with.intersections$rows, intersect.series,
+        attr(pp, "ChartLabels") <- intersectionChartLabels(n.series, scatter$rows, intersect.series,
                                                            export.labels, label.fonts, label.positions)
     }
-    attr(pp, "ChartData") <- export.data
+    attr(pp, "ChartData") <- scatter$data
     # Fonts default to the global font, as they do in the chart Displayr draws; `...` overrides them
     export.args <- modifyList(list(colors = rep_len(colors, n.series),
                                    line.type = paste(titleCase(rep_len(line.type, n.series)), collapse = ", "),
@@ -407,16 +412,17 @@ PriceSensitivityMeter <- function(x,
                                    legend.font.family = global.font.family, legend.font.color = global.font.color,
                                    x.title.font.family = global.font.family, x.title.font.color = global.font.color,
                                    x.tick.font.family = global.font.family, x.tick.font.color = global.font.color,
-                                   title.font.size = title.font.size, legend.font.size = legend.font.size,
+                                   title.font.size = export.font.sizes$title,
+                                   legend.font.size = export.font.sizes$legend,
                                    data.label.font.family = intersection.label.font.family,
                                    data.label.font.color = intersection.label.font.color,
-                                   data.label.font.size = intersection.label.font.size,
-                                   x.title = x.title, x.title.font.size = x.title.font.size,
-                                   x.tick.font.size = x.tick.font.size, x.tick.prefix = x.tick.prefix,
-                                   y.title = y.title, y.title.font.size = y.title.font.size,
+                                   data.label.font.size = export.font.sizes$intersection,
+                                   x.title = x.title, x.title.font.size = export.font.sizes$x.title,
+                                   x.tick.font.size = export.font.sizes$x.tick, x.tick.prefix = x.tick.prefix,
+                                   y.title = y.title, y.title.font.size = export.font.sizes$y.title,
                                    y.title.font.family = y.title.font.family,
                                    y.title.font.color = y.title.font.color,
-                                   y.tick.format = y.tick.format, y.tick.font.size = y.tick.font.size,
+                                   y.tick.format = y.tick.format, y.tick.font.size = export.font.sizes$y.tick,
                                    y.tick.font.family = y.tick.font.family, y.tick.font.color = y.tick.font.color),
                               list(...))
     # Once ChartSettings is present, Displayr shows data labels on each series unless they are turned off.
@@ -430,7 +436,17 @@ PriceSensitivityMeter <- function(x,
     # Proportions stop at 100% in Displayr, where PowerPoint would pad the axis to 120%
     if (output == "Attitude of respondents" && !any(nzchar(export.args[["values.bounds.maximum"]])))
         export.args[["values.bounds.maximum"]] <- 1
+    # Displayr's price axis ends at the highest price, where PowerPoint would round it up
+    if (!any(nzchar(export.args[["categories.bounds.maximum"]])))
+        export.args[["categories.bounds.maximum"]] <- max(xpts)
+    # The "Scatter" settings would draw no lines, so the settings are built for a line chart
+    markers.shown <- identical(attr(pp, "ChartType"), "Line Markers")
     pp <- AppendExportAttributes(pp, "Line", export.args, export.data)
+    attr(pp, "ChartType") <- if (markers.shown) "X Y Scatter Lines" else "X Y Scatter Lines No Markers"
+    # On a scatter chart, Displayr draws markers wherever a series has a marker style
+    if (!markers.shown)
+        attr(pp, "ChartSettings")$TemplateSeries <- lapply(attr(pp, "ChartSettings")$TemplateSeries,
+            function(s) { s$Marker$Style <- "None"; s })
     # Displayr draws the legend at the top right unless it has been moved
     if (identical(attr(pp, "ChartSettings")$Legend$Position, "Right") &&
         is.null(export.args[["legend.position.x"]]) && is.null(export.args[["legend.position.y"]]))
@@ -446,33 +462,36 @@ PriceSensitivityMeter <- function(x,
     return(pp)
 }
 
-# PowerPoint can only label a data point, so a label price that falls between two
-# observed prices gets its own row, with every series interpolated at that price.
-addIntersectionRows <- function(chart.data, prices, label.prices, decimals)
+# Chart data for a PowerPoint scatter chart: one row per point, with the series in the
+# third column, so prices sit on a numeric axis. PowerPoint can only label a data point,
+# so a label between two observed prices adds its point to the series it labels.
+# Returns the data and, for each label, its row.
+scatterChartData <- function(chart.data, prices, label.series, label.points)
 {
-    is.new <- vapply(label.prices, function(p) all(abs(prices - p) > 1e-9), logical(1))
-    new.prices <- unique(label.prices[is.new])
-    all.prices <- prices
-    if (length(new.prices) > 0)
+    series.names <- colnames(chart.data)
+    blocks <- lapply(seq_len(NCOL(chart.data)), function(j)
     {
-        interpolate <- function(y)
-        {
-            if (sum(is.finite(y)) < 2)
-                return(rep(NA_real_, length(new.prices)))
-            approx(prices, y, xout = new.prices)$y
-        }
-        new.rows <- matrix(vapply(seq_len(NCOL(chart.data)), function(j) interpolate(chart.data[, j]),
-                                  numeric(length(new.prices))),
-                           ncol = NCOL(chart.data), dimnames = list(newPriceNames(new.prices, prices, decimals), NULL))
-        all.prices <- c(prices, new.prices)
-        ord <- order(all.prices)
-        dim.names <- names(dimnames(chart.data))
-        chart.data <- rbind(chart.data, new.rows)[ord, , drop = FALSE]
-        names(dimnames(chart.data)) <- dim.names
-        all.prices <- all.prices[ord]
-    }
-    rows <- vapply(label.prices, function(p) which.min(abs(all.prices - p)), integer(1), USE.NAMES = FALSE)
-    list(data = chart.data, rows = rows)
+        x <- prices
+        y <- chart.data[, j]
+        for (i in which(label.series == j))
+            if (all(abs(x - label.points[i, 1]) > 1e-9))
+            {
+                x <- c(x, label.points[i, 1])
+                y <- c(y, label.points[i, 2])
+            }
+        ord <- order(x)
+        data.frame(Price = x[ord], Value = y[ord], Series = series.names[j], stringsAsFactors = FALSE)
+    })
+    data <- do.call(rbind, blocks)
+    rownames(data) <- NULL
+    # Displayr orders the series by the levels of the series column
+    data$Series <- factor(data$Series, levels = series.names)
+    attr(data, "scatter.variable.indices") <- c(x = 1, y = 2, sizes = NA, colors = 3)
+    first.row <- cumsum(c(0, vapply(blocks, NROW, 0L)))
+    rows <- vapply(seq_along(label.series), function(i)
+        first.row[label.series[i]] + which.min(abs(blocks[[label.series[i]]]$Price - label.points[i, 1])),
+        numeric(1))
+    list(data = data, rows = rows)
 }
 
 # Labels each intersection on its row of the exported chart data, using the same
@@ -489,15 +508,6 @@ intersectionChartLabels <- function(n.series, rows, series, labels, fonts, posit
                  Segments = list(list(Text = labels[i]))))
     }
     list(SeriesLabels = series.labels)
-}
-
-# Category names for inserted prices, with more precision where rounding would repeat a name
-newPriceNames <- function(new.prices, prices, decimals)
-{
-    nms <- as.character(round(new.prices, decimals))
-    clash <- nms %in% as.character(prices) | duplicated(nms)
-    nms[clash] <- as.character(signif(new.prices[clash], 6))
-    nms
 }
 
 isSingleString <- function(x) is.character(x) && length(x) == 1 && !is.na(x) && nzchar(x)
