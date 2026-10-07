@@ -281,7 +281,7 @@ test_that("Axis titles are exported",
                  "Revenue")
     expect_null(labels$ChartTitle)
     expect_false(attr(PriceSensitivityMeter(dat), "ChartSettings")$ShowChartTitle)
-    expect_equal(attr(PriceSensitivityMeter(dat, title = "Price check"), "ChartLabels")$ChartTitle, "Price check")
+    expect_equal(attr(PriceSensitivityMeter(dat, title = "Price check", title.font.size = 16), "ChartLabels")$ChartTitle, "Price check")
 })
 
 test_that("Each intersection label is exported on a row at its price, where its two lines meet",
@@ -299,7 +299,7 @@ test_that("Each intersection label is exported on a row at its price, where its 
     for (s in seq_along(series.labels))
         for (point in series.labels[[s]]$CustomPoints)
         {
-            text <- point$Segments[[1]]$Text
+            text <- gsub("\n", " ", point$Segments[[1]]$Text, fixed = TRUE)
             lines <- crossing.lines[[which(startsWith(text, names(crossing.lines)))]]
             row <- point$Index + 1
             expect_equal(s, lines[1], info = text)
@@ -382,4 +382,26 @@ test_that("The export loads in Displayr with the arguments the Standard R plugin
         expectLoadableByDisplayr(attr(psm, "ChartSettings"), paste(output, "ChartSettings"))
         expectLoadableByDisplayr(attr(psm, "ChartLabels"), paste(output, "ChartLabels"))
     }
+})
+
+test_that("The export places labels, legend and axis range as Displayr draws them",
+{
+    attitude <- PriceSensitivityMeter(dat, intersection.label.wrap = TRUE, intersection.label.wrap.nchar = 21)
+    expect_equal(attr(attitude, "ChartSettings")$ValueAxis$Maximum, 1)
+    expect_equal(attr(attitude, "ChartSettings")$Legend$Position, "TopRight")
+    points <- unlist(lapply(attr(attitude, "ChartLabels")$SeriesLabels, `[[`, "CustomPoints"), recursive = FALSE)
+    texts <- vapply(points, function(p) gsub("\n", " ", p$Segments[[1]]$Text), "")
+    positions <- vapply(points, `[[`, "", "Position")
+    expected <- c("Point of marginal cheapness" = "Left", "Optimal price point" = "Top",
+                  "Indifference price point" = "Top", "Point of marginal expensiveness" = "Right")
+    for (label in names(expected))
+        expect_equal(positions[startsWith(texts, label)], expected[[label]], info = label)
+    raw.texts <- vapply(points, function(p) p$Segments[[1]]$Text, "")
+    expect_true(any(grepl("\n", raw.texts, fixed = TRUE)))
+    expect_false(any(grepl("<br>", raw.texts, fixed = TRUE)))
+
+    moved <- PriceSensitivityMeter(dat, legend.position.x = 0.5, legend.position.y = 0.5)
+    expect_equal(attr(moved, "ChartSettings")$Legend$Position, "Right")
+    expect_equal(attr(PriceSensitivityMeter(dat, y.bounds.maximum = 0.8), "ChartSettings")$ValueAxis$Maximum, 0.8)
+    expect_null(attr(PriceSensitivityMeter(data.with.likelihoods, output = "Revenue"), "ChartSettings")$ValueAxis$Maximum)
 })

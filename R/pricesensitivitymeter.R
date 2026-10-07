@@ -343,6 +343,7 @@ PriceSensitivityMeter <- function(x,
     }
 
     intersect.labels <- character(NROW(intersect.pts))
+    wrapped.labels <- intersect.labels
     if (NROW(intersect.pts) > 0)
     {
         annot <- list()
@@ -357,6 +358,8 @@ PriceSensitivityMeter <- function(x,
                 tmp.ylab <- sprintf("%.0f%%", intersect.pts[i,2] * 100)
             intersect.labels[i] <- sprintf(paste0("%s %s%.", intersection.label.decimals, "f", " (%s)"),
                 rownames(intersect.pts)[i], currency, intersect.pts[i,1], tmp.ylab)
+            wrapped.labels[i] <- autoFormatLongLabels(intersect.labels[i],
+                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)
 
             annot[[i]] = list(xref = "x",
                             yref = if (output == "Likelihood to buy and Revenue" && i == 2) "y2" else "y",
@@ -367,8 +370,7 @@ PriceSensitivityMeter <- function(x,
                             ayref = "pixel", ay = intersect.ay[i],
                             font = list(family = intersection.label.font.family,
                             color = tmp.font.color, size = intersection.label.font.size),
-                            text = autoFormatLongLabels(intersect.labels[i],
-                            wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
+                            text = wrapped.labels[i])
         }
         pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
     }
@@ -388,8 +390,12 @@ PriceSensitivityMeter <- function(x,
                         else rep(intersection.label.font.color, length(intersect.labels))
         label.fonts <- lapply(label.colors, function(color) list(family = intersection.label.font.family,
                               size = 0.75 * intersection.label.font.size, color = color))
-        attr(pp, "ChartLabels") <- intersectionChartLabels(n.series, with.intersections$rows,
-                                                           intersect.series, intersect.labels, label.fonts)
+        # The side of the point each label is offset to in Displayr; plotly's ay is positive downwards
+        label.positions <- ifelse(intersect.ax < 0, "Left", ifelse(intersect.ax > 0, "Right",
+                                  ifelse(intersect.ay < 0, "Top", "Bottom")))
+        export.labels <- gsub("<br\\s*/?>", "\n", wrapped.labels, ignore.case = TRUE)
+        attr(pp, "ChartLabels") <- intersectionChartLabels(n.series, with.intersections$rows, intersect.series,
+                                                           export.labels, label.fonts, label.positions)
     }
     attr(pp, "ChartData") <- export.data
     # AppendExportAttributes reads `args$title`, which partially matches `title.font.size` when no title is given
@@ -417,7 +423,14 @@ PriceSensitivityMeter <- function(x,
     for (nm in grep("color$", names(export.args), value = TRUE))
         if (!is.character(export.args[[nm]]))
             export.args[[nm]] <- global.font.color
+    # Proportions stop at 100% in Displayr, where PowerPoint would pad the axis to 120%
+    if (output == "Attitude of respondents" && !any(nzchar(export.args[["values.bounds.maximum"]])))
+        export.args[["values.bounds.maximum"]] <- 1
     pp <- AppendExportAttributes(pp, "Line", export.args, export.data)
+    # Displayr draws the legend at the top right unless it has been moved
+    if (identical(attr(pp, "ChartSettings")$Legend$Position, "Right") &&
+        is.null(export.args[["legend.position.x"]]) && is.null(export.args[["legend.position.y"]]))
+        attr(pp, "ChartSettings")$Legend$Position <- "TopRight"
     # A ChartWarning makes Displayr export an image instead and show the warning. Match Displayr only
     # does so when the warning contains "It will be exported to PowerPoint as an image".
     if (output == "Likelihood to buy and Revenue")
@@ -460,7 +473,7 @@ addIntersectionRows <- function(chart.data, prices, label.prices, decimals)
 
 # Labels each intersection on its row of the exported chart data, using the same
 # text and font as the label drawn in Displayr.
-intersectionChartLabels <- function(n.series, rows, series, labels, fonts)
+intersectionChartLabels <- function(n.series, rows, series, labels, fonts, positions)
 {
     series.labels <- rep(list(list(ShowValue = FALSE)), n.series)
     for (s in unique(series))
@@ -468,7 +481,8 @@ intersectionChartLabels <- function(n.series, rows, series, labels, fonts)
         ind <- which(series == s)
         ind <- ind[order(rows[ind])]
         series.labels[[s]]$CustomPoints <- lapply(ind, function(i)
-            list(Index = rows[i] - 1, Font = fonts[[i]], Segments = list(list(Text = labels[i]))))
+            list(Index = rows[i] - 1, Position = positions[i], Font = fonts[[i]],
+                 Segments = list(list(Text = labels[i]))))
     }
     list(SeriesLabels = series.labels)
 }
