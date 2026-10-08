@@ -51,6 +51,8 @@
 #' @importFrom grDevices rgb
 #' @importFrom plotly layout config add_trace
 #' @importFrom flipStandardCharts Line autoFormatLongLabels charToNumeric
+#' @importFrom flipChart AppendExportAttributes
+#' @importFrom utils modifyList
 #' @importFrom flipU ConvertCommaSeparatedStringToVector StopForUserError
 #' @importFrom verbs Sum SumEmptyHandling
 #' @export
@@ -150,6 +152,14 @@ PriceSensitivityMeter <- function(x,
                          "Prices considered 'Too cheap', 'Cheap', 'Expensive', 'Too expensive' ",
                          "and likehood of buying when the price is 'Cheap' and 'Expensive'.")
 
+    # The chart is drawn at whole pixel sizes; the export converts back to points, so it takes the unrounded size
+    px.per.unit <- if (tolower(font.units) %in% c("pt", "point", "points")) 4 / 3 else 1
+    export.font.sizes <- lapply(list(title = title.font.size, legend = legend.font.size,
+                                     x.title = x.title.font.size, x.tick = x.tick.font.size,
+                                     y.title = y.title.font.size, y.tick = y.tick.font.size,
+                                     intersection = intersection.label.font.size),
+                                function(size) px.per.unit * size)
+
     # For the standard charts, the font size conversion happens inside flipChart::CChart
     if (tolower(font.units) %in% c("pt", "point", "points"))
     {
@@ -212,6 +222,8 @@ PriceSensitivityMeter <- function(x,
     }
 
     intersect.pts <- NULL
+    # The exported series that each intersection label is attached to
+    intersect.series <- NULL
     intersect.label.format <- "%.0f%%"
     if (grepl("Likelihood", output, fixed = TRUE))
     {
@@ -226,6 +238,7 @@ PriceSensitivityMeter <- function(x,
             ind.max.trial <- which.max(trial)
             intersect.pts <- matrix(c(xpts[ind.max.trial], trial[ind.max.trial]), 1, 2,
                 dimnames = list("Optimal price", c("X", "Y")))
+            intersect.series <- 1
             intersect.ax <- 10 * intersection.arrow.length
             intersect.ay <- -2 * intersection.arrow.length
             intersect.label.format <- "%.0f%%"
@@ -244,6 +257,7 @@ PriceSensitivityMeter <- function(x,
             ind.max.revenue <- which.max(revenue)
             intersect.pts <- matrix(c(xpts[ind.max.revenue], revenue[ind.max.revenue]), 1, 2,
                 dimnames = list("Optimal price", c("X", "Y")))
+            intersect.series <- 1
             intersect.ax <- 10 * intersection.arrow.length
             intersect.ay <- -2 * intersection.arrow.length
             intersect.label.format <- paste0(currency, "%.2f")
@@ -265,12 +279,14 @@ PriceSensitivityMeter <- function(x,
             intersect.pts[4,] <- getIntersect(psm.dat[,4], psm.dat[,2], xpts)
             rownames(intersect.pts) <- c("Point of marginal cheapness", "Optimal price point",
                                        "Indifference price point", "Point of marginal expensiveness")
+            intersect.series <- c(3, 4, 3, 4)
             intersect.ax <- c(-10, 0, 0, 10) * intersection.arrow.length
             intersect.ay <- c(2, -5, -5, 2) * intersection.arrow.length
             ind.na <- which(is.na(intersect.pts[,1]) | is.na(intersect.pts[,2]))
             if (length(ind.na) > 0)
             {
                 intersect.pts <- intersect.pts[-ind.na,, drop = FALSE]
+                intersect.series <- intersect.series[-ind.na]
                 intersect.ax <- intersect.ax[-ind.na]
                 intersect.ay <- intersect.ay[-ind.na]
                 intersect.label.format <- "%.0f%%"
@@ -326,12 +342,15 @@ PriceSensitivityMeter <- function(x,
             ind.max.revenue <- which.max(revenue)
             intersect.pts <- rbind(intersect.pts, c(xpts[ind.max.revenue], revenue[ind.max.revenue]))
             rownames(intersect.pts) <- c("Price to maximise trial", "Price to maximise revenue")
+            intersect.series <- c(1, 2)
             intersect.ax <- c(-10, 10) * intersection.arrow.length
             intersect.ay <- c(0,0) * intersection.arrow.length
             intersect.label.format <- c("%.0f%%")
         }
     }
 
+    intersect.labels <- character(NROW(intersect.pts))
+    wrapped.labels <- intersect.labels
     if (NROW(intersect.pts) > 0)
     {
         annot <- list()
@@ -344,6 +363,10 @@ PriceSensitivityMeter <- function(x,
                 tmp.ylab <- sprintf("%s%.2f", currency, intersect.pts[i,2])
             else
                 tmp.ylab <- sprintf("%.0f%%", intersect.pts[i,2] * 100)
+            intersect.labels[i] <- sprintf(paste0("%s %s%.", intersection.label.decimals, "f", " (%s)"),
+                rownames(intersect.pts)[i], currency, intersect.pts[i,1], tmp.ylab)
+            wrapped.labels[i] <- autoFormatLongLabels(intersect.labels[i],
+                wordwrap = intersection.label.wrap, intersection.label.wrap.nchar)
 
             annot[[i]] = list(xref = "x",
                             yref = if (output == "Likelihood to buy and Revenue" && i == 2) "y2" else "y",
@@ -354,10 +377,7 @@ PriceSensitivityMeter <- function(x,
                             ayref = "pixel", ay = intersect.ay[i],
                             font = list(family = intersection.label.font.family,
                             color = tmp.font.color, size = intersection.label.font.size),
-                            text = autoFormatLongLabels(sprintf(paste0("%s %s%.",
-                            intersection.label.decimals, "f", " (%s)"),
-                            rownames(intersect.pts)[i], currency, intersect.pts[i,1], tmp.ylab),
-                            wordwrap = intersection.label.wrap, intersection.label.wrap.nchar))
+                            text = wrapped.labels[i])
         }
         pp$htmlwidget <- layout(pp$htmlwidget, annotations = annot)
     }
@@ -366,10 +386,71 @@ PriceSensitivityMeter <- function(x,
     pp$htmlwidget <- config(pp$htmlwidget, editable = TRUE,
                             edits = list(annotationPosition = FALSE, annotationText = FALSE,
                                          axisTitleText = FALSE, titleText = FALSE, legendText = FALSE))
-    attr(pp, "ChartData") <- psm.dat
-    # ChartSettings lets Displayr export an editable chart when the PowerPoint format is Default.
-    # Once ChartSettings is present, Displayr shows data labels on each series unless ShowDataLabels is FALSE.
-    attr(pp, "ChartSettings") <- list(TemplateSeries = rep(list(list(ShowDataLabels = FALSE)), NCOL(psm.dat)))
+    export.data <- if (output == "Likelihood to buy and Revenue") psm.dat[, 5:6, drop = FALSE] else plot.data
+    n.series <- NCOL(export.data)
+    scatter <- scatterChartData(export.data, xpts, intersect.series, intersect.pts)
+    if (NROW(intersect.pts) > 0)
+    {
+        label.colors <- if (output == "Likelihood to buy and Revenue") colors[seq_along(intersect.labels)]
+                        else rep(intersection.label.font.color, length(intersect.labels))
+        label.fonts <- lapply(label.colors, function(color) list(family = intersection.label.font.family,
+                              size = 0.75 * export.font.sizes$intersection, color = color))
+        # The side of the point each label is offset to in Displayr; plotly's ay is positive downwards
+        label.positions <- ifelse(intersect.ax < 0, "Left", ifelse(intersect.ax > 0, "Right",
+                                  ifelse(intersect.ay < 0, "Top", "Bottom")))
+        export.labels <- gsub("<br\\s*/?>", "\n", wrapped.labels, ignore.case = TRUE)
+        attr(pp, "ChartLabels") <- intersectionChartLabels(n.series, scatter$rows, intersect.series,
+                                                           export.labels, label.fonts, label.positions)
+    }
+    attr(pp, "ChartData") <- scatter$data
+    # Fonts default to the global font, as they do in the chart Displayr draws; `...` overrides them
+    export.args <- modifyList(list(colors = rep_len(colors, n.series),
+                                   line.type = paste(titleCase(rep_len(line.type, n.series)), collapse = ", "),
+                                   line.thickness = paste(rep_len(line.thickness, n.series), collapse = ", "),
+                                   global.font.family = global.font.family, global.font.color = global.font.color,
+                                   title.font.family = global.font.family, title.font.color = global.font.color,
+                                   legend.font.family = global.font.family, legend.font.color = global.font.color,
+                                   x.title.font.family = global.font.family, x.title.font.color = global.font.color,
+                                   x.tick.font.family = global.font.family, x.tick.font.color = global.font.color,
+                                   title.font.size = export.font.sizes$title,
+                                   legend.font.size = export.font.sizes$legend,
+                                   data.label.font.family = intersection.label.font.family,
+                                   data.label.font.color = intersection.label.font.color,
+                                   data.label.font.size = export.font.sizes$intersection,
+                                   x.title = x.title, x.title.font.size = export.font.sizes$x.title,
+                                   x.tick.font.size = export.font.sizes$x.tick, x.tick.prefix = x.tick.prefix,
+                                   y.title = y.title, y.title.font.size = export.font.sizes$y.title,
+                                   y.title.font.family = y.title.font.family,
+                                   y.title.font.color = y.title.font.color,
+                                   y.tick.format = y.tick.format, y.tick.font.size = export.font.sizes$y.tick,
+                                   y.tick.font.family = y.tick.font.family, y.tick.font.color = y.tick.font.color),
+                              list(...))
+    # Once ChartSettings is present, Displayr shows data labels on each series unless they are turned off.
+    export.args$data.label.show <- FALSE
+    names(export.args) <- sub("^y\\.", "values.", sub("^x\\.", "categories.", names(export.args)))
+    # Displayr rejects the whole export when any colour in ChartSettings isn't a single string
+    fallback.color <- if (isSingleString(global.font.color)) global.font.color else "#2C2C2C"
+    for (nm in grep("color$", names(export.args), value = TRUE))
+        if (!isSingleString(export.args[[nm]]))
+            export.args[[nm]] <- fallback.color
+    # Proportions stop at 100% in Displayr, where PowerPoint would pad the axis to 120%
+    if (output == "Attitude of respondents" && !any(nzchar(export.args[["values.bounds.maximum"]])))
+        export.args[["values.bounds.maximum"]] <- 1
+    # Displayr's price axis ends at the highest price, where PowerPoint would round it up
+    if (!any(nzchar(export.args[["categories.bounds.maximum"]])))
+        export.args[["categories.bounds.maximum"]] <- max(xpts)
+    # The "Scatter" settings would draw no lines, so the settings are built for a line chart
+    markers.shown <- identical(attr(pp, "ChartType"), "Line Markers")
+    pp <- AppendExportAttributes(pp, "Line", export.args, export.data)
+    attr(pp, "ChartType") <- if (markers.shown) "X Y Scatter Lines" else "X Y Scatter Lines No Markers"
+    # An exported scatter chart draws markers wherever a series has a marker style
+    if (!markers.shown)
+        attr(pp, "ChartSettings")$TemplateSeries <- lapply(attr(pp, "ChartSettings")$TemplateSeries,
+            function(s) { s$Marker$Style <- "None"; s })
+    # Displayr draws the legend at the top right unless it has been moved
+    if (identical(attr(pp, "ChartSettings")$Legend$Position, "Right") &&
+        is.null(export.args[["legend.position.x"]]) && is.null(export.args[["legend.position.y"]]))
+        attr(pp, "ChartSettings")$Legend$Position <- "TopRight"
     # A ChartWarning makes Displayr export an image instead and show the warning. Match Displayr only
     # does so when the warning contains "It will be exported to PowerPoint as an image".
     if (output == "Likelihood to buy and Revenue")
@@ -380,6 +461,56 @@ PriceSensitivityMeter <- function(x,
             "suppress this warning.")
     return(pp)
 }
+
+# Long-format data for a PowerPoint scatter chart. PowerPoint can only label a data point,
+# so a label between two observed prices adds its point to the series it labels.
+scatterChartData <- function(chart.data, prices, label.series, label.points)
+{
+    series.names <- colnames(chart.data)
+    blocks <- lapply(seq_len(NCOL(chart.data)), function(j)
+    {
+        x <- prices
+        y <- chart.data[, j]
+        for (i in which(label.series == j))
+            if (all(abs(x - label.points[i, 1]) > 1e-9))
+            {
+                x <- c(x, label.points[i, 1])
+                y <- c(y, label.points[i, 2])
+            }
+        ord <- order(x)
+        data.frame(Price = x[ord], Value = y[ord], Series = series.names[j], stringsAsFactors = FALSE)
+    })
+    data <- do.call(rbind, blocks)
+    rownames(data) <- NULL
+    # Displayr orders the series by the levels of the series column
+    data$Series <- factor(data$Series, levels = series.names)
+    attr(data, "scatter.variable.indices") <- c(x = 1, y = 2, sizes = NA, colors = 3)
+    first.row <- cumsum(c(0, vapply(blocks, NROW, 0L)))
+    rows <- vapply(seq_along(label.series), function(i)
+        first.row[label.series[i]] + which.min(abs(blocks[[label.series[i]]]$Price - label.points[i, 1])),
+        numeric(1))
+    list(data = data, rows = rows)
+}
+
+# Labels each intersection on its row of the exported chart data, using the same
+# text and font as the label drawn in Displayr.
+intersectionChartLabels <- function(n.series, rows, series, labels, fonts, positions)
+{
+    series.labels <- rep(list(list(ShowValue = FALSE)), n.series)
+    for (s in unique(series))
+    {
+        ind <- which(series == s)
+        ind <- ind[order(rows[ind])]
+        series.labels[[s]]$CustomPoints <- lapply(ind, function(i)
+            list(Index = rows[i] - 1, Position = positions[i], Font = fonts[[i]],
+                 Segments = list(list(Text = labels[i]))))
+    }
+    list(SeriesLabels = series.labels)
+}
+
+isSingleString <- function(x) is.character(x) && length(x) == 1 && !is.na(x) && nzchar(x)
+
+titleCase <- function(x) paste0(toupper(substring(x, 1, 1)), tolower(substring(x, 2)))
 
 # Calculates proportion less than or equal to
 # note that pts is sorted and contains all the values in vals
