@@ -455,8 +455,8 @@ test_that("The export places labels, legend and axis range as Displayr draws the
     expect_true(any(grepl("\n", raw.texts, fixed = TRUE)))
     expect_false(any(grepl("<br>", raw.texts, fixed = TRUE)))
 
-    moved <- PriceSensitivityMeter(dat, legend.position.x = 0.5, legend.position.y = 0.5)
-    expect_equal(attr(moved, "ChartSettings")$Legend$Position, "Right")
+    moved <- PriceSensitivityMeter(dat, legend.position.x = -0.2, legend.position.y = 0.5)
+    expect_equal(attr(moved, "ChartSettings")$Legend$Position, "Left")
     expect_equal(attr(PriceSensitivityMeter(dat, y.bounds.maximum = 0.8), "ChartSettings")$ValueAxis$Maximum, 0.8)
     expect_null(attr(PriceSensitivityMeter(data.with.likelihoods, output = "Revenue"), "ChartSettings")$ValueAxis$Maximum)
 })
